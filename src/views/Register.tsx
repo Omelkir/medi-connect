@@ -3,42 +3,32 @@
 // React Imports
 import { useEffect, useState } from 'react'
 
-// Next Imports
 import Link from 'next/link'
 
-// MUI Imports
-import Card from '@mui/material/Card'
-import CardContent from '@mui/material/CardContent'
 import Typography from '@mui/material/Typography'
 import TextField from '@mui/material/TextField'
 import IconButton from '@mui/material/IconButton'
 import InputAdornment from '@mui/material/InputAdornment'
-import Checkbox from '@mui/material/Checkbox'
 import Button from '@mui/material/Button'
-import FormControlLabel from '@mui/material/FormControlLabel'
-import Divider from '@mui/material/Divider'
 
-// Type Imports
-import type { Mode } from '@core/types'
-
-// Component Imports
-import Illustrations from '@components/Illustrations'
 import Logo from '@components/layout/shared/Logo'
 
-// Hook Imports
-import { useImageVariant } from '@core/hooks/useImageVariant'
 import { FormControl, Input, InputLabel, MenuItem, Select, Grid } from '@mui/material'
-import { Label } from 'recharts/types/component/Label'
 
 const Register = () => {
   // States
+  // Fonction de validation de l'email
+  const mailCheck = (email: any) => !/^[^\s@]+@[^\s@]+\.[a-zA-Z]{2,}$/.test(email)
+
   const [isPasswordShown, setIsPasswordShown] = useState(false)
+  const [isPasswordShown2, setIsPasswordShown2] = useState(false)
 
   const [data, setData] = useState<any>({
     imageSrc: '/img/placeholder-image.jpg',
     image: '',
     email: '',
     mdp: '',
+    conMdp: '',
     role: 0,
     tarif: 0,
     ville: 0,
@@ -78,7 +68,6 @@ const Register = () => {
   const handleImageChange = (e: any) => {
     const file = e.target.files[0]
     if (file) {
-      // Créer une URL pour l'aperçu de l'image
       setData((prev: any) => ({
         ...prev,
         imageSrc: URL.createObjectURL(file) // Prévisualisation de l'image
@@ -100,13 +89,14 @@ const Register = () => {
   const [controls, setControls] = useState<any>({
     email: false,
     mdp: false,
-
+    conMdp: false,
+    emailValid: false,
     role: false,
 
     nom_ut: false
   })
   const options = [
-    { label: 'Admin', value: 1 },
+    { label: 'Utilisateur', value: 1 },
     { label: 'Médecin', value: 2 },
     { label: 'Laboratoire', value: 3 }
   ]
@@ -131,6 +121,7 @@ const Register = () => {
       image: '',
       email: '',
       mdp: '',
+      conMdp: '',
       role: 0,
       tarif: 0,
       ville: 0,
@@ -143,6 +134,7 @@ const Register = () => {
     setControls({
       email: false,
       mdp: false,
+      conMdp: false,
       role: false,
       nom_ut: false
     })
@@ -154,7 +146,9 @@ const Register = () => {
 
       const newControls = {
         email: data.email.trim() === '',
+        emailValid: mailCheck(data.email.trim()),
         mdp: data.mdp.trim() === '',
+        conMdp: data.conMdp.trim() === '',
         nom_ut: data.nom_ut.trim() === '',
         role: data.role === 0
       }
@@ -193,6 +187,8 @@ const Register = () => {
   // Hooks
 
   const handleClickShowPassword = () => setIsPasswordShown(show => !show)
+
+  const handleClickShowPassword2 = () => setIsPasswordShown2(show => !show)
 
   return (
     <div className='flex flex-col w-full md:w-full lg:flex-row min-h-screen items-center justify-center relative h-screen bg-white'>
@@ -241,7 +237,7 @@ const Register = () => {
                   ))}
                 </Select>
               </FormControl>
-              {controls?.role === true ? <span className='errmsg'>Please enter the role !</span> : null}
+              {controls?.role === true ? <span className='errmsg'>Veuillez saisir le type !</span> : null}
             </Grid>
             <Grid item xs={2} md={2}>
               <Input
@@ -297,7 +293,9 @@ const Register = () => {
                   }
                 }}
               />
-              {controls?.nom_ut === true ? <span className='errmsg'>Please enter the user name !</span> : null}
+              {controls?.nom_ut === true ? (
+                <span className='errmsg'>Veuillez saisir le nom d'utilisateur !</span>
+              ) : null}
             </Grid>
             <Grid item xs={data.role == 2 || data.role === 3 ? 6 : 12} md={data.role == 2 || data.role === 3 ? 6 : 12}>
               <TextField
@@ -317,7 +315,7 @@ const Register = () => {
                   }
                 }}
                 value={data?.email ?? ''}
-                className={`${controls?.email === true ? 'isReq' : ''}`}
+                className={`${controls?.email === true || controls.emailValid === true ? 'isReq' : ''}`}
                 onChange={(e: any) => {
                   if (e.target?.value.trim() === '') {
                     setControls({ ...controls, email: true })
@@ -327,6 +325,7 @@ const Register = () => {
                     }))
                   } else {
                     setControls({ ...controls, email: false })
+                    setControls({ ...controls, emailValid: mailCheck(e.target.value.trim()) })
                     setData((prev: any) => ({
                       ...prev,
                       email: e.target.value
@@ -334,13 +333,17 @@ const Register = () => {
                   }
                 }}
               />
-              {controls?.email === true ? <span className='errmsg'>Please enter the email !</span> : null}
+              {controls?.email === true ? (
+                <span className='errmsg'>Veuillez saisir l'email !</span>
+              ) : controls.emailValid === true ? (
+                <span>mail invalid</span>
+              ) : null}
             </Grid>
             <Grid item xs={data.role == 2 || data.role === 3 ? 6 : 12} md={data.role == 2 || data.role === 3 ? 6 : 12}>
               <TextField
                 fullWidth
                 value={data?.mdp ?? ''}
-                label='Password'
+                label='Mot de passe'
                 type={isPasswordShown ? 'text' : 'password'}
                 InputLabelProps={{
                   sx: { fontSize: '1rem' }
@@ -385,7 +388,58 @@ const Register = () => {
                   }
                 }}
               />
-              {controls?.mdp === true ? <span className='errmsg'>Please enter the password !</span> : null}
+              {controls?.mdp === true ? <span className='errmsg'>Veuillez saisir le mot de passe !</span> : null}
+            </Grid>
+            <Grid item xs={data.role == 2 || data.role === 3 ? 6 : 12} md={data.role == 2 || data.role === 3 ? 6 : 12}>
+              <TextField
+                fullWidth
+                value={data?.conMdp ?? ''}
+                label={data.role == 2 || data.role == 3 ? 'Confirmation' : 'Confirmation du mot de passe'}
+                type={isPasswordShown2 ? 'text' : 'password'}
+                InputLabelProps={{
+                  sx: { fontSize: '1rem' }
+                }}
+                className={`${controls?.conMdp === true ? 'isReq' : ''}`}
+                InputProps={{
+                  sx: {
+                    height: 60,
+                    '&.Mui-focused': {
+                      '& + .MuiInputLabel-root': {
+                        fontSize: '1rem'
+                      }
+                    },
+                    paddingRight: 5
+                  },
+                  endAdornment: (
+                    <InputAdornment position='end'>
+                      <IconButton
+                        size='large'
+                        edge='end'
+                        onClick={handleClickShowPassword2}
+                        onMouseDown={e => e.preventDefault()}
+                      >
+                        <i className={isPasswordShown2 ? 'ri-eye-off-line' : 'ri-eye-line'} />
+                      </IconButton>
+                    </InputAdornment>
+                  )
+                }}
+                onChange={(e: any) => {
+                  if (e.target?.value.trim() === '') {
+                    setControls({ ...controls, conMdp: true })
+                    setData((prev: any) => ({
+                      ...prev,
+                      conMdp: e.target.value
+                    }))
+                  } else {
+                    setControls({ ...controls, conMdp: false })
+                    setData((prev: any) => ({
+                      ...prev,
+                      conMdp: e.target.value
+                    }))
+                  }
+                }}
+              />
+              {controls?.conMdp === true ? <span className='errmsg'>Confirmez le mot de passe !</span> : null}
             </Grid>
             {data?.role === 2 ? (
               <Grid item xs={6} md={6}>

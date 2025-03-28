@@ -20,7 +20,7 @@ import Typography from '@mui/material/Typography'
 import Divider from '@mui/material/Divider'
 import MenuItem from '@mui/material/MenuItem'
 import Button from '@mui/material/Button'
-import { deleteStorageData } from '@/utils/helpers'
+import { deleteStorageData, getStorageData } from '@/utils/helpers'
 
 // Styled component for badge content
 const BadgeContentSpan = styled('span')({
@@ -57,7 +57,7 @@ const UserDropdown = () => {
 
     setOpen(false)
   }
-
+  const userData: any = getStorageData('user')
   return (
     <>
       <Badge
@@ -70,7 +70,7 @@ const UserDropdown = () => {
         <Avatar
           ref={anchorRef}
           alt='John Doe'
-          src='/images/avatars/1.png'
+          src={userData?.image ?? '/images/avatars/1.png'}
           onClick={handleDropdownOpen}
           className='cursor-pointer bs-[38px] is-[38px]'
         />
@@ -94,10 +94,10 @@ const UserDropdown = () => {
               <ClickAwayListener onClickAway={e => handleDropdownClose(e as MouseEvent | TouchEvent)}>
                 <MenuList>
                   <div className='flex items-center plb-2 pli-4 gap-2' tabIndex={-1}>
-                    <Avatar alt='John Doe' src='/images/avatars/1.png' />
+                    <Avatar alt='John Doe' src={userData?.image ?? '/images/avatars/1.png'} />
                     <div className='flex items-start flex-col'>
                       <Typography className='font-medium' color='text.primary'>
-                        John Doe
+                        {userData?.nom_ut ?? ''}
                       </Typography>
                       <Typography variant='caption'>Admin</Typography>
                     </div>

@@ -4,27 +4,32 @@ import { useEffect, useState } from 'react'
 import { Modal } from '../ui/modal'
 import { Button, Grid, TextField } from '@mui/material'
 import { toast } from 'react-toastify'
+import { getStorageData } from '@/utils/helpers'
 
 export default function PatientModal({
   isOpen,
   onClose,
-  patientData
+  patientData,
+  setUpdate
 }: {
   isOpen: boolean
   onClose: () => void
   patientData?: any
+  setUpdate: any
 }) {
+  const userData = getStorageData('user')
   const [data, setData] = useState<any>({
     nom: '',
     prenom: '',
     email: '',
-    tel: ''
+    tel: '',
+    id_med: userData.id
   })
   useEffect(() => {
     if (patientData) {
       setData(patientData)
     } else {
-      setData({ nom: '', prenom: '', email: '', tel: '' })
+      setData({ nom: '', prenom: '', email: '', tel: '', id_med: userData.id })
     }
   }, [patientData])
   const [controls, setControls] = useState<any>({
@@ -35,7 +40,7 @@ export default function PatientModal({
   })
 
   const clearForm = () => {
-    setData({ nom: '', prenom: '', email: '', tel: '' })
+    setData({ nom: '', prenom: '', email: '', tel: '', id_med: userData.id })
     setControls({ nom: false, prenom: false, email: false, tel: false })
   }
   const isAdd = !patientData
@@ -43,20 +48,20 @@ export default function PatientModal({
   const handleSave = async () => {
     try {
       const url = `${window.location.origin}/api/patient/${isAdd ? 'ajouter' : 'modifier'}`
-
+      setData({ ...data, id_med: userData.id })
       const requestBody = JSON.stringify(data)
       const requestOptions = { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: requestBody }
 
-      const response = await fetch(url, requestOptions)
+      const response = await fetch(url, requestOptions).then((responseData: any) => {
+        toast.success('Action réussie !')
+        setUpdate(new Date().getDate().toString())
 
-      const responseData = await response.json()
-      toast.success('Action réussie !')
-
-      if (responseData.erreur) {
-        alert(responseData.message)
-      } else {
-        onClose()
-      }
+        if (responseData.erreur) {
+          alert(responseData.message)
+        } else {
+          onClose()
+        }
+      })
     } catch (error) {
       console.log('Erreur:', error)
     }

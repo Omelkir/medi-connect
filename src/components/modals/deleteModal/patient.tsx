@@ -5,7 +5,7 @@ import { Button, Grid, TextField } from '@mui/material'
 import { Modal } from '@/components/ui/modal'
 import { FaExclamationCircle, FaExclamationTriangle } from 'react-icons/fa'
 
-export default function PatientDelete({ isOpen, onClose, patientData }: any) {
+export default function PatientDelete({ isOpen, onClose, patientData, setUpdate }: any) {
   const handleDelete = async () => {
     const patientId = patientData?.id
 
@@ -24,6 +24,7 @@ export default function PatientDelete({ isOpen, onClose, patientData }: any) {
 
       const response = await fetch(url, requestOptions)
       const responseData = await response.json()
+      setUpdate(new Date().toDateString())
 
       if (responseData.erreur) {
         console.log('Erreur:', responseData.message)

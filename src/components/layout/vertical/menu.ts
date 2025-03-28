@@ -9,39 +9,18 @@ export const menuMed = [
     path: '/patient',
     icon: 'ri-user-fill'
   },
-  { label: 'Dossiers médicaux', path: '/dossier-medicaux', icon: 'ri-file-fill' },
+  { label: 'Fiche Patient', path: '/fiche-patient ', icon: 'ri-file-fill' },
+
+  { label: 'Rendez-vous', path: '/rendez-vous', icon: 'ri-calendar-fill' },
   {
-    label: 'Ordonnances',
+    label: 'Demandes de rendez-vous',
     path: '/de',
-    icon: 'ri-file-line'
-  },
-  {
-    label: 'Rendez-vous',
-    path: '/ren',
-    icon: 'ri-time-fill',
-    subMenu: [
-      { label: 'Calendrier', path: '/cal', icon: 'ri-calendar-fill' },
-      {
-        label: 'Demandes de rendez-vous',
-        path: '/de',
-        icon: 'ri-file-list-fill'
-      }
-    ]
+    icon: 'ri-file-list-fill'
   },
   {
     label: 'Rapport',
     path: '/medecin',
     icon: 'ri-file-fill'
-  },
-  {
-    label: 'Paramètres & Profil',
-    path: '/ren',
-    icon: 'ri-settings-fill'
-  },
-  {
-    label: 'Déconnexion',
-    path: '/ren',
-    icon: 'ri-logout-circle-line'
   }
 ]
 export const menulabo = [

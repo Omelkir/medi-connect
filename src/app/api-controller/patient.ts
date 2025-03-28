@@ -1,11 +1,13 @@
 import pool from '@/utils/connexion'
-
+import bcrypt from 'bcrypt'
 export const ajouter = async (req: any) => {
   try {
     const json: any = req
+    const saltRounds = 10
+    const hashedPassword = await bcrypt.hash('0000', saltRounds)
 
-    const sql = `INSERT INTO medi_connect.patient (nom,prenom,email,tel) 
-                       VALUES ('${json.nom}', '${json.prenom}', '${json.email}', '${json.tel}')`
+    const sql = `INSERT INTO medi_connect.patient (nom_ut, email, mdp, role,image,tarif,ville,horaires,service,spe,info,id_med) 
+                       VALUES ('${json.nom}', '${json.email}', '${hashedPassword}', '${json.role}', '${json.image}', '${json.tarif}', '${json.ville}', '${json.horaires}', '${json.service}', '${json.spe}', '${json.info}', '${json.id_med}')`
 
     await pool.query(sql)
 
@@ -33,7 +35,24 @@ export const ajouter = async (req: any) => {
 export const liste = async (req: any) => {
   try {
     const json: any = req
-    const totalCountQuery = `SELECT COUNT(*) as count FROM medi_connect.patient`
+    const urlParams = new URLSearchParams(new URL(json.url).search)
+
+    // Convertir les paramètres en un objet JSON
+    const paramsObj = Object.fromEntries(urlParams.entries())
+    let whereClause = ''
+
+    Object.keys(paramsObj).forEach((key, index) => {
+      if (paramsObj[key]) {
+        // Ajoute la condition WHERE
+        if (index === 0) {
+          whereClause += ` WHERE ${key} = ${paramsObj[key]}`
+        } else {
+          whereClause += ` AND ${key} = ${paramsObj[key]}`
+        }
+      }
+    })
+    const totalCountQuery = `SELECT COUNT(*) as count FROM medi_connect.patient ${whereClause}`
+
     const totalCountResult: any = await pool.query(totalCountQuery)
     const totalCount = totalCountResult[0][0].count
     // const currentPage = parseInt(req.query.page as string) || 1
@@ -41,7 +60,7 @@ export const liste = async (req: any) => {
     const currentPage = 1
     const itemsPerPage = 6
     const offset = (currentPage - 1) * itemsPerPage
-    let sql = `SELECT * FROM medi_connect.patient`
+    let sql = `SELECT * FROM medi_connect.patient ${whereClause}`
     const [rows] = await pool.query(sql)
     const data: any = rows
     const pi: any = {

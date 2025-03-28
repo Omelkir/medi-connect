@@ -3,22 +3,19 @@ import Typography from '@mui/material/Typography'
 import Card from '@mui/material/Card'
 import tableStyles from '@core/styles/table.module.css'
 import { useEffect, useState } from 'react'
-import { getStorageData } from '@/utils/helpers'
 
 const Table = ({
   onEditPatient,
-  onDeletePatient,
-  update
+  onDeletePatient
 }: {
   onEditPatient: (patient: any) => void
   onDeletePatient: (patient: any) => void
-  update: string
 }) => {
   const [rowsData, setRowsData] = useState<any[]>([])
-  const DocteurData = getStorageData('user')
+
   async function handleSave() {
     try {
-      const url = `${window.location.origin}/api/patient/liste?id_med=${DocteurData.id}`
+      const url = `${window.location.origin}/api/patient/liste`
 
       const requestOptions = {
         method: 'GET',
@@ -45,7 +42,7 @@ const Table = ({
 
   useEffect(() => {
     handleSave()
-  }, [update])
+  }, [])
 
   return (
     <Card>
@@ -53,10 +50,11 @@ const Table = ({
         <table className={tableStyles.table}>
           <thead>
             <tr>
+              <th>N°</th>
               <th>Nom</th>
               <th>Prenom</th>
-              <th>Email</th>
-              <th>Téléphone</th>
+              <th>Ordonnance</th>
+              <th>Analyse</th>
               <th className='text-center'>Action</th>
             </tr>
           </thead>
@@ -64,22 +62,21 @@ const Table = ({
             {rowsData.map((row, index) => (
               <tr key={index}>
                 <td className='!plb-1'>
+                  <Typography>{row.n}</Typography>
+                </td>
+                <td className='!plb-1'>
                   <Typography>{row.nom}</Typography>
                 </td>
                 <td className='!plb-1'>
                   <Typography>{row.prenom}</Typography>
                 </td>
                 <td className='!plb-1'>
-                  <Typography>{row.email}</Typography>
+                  <Typography>{row.Ordonnance}</Typography>
                 </td>
                 <td className='!plb-1'>
-                  <Typography>{row.tel}</Typography>
+                  <Typography>{row.Analyse}</Typography>
                 </td>
                 <td className='flex justify-center gap-2'>
-                  <button
-                    className='ri-folder-line text-blue-500 text-xl hover:text-2xl'
-                    onClick={() => window.open('/fiche-patient?id=' + row.id, '_blank', 'noopener,noreferrer')}
-                  ></button>
                   <button
                     className='ri-edit-box-line text-yellow-500 text-xl hover:text-2xl'
                     onClick={() => onEditPatient(row)}

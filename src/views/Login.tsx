@@ -74,6 +74,7 @@ const Login = () => {
 
       if (!result.erreur) {
         setStorageData('typeOfLogger', result.role)
+        setStorageData('user', result.user)
         router.push('/')
       } else {
         setTypeOfLogger(0)
@@ -94,7 +95,7 @@ const Login = () => {
   }
 
   return (
-    <div className='flex flex-col lg:flex-row min-h-screen items-center justify-center w-full md:w-full relative h-screen w-screen bg-white'>
+    <div className='flex flex-col lg:flex-row min-h-screen items-center justify-center w-full md:w-full relative h-screen bg-white'>
       <div className='hidden lg:flex flex-1 justify-center items-center min-h-screen bg-gray-100'>
         <span className='absolute block-start-5 sm:block-start-[33px] inline-start-6 sm:inline-start-[38px]'>
           <Logo />
