@@ -6,13 +6,10 @@ import { Button, Card, CardContent } from '@mui/material'
 import Arrow from '@/views/dashboard/Arrow'
 import React from 'react'
 import ConsultationModal from '@/components/modals/consultation'
-import { IconUserPlus } from '@tabler/icons-react'
 import { CalendarCheck } from 'lucide-react'
 import { Calendar, momentLocalizer } from 'react-big-calendar'
 import moment from 'moment'
 import 'react-big-calendar/lib/css/react-big-calendar.css' // Importer les styles
-
-const localizer = momentLocalizer(moment)
 
 // Définition du type des événements
 interface Evenement {
@@ -22,6 +19,7 @@ interface Evenement {
 }
 
 const CalendrierRendezvous = () => {
+  const localizer = momentLocalizer(moment)
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [evenements, setEvenements] = useState<Evenement[]>([])
   const [update, setUpdate] = useState<string>(new Date().toDateString())
@@ -34,10 +32,7 @@ const CalendrierRendezvous = () => {
     try {
       const url = `${window.location.origin}/api/consultation/liste`
 
-      const requestOptions = {
-        method: 'GET',
-        headers: { 'Content-Type': 'application/json' }
-      }
+      const requestOptions = { method: 'GET', headers: { 'Content-Type': 'application/json' } }
 
       const response = await fetch(url, requestOptions)
 
@@ -82,7 +77,6 @@ const CalendrierRendezvous = () => {
             >
               <CalendarCheck className='mr-2' /> Ajouter rendez-vous
             </Button>
-            <ConsultationModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} setUpdate={setUpdate} />
           </div>
           <Calendar
             localizer={localizer}
@@ -94,6 +88,7 @@ const CalendrierRendezvous = () => {
             style={{ height: 600 }}
           />
         </div>
+        <ConsultationModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} setUpdate={setUpdate} />
       </CardContent>
     </Card>
   )

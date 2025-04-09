@@ -17,6 +17,7 @@ import { FaMoneyBillAlt, FaRegClock } from 'react-icons/fa'
 import RendezVousFormModal from '@/components/modals/rendezVousFormModal'
 import { SimpleSlideshow } from '@/components/auto-images/images'
 import { StarRating } from '@/components/ui/star-rating'
+import ConsultationModal from '@/components/modals/consultation'
 
 const Medecin = () => {
   const villes = [
@@ -50,19 +51,11 @@ const Medecin = () => {
     //   src: '/img/banner_doctors_img/banner6.jpg',
     //   alt: 'Mountain landscape with a lake'
     // },
-    {
-      src: '/img/banner_doctors_img/banner8.jpg',
-      alt: 'Sunset over mountains'
-    },
-    {
-      src: '/img/banner_doctors_img/banner5.png',
-      alt: 'Forest with sunlight'
-    },
-    {
-      src: '/img/banner_doctors_img/banner4.webp',
-      alt: 'Foggy mountains'
-    }
+    { src: '/img/banner_doctors_img/banner8.jpg', alt: 'Sunset over mountains' },
+    { src: '/img/banner_doctors_img/banner5.png', alt: 'Forest with sunlight' },
+    { src: '/img/banner_doctors_img/banner4.webp', alt: 'Foggy mountains' }
   ]
+  const [update, setUpdate] = useState<string>(new Date().toDateString())
 
   const specialites = [
     { label: 'Médecine dentaire', value: 1 },
@@ -75,11 +68,7 @@ const Medecin = () => {
   ]
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [selectedMedecinId, setSelectedMedecinId] = useState<number | null>(null)
-  const [data, setData] = useState<any>({
-    nom_ut: '',
-    spe: 0,
-    ville: 0
-  })
+  const [data, setData] = useState<any>({ nom_ut: '', spe: 0, ville: 0 })
   const [medecins, setMedecins] = useState<any[]>([])
 
   async function handleSave() {
@@ -87,11 +76,7 @@ const Medecin = () => {
       const url = `${window.location.origin}/api/liste-med-spe/liste`
       const requestBody = JSON.stringify({ spe: data.spe, nom_ut: data.nom_ut, ville: data.ville })
 
-      const requestOptions = {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: requestBody
-      }
+      const requestOptions = { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: requestBody }
 
       const response = await fetch(url, requestOptions)
 
@@ -175,12 +160,12 @@ const Medecin = () => {
         {medecins?.length > 0
           ? medecins.map((medecin, index) => (
               <Grid item xs={12} md={4} key={index}>
-                <Card className='shadow-lg rounded-2xl border border-gray-200 bg-white'>
+                <Card className='shadow-lg rounded-2xl border border-gray-200 bg-white h-70'>
                   <div className='flex items-center justify-between p-4'>
                     <div className='flex items-center space-x-4'>
                       <img
                         className='w-20 h-20 rounded-full object-cover border-2 border-blue-500'
-                        src={medecin.image ? medecin.image : '/img/placeholder-image.jpg'} // Assurer une image par défaut
+                        src={medecin.image ? medecin.image : '/img/placeholder-image.jpg'}
                         alt={medecin.nom_ut}
                       />
                       <div>
@@ -207,10 +192,11 @@ const Medecin = () => {
                         Rendez-vous
                       </Button>
 
-                      <RendezVousFormModal
+                      <ConsultationModal
                         isOpen={isModalOpen}
                         onClose={() => setIsModalOpen(false)}
-                        medecinId={selectedMedecinId}
+                        setUpdate={setUpdate}
+                        // medecinId={selectedMedecinId}
                       />
                     </div>
                   </div>

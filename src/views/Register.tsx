@@ -31,40 +31,73 @@ const Register = () => {
     conMdp: '',
     role: 0,
     tarif: 0,
-    ville: 0,
+    id_ville: 0,
     horaires: '',
     info: '',
     nom_ut: '',
-    spe: 0,
+    id_spe: 0,
     ser: 0
   })
-  const villes = [
-    { label: 'Ariana', value: 1 },
-    { label: 'Béja', value: 2 },
-    { label: 'Ben Arous', value: 3 },
-    { label: 'Bizerte', value: 4 },
-    { label: 'Gabès', value: 5 },
-    { label: 'Gafsa', value: 6 },
-    { label: 'Jendouba', value: 7 },
-    { label: 'Kairouan', value: 8 },
-    { label: 'Kasserine', value: 9 },
-    { label: 'Kébili', value: 10 },
-    { label: 'Kef', value: 11 },
-    { label: 'Mahdia', value: 12 },
-    { label: 'Manouba', value: 13 },
-    { label: 'Médenine', value: 14 },
-    { label: 'Monastir', value: 15 },
-    { label: 'Nabeul', value: 16 },
-    { label: 'Sfax', value: 17 },
-    { label: 'Sidi Bouzid', value: 18 },
-    { label: 'Siliana', value: 19 },
-    { label: 'Sousse', value: 20 },
-    { label: 'Tataouine', value: 21 },
-    { label: 'Tozeur', value: 22 },
-    { label: 'Tunis', value: 23 },
-    { label: 'Zaghouan', value: 24 }
-  ]
+  const [villeListe, setVilleListe] = useState<any[]>([])
+  const [speListe, setSpeListe] = useState<any[]>([])
+  async function getVilleList() {
+    try {
+      const url = `${window.location.origin}/api/ville/liste`
 
+      const requestOptions = {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' }
+      }
+
+      const response = await fetch(url, requestOptions)
+
+      if (!response.ok) throw new Error('Erreur lors de la requête')
+
+      const responseData = await response.json()
+      console.log('API Response:', responseData)
+
+      if (responseData.erreur) {
+        alert(responseData.message)
+      } else {
+        setVilleListe(responseData.data)
+      }
+    } catch (error) {
+      console.error('Erreur:', error)
+      alert('Une erreur est survenue lors de la récupération des données.')
+    }
+  }
+  useEffect(() => {
+    getVilleList()
+  }, [])
+  async function getSpeList() {
+    try {
+      const url = `${window.location.origin}/api/specialite/liste`
+
+      const requestOptions = {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' }
+      }
+
+      const response = await fetch(url, requestOptions)
+
+      if (!response.ok) throw new Error('Erreur lors de la requête')
+
+      const responseData = await response.json()
+      console.log('API Response:', responseData)
+
+      if (responseData.erreur) {
+        alert(responseData.message)
+      } else {
+        setSpeListe(responseData.data)
+      }
+    } catch (error) {
+      console.error('Erreur:', error)
+      alert('Une erreur est survenue lors de la récupération des données.')
+    }
+  }
+  useEffect(() => {
+    getSpeList()
+  }, [])
   const handleImageChange = (e: any) => {
     const file = e.target.files[0]
     if (file) {
@@ -96,18 +129,9 @@ const Register = () => {
     nom_ut: false
   })
   const options = [
-    { label: 'Utilisateur', value: 1 },
+    { label: 'Utilisateur', value: 0 },
     { label: 'Médecin', value: 2 },
     { label: 'Laboratoire', value: 3 }
-  ]
-  const optionsMed = [
-    { label: 'Médecine dentaire', value: 1 },
-    { label: 'Cardiologie', value: 2 },
-    { label: 'Dermatologie', value: 3 },
-    { label: 'Ophtalmologie', value: 4 },
-    { label: 'Pneumologie', value: 5 },
-    { label: 'Orthopédie - Traumatologie', value: 6 },
-    { label: 'Médecine interne', value: 7 }
   ]
   const optionsLab = [
     { label: 'Sr1', value: 1 },
@@ -124,11 +148,11 @@ const Register = () => {
       conMdp: '',
       role: 0,
       tarif: 0,
-      ville: 0,
+      id_ville: 0,
       horaires: '',
       info: '',
       nom_ut: '',
-      spe: 0,
+      id_spe: 0,
       ser: 0
     })
     setControls({
@@ -447,18 +471,18 @@ const Register = () => {
                   <InputLabel>Spéciallité</InputLabel>
                   <Select
                     label='Spéciallité'
-                    value={data?.spe ?? ''}
+                    value={data?.id_spe ?? ''}
                     onChange={(e: any) => {
                       if (e === null) {
-                        setData({ ...data, spe: e.target.value })
+                        setData({ ...data, id_spe: e.target.value })
                       } else {
-                        setData({ ...data, spe: e.target.value })
+                        setData({ ...data, id_spe: e.target.value })
                       }
                     }}
                   >
-                    {optionsMed.map(item => (
-                      <MenuItem value={item.value} key={item.value}>
-                        {item.label}
+                    {speListe.map(item => (
+                      <MenuItem value={item.id} key={item.id}>
+                        {item.spe}
                       </MenuItem>
                     ))}
                   </Select>
@@ -553,18 +577,18 @@ const Register = () => {
                   <InputLabel>Ville</InputLabel>
                   <Select
                     label='Ville'
-                    value={data?.ville || null}
+                    value={data?.id_ville || null}
                     onChange={(e: any) => {
                       if (e === null) {
-                        setData({ ...data, ville: e.target.value })
+                        setData({ ...data, id_ville: e.target.value })
                       } else {
-                        setData({ ...data, ville: e.target.value })
+                        setData({ ...data, id_ville: e.target.value })
                       }
                     }}
                   >
-                    {villes.map(item => (
-                      <MenuItem value={item.value} key={item.value}>
-                        {item.label}
+                    {villeListe.map(item => (
+                      <MenuItem value={item.id} key={item.id}>
+                        {item.ville}
                       </MenuItem>
                     ))}
                   </Select>

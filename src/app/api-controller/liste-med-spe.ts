@@ -6,8 +6,8 @@ export const liste = async (req: any) => {
     const { spe, nom_ut, ville } = req
 
     let sql = `SELECT *
-               FROM medi_connect.compte
-               WHERE 1=1 and role=2`
+               FROM medi_connect.medecin
+               WHERE 1=1`
     const params: any[] = []
 
     if (spe) {

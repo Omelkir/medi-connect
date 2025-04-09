@@ -1,42 +1,22 @@
 // MUI Imports
 import Typography from '@mui/material/Typography'
 import Card from '@mui/material/Card'
-import Chip from '@mui/material/Chip'
-
-// Third-party Imports
-import classnames from 'classnames'
-
-// Components Imports
-import CustomAvatar from '@core/components/mui/Avatar'
-
-// Styles Imports
 import tableStyles from '@core/styles/table.module.css'
 import { useEffect, useState } from 'react'
-
-type TableBodyRowType = {
-  avatarSrc?: string
-  name: string
-  username: string
-  email: string
-  iconClass: string
-  roleIcon?: string
-  role: string
-  status: string
-}
 
 const Table = ({
   onEdit,
   onDelete,
   update
 }: {
-  onEdit: (med: any) => void
-  onDelete: (med: any) => void
+  onEdit: (spe: any) => void
+  onDelete: (spe: any) => void
   update: string
 }) => {
   const [rowsData, setRowsData] = useState<any[]>([])
-  async function getMedecinsList() {
+  async function handleSave() {
     try {
-      const url = `${window.location.origin}/api/medecin/liste`
+      const url = `${window.location.origin}/api/specialite/liste`
 
       const requestOptions = {
         method: 'GET',
@@ -60,19 +40,19 @@ const Table = ({
       alert('Une erreur est survenue lors de la récupération des données.')
     }
   }
+
   useEffect(() => {
-    getMedecinsList()
+    handleSave()
   }, [update])
+
   return (
     <Card>
       <div className='overflow-x-auto'>
         <table className={tableStyles.table}>
           <thead>
             <tr>
-              <th>Nom Utilisateur</th>
-              <th>Email</th>
-              <th>Ville</th>
-              <th>Spéciallité</th>
+              <th>Spécialité</th>
+
               <th className='text-center'>Action</th>
             </tr>
           </thead>
@@ -80,24 +60,9 @@ const Table = ({
             {rowsData.map((row, index) => (
               <tr key={index}>
                 <td className='!plb-1'>
-                  <div className='flex items-center gap-3'>
-                    <CustomAvatar src={row.image} size={34} />
-                    <div className='flex flex-col'>
-                      <Typography color='text.primary' className='font-medium'>
-                        {row.nom_ut}
-                      </Typography>
-                    </div>
-                  </div>
-                </td>
-                <td className='!plb-1'>
-                  <Typography>{row.email}</Typography>
-                </td>
-                <td className='!plb-1'>
-                  <Typography>{row.ville}</Typography>
-                </td>
-                <td className='!plb-1'>
                   <Typography>{row.spe}</Typography>
                 </td>
+
                 <td className='flex justify-center gap-2'>
                   <button
                     className='ri-edit-box-line text-yellow-500 text-xl hover:text-2xl'

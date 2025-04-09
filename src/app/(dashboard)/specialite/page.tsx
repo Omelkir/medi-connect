@@ -1,27 +1,27 @@
 'use client'
 
-import { Button, Card, CardContent, Grid, TextField } from '@mui/material'
-
-import Table from '@/app/(dashboard)/medecin/Table'
-import Pagination from '@/components/ui/pagination'
+import { Button, Card, CardContent, Grid } from '@mui/material'
 import Arrow from '@/views/dashboard/Arrow'
-import { Stethoscope } from 'lucide-react'
 import { useState } from 'react'
-import MedecinModal from '@/components/modals/medecin'
+import Table from './Table'
+import PatientDelete from '@/components/modals/deleteModal/patient'
+import Pagination from '@/components/ui/pagination'
+import { Plus } from 'lucide-react'
+import SpecialiteModal from '@/components/modals/specialite'
 
-const Medecin = () => {
+const Specialite = ({ paginatorInfo }: any) => {
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [selected, setSelected] = useState<any>(null)
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
   const [update, setUpdate] = useState<string>(new Date().toDateString())
 
-  const handleOpenModal = (med: any = null) => {
-    setSelected(med)
+  const handleOpenModal = (spe: any = null) => {
+    setSelected(spe)
     setIsModalOpen(true)
   }
 
-  const handleOpenDeleteModal = (med: any = null) => {
-    setSelected(med)
+  const handleOpenDeleteModal = (spe: any = null) => {
+    setSelected(spe)
     setIsDeleteModalOpen(true)
   }
 
@@ -29,7 +29,7 @@ const Medecin = () => {
     <div>
       <Card>
         <CardContent>
-          <Arrow title='Dashboard' subTitle='Médecin' />
+          <Arrow title='Dashboard' subTitle='Spécialité' />
 
           <Button
             fullWidth
@@ -38,8 +38,18 @@ const Medecin = () => {
             className='h-12 w-1/6 mb-12'
             onClick={() => handleOpenModal()}
           >
-            <Stethoscope className='mr-2' /> Ajouter
+            <Plus className='mr-2' /> Ajouter
           </Button>
+
+          <SpecialiteModal
+            isOpen={isModalOpen}
+            speData={selected}
+            onClose={() => setIsModalOpen(false)}
+            setUpdate={setUpdate}
+          />
+
+          <PatientDelete isOpen={isDeleteModalOpen} onClose={() => setIsDeleteModalOpen(false)} setUpdate={setUpdate} />
+
           <Grid item xs={12}>
             <Table onEdit={handleOpenModal} onDelete={handleOpenDeleteModal} update={update} />
           </Grid>
@@ -51,15 +61,10 @@ const Medecin = () => {
             // onChange={onPagination}
             />
           </Grid>
-          <MedecinModal
-            isOpen={isModalOpen}
-            medecinData={selected}
-            onClose={() => setIsModalOpen(false)}
-            setUpdate={setUpdate}
-          />
         </CardContent>
       </Card>
     </div>
   )
 }
-export default Medecin
+
+export default Specialite

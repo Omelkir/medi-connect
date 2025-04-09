@@ -39,7 +39,7 @@ export const menuAdmin = [
   {
     label: 'Médecin',
     path: '/medecin',
-    icon: 'ri-stethoscope-fill'
+    icon: 'ri-nurse-fill'
   },
   {
     label: 'Laboratoire',
@@ -52,14 +52,19 @@ export const menuAdmin = [
     icon: 'ri-vip-crown-fill'
   },
   {
-    label: 'Rendez-vous',
-    path: '/rendez-vous',
-    icon: 'ri-calendar-todo-line'
-  },
-  {
     label: 'Patient',
     path: '/patient',
     icon: 'ri-user-fill'
+  },
+  {
+    label: 'Spécialité',
+    path: '/specialite',
+    icon: 'ri-star-fill'
+  },
+  {
+    label: 'Ville',
+    path: '/ville',
+    icon: 'ri-map-pin-fill'
   }
 
   // Autres éléments du menu

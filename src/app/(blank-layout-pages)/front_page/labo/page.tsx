@@ -48,22 +48,13 @@ const Laboratoire = () => {
   ]
   const images = [
     {
-      src: '/img/banner_lab_img/banner1.jpg',
+      src: 'https://img.freepik.com/premium-photo/low-angle-view-cross-against-clear-blue-sky_1048944-10728740.jpg?w=1380',
       alt: 'banner1'
-    },
-    {
-      src: '/img/banner_lab_img/banner4.png',
-      alt: 'banner4'
-    },
-    {
-      src: '/img/banner_lab_img/banner2.jpg',
-      alt: 'banner2'
-    },
-
-    {
-      src: '/img/banner_lab_img/banner6.jpg',
-      alt: 'banner6'
     }
+    // { src: '/img/banner_lab_img/banner4.png', alt: 'banner4' },
+    // { src: '/img/banner_lab_img/banner2.jpg', alt: 'banner2' },
+
+    // { src: '/img/banner_lab_img/banner6.jpg', alt: 'banner6' }
   ]
 
   const services = [
@@ -76,11 +67,7 @@ const Laboratoire = () => {
     { label: 'Service7', value: 7 }
   ]
   const [isModalOpen, setIsModalOpen] = useState(false)
-  const [data, setData] = useState<any>({
-    nom_ut: '',
-    service: 0,
-    ville: 0
-  })
+  const [data, setData] = useState<any>({ nom_ut: '', service: 0, ville: 0 })
   const [laboratoires, setLaboratoires] = useState<any[]>([])
   const [selectedLaboId, setSelectedLaboId] = useState<number | null>(null)
 
@@ -89,11 +76,7 @@ const Laboratoire = () => {
       const url = `${window.location.origin}/api/liste-labo-ser/liste`
       const requestBody = JSON.stringify({ service: data.service, nom_ut: data.nom_ut, ville: data.ville })
 
-      const requestOptions = {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: requestBody
-      }
+      const requestOptions = { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: requestBody }
 
       const response = await fetch(url, requestOptions)
 
@@ -177,7 +160,7 @@ const Laboratoire = () => {
         {laboratoires?.length > 0
           ? laboratoires.map((laboratoire, index) => (
               <Grid item xs={12} md={4} key={index}>
-                <Card className='shadow-lg rounded-2xl border border-gray-200 bg-white'>
+                <Card className='shadow-lg rounded-2xl border border-gray-200 bg-white h-70'>
                   <div className='flex items-center justify-between p-4'>
                     <div className='flex items-center space-x-4'>
                       <img

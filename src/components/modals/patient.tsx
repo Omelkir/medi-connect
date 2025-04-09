@@ -53,12 +53,17 @@ export default function PatientModal({
       const requestOptions = { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: requestBody }
 
       const response = await fetch(url, requestOptions).then((responseData: any) => {
-        toast.success('Action réussie !')
         setUpdate(new Date().getDate().toString())
 
         if (responseData.erreur) {
           alert(responseData.message)
+          toast.error('Erreur !')
         } else {
+          if (isAdd) {
+            toast.success('Le patient a été ajouté avec succès')
+          } else {
+            toast.success('Le patient a été modifié avec succès')
+          }
           onClose()
         }
       })

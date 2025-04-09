@@ -60,7 +60,7 @@ export const liste = async (req: any) => {
     const currentPage = 1
     const itemsPerPage = 6
     const offset = (currentPage - 1) * itemsPerPage
-    let sql = `SELECT * FROM medi_connect.patient ${whereClause}`
+    let sql = `SELECT p.*, v.ville AS ville FROM patient p LEFT JOIN ville v ON p.id_ville = v.id ${whereClause}`
     const [rows] = await pool.query(sql)
     const data: any = rows
     const pi: any = {

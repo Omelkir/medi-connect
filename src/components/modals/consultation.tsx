@@ -1,11 +1,10 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { Modal } from '../ui/modal'
 import { Button, FormControl, Grid, InputLabel, MenuItem, Select, TextField } from '@mui/material'
 import { toast } from 'react-toastify'
 import { getStorageData } from '@/utils/helpers'
-import React from 'react'
 
 export default function ConsultationModal({
   isOpen,
@@ -20,49 +19,34 @@ export default function ConsultationModal({
 }) {
   const userData = getStorageData('user')
   const [patientListe, setPatientListe] = useState<any[]>([])
-  const [data, setData] = useState<any>({
-    patient: '',
-    date: '',
-    id_med: userData.id
-  })
-  useEffect(() => {
-    if (patientData) {
-      setData(patientData)
-    } else {
-      setData({ patient: '', date: '', id_med: userData.id })
-    }
-  }, [patientData])
-  const [controls, setControls] = useState<any>({
-    patient: false,
-    date: false
-  })
+  const [data, setData] = useState<any>({ patient: '', date: '', id_med: userData.id })
+  const [controls, setControls] = useState<any>({ patient: false, date: false })
 
   const clearForm = () => {
     setData({ patient: '', date: '', id_med: userData.id })
     setControls({ patient: false, date: false })
   }
-  const DocteurData = getStorageData('user')
+
   async function getPatientListe() {
-    const url = `${window.location.origin}/api/patient/liste?id_med=${DocteurData.id}`
+    try {
+      const url = `${window.location.origin}/api/patient/liste?id_med=${userData.id}`
+      const response = await fetch(url, { method: 'GET', headers: { 'Content-Type': 'application/json' } })
 
-    const requestOptions = {
-      method: 'GET',
-      headers: { 'Content-Type': 'application/json' }
-    }
-    const response = await fetch(url, requestOptions)
+      if (!response.ok) throw new Error('Erreur lors de la requête')
 
-    if (!response.ok) throw new Error('Erreur lors de la requête')
+      const responseData = await response.json()
 
-    const responseData = await response.json()
-    console.log('API Response:', responseData)
-
-    if (responseData.erreur) {
-      alert(responseData.message)
-    } else {
-      setPatientListe(responseData.data)
+      if (responseData.erreur) {
+        alert(responseData.message)
+      } else {
+        setPatientListe(responseData.data)
+      }
+    } catch (error) {
+      console.error('Erreur lors de la récupération des patients:', error)
     }
   }
-  React.useEffect(() => {
+
+  useEffect(() => {
     getPatientListe()
   }, [])
 
@@ -70,29 +54,60 @@ export default function ConsultationModal({
 
   const handleSave = async () => {
     try {
+      const payload = { ...data, id_med: userData.id }
       const url = `${window.location.origin}/api/consultation/${isAdd ? 'ajouter' : 'modifier'}`
-      setData({ ...data, id_med: userData.id })
+      const requestOptions = {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      }
 
-      const requestBody = JSON.stringify(data)
-      const requestOptions = { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: requestBody }
+      const response = await fetch(url, requestOptions)
+      const responseData = await response.json()
 
-      const response = await fetch(url, requestOptions).then((responseData: any) => {
+      if (responseData.erreur) {
+        alert(responseData.message)
+      } else {
         toast.success('Action réussie !')
-        setUpdate(new Date().getDate().toString())
-
-        if (responseData.erreur) {
-          alert(responseData.message)
-        } else {
-          onClose()
-        }
-      })
+        setUpdate(new Date().getTime().toString())
+        onClose()
+      }
     } catch (error) {
-      console.log('Erreur:', error)
+      console.error('Erreur:', error)
     }
   }
 
+  useEffect(() => {
+    if (patientData) {
+      setData((prev: any) => (JSON.stringify(prev) === JSON.stringify(patientData) ? prev : patientData))
+    } else {
+      setData((prev: any) =>
+        JSON.stringify(prev) === JSON.stringify({ patient: '', date: '', id_med: userData.id })
+          ? prev
+          : { patient: '', date: '', id_med: userData.id }
+      )
+    }
+  }, [patientData, userData.id])
+  document.addEventListener('focusin', event => {
+    if (event.target instanceof HTMLElement && event.target.closest('.modal-selector')) {
+      event.stopPropagation()
+    }
+  })
+  const myModalRef = useRef<HTMLDivElement | null>(null) // Création de myModalRef
+  useEffect(() => {
+    if (isOpen) {
+      // Gérer le focus sur le modal au moment où il devient visible
+      setTimeout(() => {
+        if (myModalRef.current) {
+          myModalRef.current.focus() // Met le focus sur le modal
+        }
+      }, 100)
+    }
+  }, [isOpen])
+
   return (
     <Modal
+      // ref={myModalRef}
       isOpen={isOpen}
       onClose={onClose}
       title={<span className='block w-full text-center'>{isAdd ? 'Ajouter Rendez-vous' : 'Modifier Rendez-vous'}</span>}
@@ -106,14 +121,7 @@ export default function ConsultationModal({
           >
             Annuler
           </Button>
-          <Button
-            variant='contained'
-            color='primary'
-            size='small'
-            onClick={() => {
-              handleSave()
-            }}
-          >
+          <Button variant='contained' color='primary' size='small' onClick={handleSave}>
             {isAdd ? 'Ajouter' : 'Modifier'}
           </Button>
         </div>
@@ -125,7 +133,8 @@ export default function ConsultationModal({
             <FormControl fullWidth>
               <InputLabel>Patient</InputLabel>
               <Select
-                label='Patient'
+                label='patient'
+                key={'test21'}
                 className={`${controls?.patient === true ? 'isReq' : ''}`}
                 value={data?.patient || null}
                 onChange={(e: any) => {
@@ -144,48 +153,28 @@ export default function ConsultationModal({
                   }
                 }}
               >
-                {patientListe.map((item: any, i: number) => (
+                {patientListe.map(item => (
                   <MenuItem value={item.id} key={item.id}>
-                    {item.nom + ' ' + item.prenom}
+                    {item.nom}
                   </MenuItem>
                 ))}
               </Select>
             </FormControl>
-            {controls?.patient === true ? <span className='errmsg'>Veuillez séléctionner un patient !</span> : null}
+            {controls.patient && <span className='errmsg'>Veuillez sélectionner un patient !</span>}
           </Grid>
           <Grid item xs={12} md={12}>
-            {' '}
             <TextField
               fullWidth
               type='datetime-local'
-              InputLabelProps={{
-                sx: { fontSize: '1rem' }
-              }}
-              InputProps={{
-                sx: {
-                  height: 50,
-                  fontSize: '1rem'
-                }
-              }}
-              className={`${controls?.date === true ? 'isReq' : ''}`}
-              value={data?.date || null}
-              onChange={(e: any) => {
-                if (e.target?.value.trim() === '') {
-                  setControls({ ...controls, date: true })
-                  setData((prev: any) => ({
-                    ...prev,
-                    date: e.target.value
-                  }))
-                } else {
-                  setControls({ ...controls, date: false })
-                  setData((prev: any) => ({
-                    ...prev,
-                    date: e.target.value
-                  }))
-                }
+              InputLabelProps={{ sx: { fontSize: '1rem' } }}
+              className={controls.date ? 'isReq' : ''}
+              value={data?.date || ''}
+              onChange={e => {
+                setControls({ ...controls, date: !e.target.value.trim() })
+                setData((prev: any) => ({ ...prev, date: e.target.value }))
               }}
             />
-            {controls?.date === true ? <span className='errmsg'>Veuillez saisir la date !</span> : null}
+            {controls.date && <span className='errmsg'>Veuillez saisir la date !</span>}
           </Grid>
         </Grid>
       </form>
