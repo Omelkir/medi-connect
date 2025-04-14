@@ -1,4 +1,6 @@
 'use client'
+import React, { useEffect, useState } from 'react'
+
 import {
   Button,
   Card,
@@ -11,10 +13,9 @@ import {
   Select,
   TextField
 } from '@mui/material'
-import React, { useEffect, useState } from 'react'
-import { Mail, MapPin, DollarSign, Coins, Banknote } from 'lucide-react'
+import { Mail, MapPin } from 'lucide-react'
 import { FaMoneyBillAlt, FaRegClock } from 'react-icons/fa'
-import RendezVousFormModal from '@/components/modals/rendezVousFormModal'
+
 import { SimpleSlideshow } from '@/components/auto-images/images'
 import { StarRating } from '@/components/ui/star-rating'
 import ConsultationModal from '@/components/modals/consultation'
@@ -46,6 +47,7 @@ const Medecin = () => {
     { label: 'Tunis', value: 23 },
     { label: 'Zaghouan', value: 24 }
   ]
+
   const images = [
     // {
     //   src: '/img/banner_doctors_img/banner6.jpg',
@@ -55,6 +57,7 @@ const Medecin = () => {
     { src: '/img/banner_doctors_img/banner5.png', alt: 'Forest with sunlight' },
     { src: '/img/banner_doctors_img/banner4.webp', alt: 'Foggy mountains' }
   ]
+
   const [update, setUpdate] = useState<string>(new Date().toDateString())
 
   const specialites = [
@@ -66,6 +69,7 @@ const Medecin = () => {
     { label: 'Orthopédie - Traumatologie', value: 6 },
     { label: 'Médecine interne', value: 7 }
   ]
+
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [selectedMedecinId, setSelectedMedecinId] = useState<number | null>(null)
   const [data, setData] = useState<any>({ nom_ut: '', spe: 0, ville: 0 })
@@ -83,6 +87,7 @@ const Medecin = () => {
       if (!response.ok) throw new Error('Erreur lors de la requête')
 
       const responseData = await response.json()
+
       console.log('API Response:', responseData)
 
       if (responseData.erreur) {
@@ -95,9 +100,11 @@ const Medecin = () => {
       alert('Une erreur est survenue lors de la récupération des données.')
     }
   }
+
   useEffect(() => {
     handleSave()
   }, [])
+
   return (
     <div className='bg-white pl-3 pr-3'>
       <SimpleSlideshow interval={5000} images={images} />
@@ -160,7 +167,7 @@ const Medecin = () => {
         {medecins?.length > 0
           ? medecins.map((medecin, index) => (
               <Grid item xs={12} md={4} key={index}>
-                <Card className='shadow-lg rounded-2xl border border-gray-200 bg-white h-70'>
+                <Card className='shadow-lg rounded-2xl border border-gray-200 bg-white h-[350px]'>
                   <div className='flex items-center justify-between p-4'>
                     <div className='flex items-center space-x-4'>
                       <img
@@ -196,6 +203,7 @@ const Medecin = () => {
                         isOpen={isModalOpen}
                         onClose={() => setIsModalOpen(false)}
                         setUpdate={setUpdate}
+
                         // medecinId={selectedMedecinId}
                       />
                     </div>
@@ -212,7 +220,7 @@ const Medecin = () => {
                     </div>
                     <div className='flex items-center text-gray-600 text-sm mt-4'>
                       <FaRegClock className='w-4 h-4 mr-2 text-blue-500' />
-                      <span>{medecin.horaires}</span>
+                      <span>{`${medecin.heurD?.slice(0, 5)} - ${medecin.heurF?.slice(0, 5)}`}</span>
 
                       <FaMoneyBillAlt className='w-4 h-4 mr-2 text-blue-500 ml-12' />
                       <span>{medecin.tarif} dt</span>

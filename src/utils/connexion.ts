@@ -6,4 +6,5 @@ const pool = mysql.createPool({
   password: '', // Replace with your MySQL password
   database: 'medi_connect' // Replace with your MySQL database name
 })
+
 export default pool

@@ -11,9 +11,9 @@ import IconButton from '@mui/material/IconButton'
 import InputAdornment from '@mui/material/InputAdornment'
 import Button from '@mui/material/Button'
 
-import Logo from '@components/layout/shared/Logo'
-
 import { FormControl, Input, InputLabel, MenuItem, Select, Grid } from '@mui/material'
+
+import Logo from '@components/layout/shared/Logo'
 
 const Register = () => {
   // States
@@ -32,14 +32,17 @@ const Register = () => {
     role: 0,
     tarif: 0,
     id_ville: 0,
-    horaires: '',
+    heurD: '',
+    heurF: '',
     info: '',
     nom_ut: '',
     id_spe: 0,
     ser: 0
   })
+
   const [villeListe, setVilleListe] = useState<any[]>([])
   const [speListe, setSpeListe] = useState<any[]>([])
+
   async function getVilleList() {
     try {
       const url = `${window.location.origin}/api/ville/liste`
@@ -54,6 +57,7 @@ const Register = () => {
       if (!response.ok) throw new Error('Erreur lors de la requête')
 
       const responseData = await response.json()
+
       console.log('API Response:', responseData)
 
       if (responseData.erreur) {
@@ -66,9 +70,11 @@ const Register = () => {
       alert('Une erreur est survenue lors de la récupération des données.')
     }
   }
+
   useEffect(() => {
     getVilleList()
   }, [])
+
   async function getSpeList() {
     try {
       const url = `${window.location.origin}/api/specialite/liste`
@@ -83,6 +89,7 @@ const Register = () => {
       if (!response.ok) throw new Error('Erreur lors de la requête')
 
       const responseData = await response.json()
+
       console.log('API Response:', responseData)
 
       if (responseData.erreur) {
@@ -95,11 +102,14 @@ const Register = () => {
       alert('Une erreur est survenue lors de la récupération des données.')
     }
   }
+
   useEffect(() => {
     getSpeList()
   }, [])
+
   const handleImageChange = (e: any) => {
     const file = e.target.files[0]
+
     if (file) {
       setData((prev: any) => ({
         ...prev,
@@ -108,6 +118,7 @@ const Register = () => {
 
       // Lire le fichier en Base64
       const reader = new FileReader()
+
       reader.onloadend = () => {
         // Une fois l'image convertie en Base64, mettre à jour l'état
         setData((prev: any) => ({
@@ -115,6 +126,7 @@ const Register = () => {
           image: reader.result // Image en Base64
         }))
       }
+
       reader.readAsDataURL(file) // Convertir le fichier en Base64
     }
   }
@@ -128,11 +140,13 @@ const Register = () => {
 
     nom_ut: false
   })
+
   const options = [
     { label: 'Utilisateur', value: 0 },
     { label: 'Médecin', value: 2 },
     { label: 'Laboratoire', value: 3 }
   ]
+
   const optionsLab = [
     { label: 'Sr1', value: 1 },
     { label: 'Sr2', value: 2 },
@@ -149,7 +163,8 @@ const Register = () => {
       role: 0,
       tarif: 0,
       id_ville: 0,
-      horaires: '',
+      heurD: '',
+      heurF: '',
       info: '',
       nom_ut: '',
       id_spe: 0,
@@ -184,6 +199,7 @@ const Register = () => {
       }
 
       const requestBody = JSON.stringify(data)
+
       const requestOptions = {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -204,11 +220,6 @@ const Register = () => {
     }
   }
 
-  // Vars
-  const darkImg = '/images/pages/auth-v1-mask-dark.png'
-  const lightImg = '/images/pages/auth-v1-mask-light.png'
-
-  // Hooks
 
   const handleClickShowPassword = () => setIsPasswordShown(show => !show)
 
@@ -546,12 +557,41 @@ const Register = () => {
               <Grid item xs={6} md={6}>
                 <TextField
                   fullWidth
-                  label='Horaire'
-                  value={data?.horaires ?? ''}
+                  type='time'
+                  value={data?.heurD ?? ''}
                   onChange={(e: any) => {
                     setData((prev: any) => ({
                       ...prev,
-                      horaires: e.target.value
+                      heurD: e.target.value
+                    }))
+                  }}
+                  autoFocus
+                  InputLabelProps={{
+                    sx: { fontSize: '1rem' }
+                  }}
+                  InputProps={{
+                    sx: {
+                      height: 60,
+                      '&.Mui-focused': {
+                        '& + .MuiInputLabel-root': {
+                          fontSize: '1rem'
+                        }
+                      }
+                    }
+                  }}
+                />
+              </Grid>
+            ) : null}
+            {data?.role === 2 || data?.role === 3 ? (
+              <Grid item xs={6} md={6}>
+                <TextField
+                  fullWidth
+                  type='time'
+                  value={data?.heurF ?? ''}
+                  onChange={(e: any) => {
+                    setData((prev: any) => ({
+                      ...prev,
+                      heurF: e.target.value
                     }))
                   }}
                   autoFocus

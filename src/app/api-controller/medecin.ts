@@ -1,6 +1,7 @@
-import pool from '@/utils/connexion'
 import bcrypt from 'bcrypt'
 import nodemailer from 'nodemailer'
+
+import pool from '@/utils/connexion'
 
 function genererMotDePasse(): string {
   const lettres = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ'
@@ -9,6 +10,7 @@ function genererMotDePasse(): string {
   const tous = lettres + chiffres + caracteresSpeciaux
 
   let motDePasse = ''
+
   motDePasse += lettres[Math.floor(Math.random() * lettres.length)]
   motDePasse += chiffres[Math.floor(Math.random() * chiffres.length)]
   motDePasse += caracteresSpeciaux[Math.floor(Math.random() * caracteresSpeciaux.length)]
@@ -24,6 +26,7 @@ function genererMotDePasse(): string {
     .sort(() => 0.5 - Math.random())
     .join('')
 }
+
 export const ajouter = async (req: any) => {
   try {
     const json: any = req
@@ -38,12 +41,15 @@ export const ajouter = async (req: any) => {
     })
 
     const motDePasse = genererMotDePasse()
+
     console.log('mdp:', motDePasse)
     const hashedPassword = await bcrypt.hash(motDePasse, 10)
-    const sql = `INSERT INTO medi_connect.medecin (nom_ut, email, mdp,role,image,tarif,id_ville,horaires,service,id_spe,info) 
-                       VALUES ('${json.nom_ut}', '${json.email}', '${hashedPassword}',2, '${json.image}', '${json.tarif}', '${json.id_ville}', '${json.horaires}', '${json.service}', '${json.id_spe}', '${json.info}')`
+
+    const sql = `INSERT INTO medi_connect.medecin (nom_ut, email, mdp,role,image,tarif,id_ville,heurD,heurF,id_spe,info,isApproved) 
+                       VALUES ('${json.nom_ut}', '${json.email}', '${hashedPassword}',2, '${json.image}', '${json.tarif}', '${json.id_ville}', '${json.heurD}', '${json.heurF}', '${json.id_spe}', '${json.info}',1)`
 
     await pool.query(sql)
+
     const mailOptions = {
       from: '"MediConnect" <mediconnect048@gmail.com>',
       to: email,
@@ -64,12 +70,31 @@ export const ajouter = async (req: any) => {
     }
 
     await transporter.sendMail(mailOptions)
+
     return { erreur: false, data: true }
   } catch (error) {
     console.error('Erreur lors de l’enregistrement', error)
+
     return { erreur: true, message: 'Erreur lors de l’enregistrement' }
   }
 }
+
+export const modifier = async (req: any) => {
+  try {
+    const json: any = req
+    const id = json.id
+    const sql = `UPDATE medi_connect.medecin SET nom_ut ='${json.nom_ut}',email ='${json.email}',image='${json.image}',tarif='${json.tarif}',id_ville='${json.id_ville}',heurD='${json.heurD}',heurF='${json.heurF}',id_spe='${json.id_spe}',info='${json.info}' where id='${id}'`
+
+    await pool.query(sql)
+
+    return { erreur: false, data: true }
+  } catch (error) {
+    console.error('Erreur lors de l’enregistrement', error)
+
+    return { erreur: true, message: 'Erreur lors de l’enregistrement' }
+  }
+}
+
 export const liste = async (req: any) => {
   try {
     const json: any = req
@@ -78,12 +103,14 @@ export const liste = async (req: any) => {
 
     const totalCountResult: any = await pool.query(totalCountQuery)
     const totalCount = totalCountResult[0][0].count
+
     // const currentPage = parseInt(req.query.page as string) || 1
     // const itemsPerPage = parseInt(req.query.limit as string) || 6
     const currentPage = 1
     const itemsPerPage = 6
     const offset = (currentPage - 1) * itemsPerPage
-    let sql = `
+
+    const sql = `
     SELECT m.*, v.ville AS ville, s.spe AS spe
     FROM medecin m 
     LEFT JOIN ville v ON m.id_ville = v.id 
@@ -92,6 +119,7 @@ export const liste = async (req: any) => {
 
     const [rows] = await pool.query(sql)
     const data: any = rows
+
     const pi: any = {
       total: totalCount,
       currentPage: currentPage,
@@ -108,9 +136,36 @@ export const liste = async (req: any) => {
           : null,
       prevPageUrl: currentPage > 1 ? `/api/medecin/liste?limit=${itemsPerPage}&page=${currentPage - 1}` : null
     }
+
     return { erreur: false, data: data, paginatorInfo: pi }
   } catch (error) {
     console.error('Erreur lors de la récupération des medecins:', error)
+
     return { erreur: true, message: 'Erreur lors de l’enregistrement' }
+  }
+}
+
+export const supprimer = async (req: any) => {
+  try {
+    const id = req.params.id
+
+    if (!id) {
+      return { erreur: true, message: 'ID is required' }
+    }
+
+    const sql = `DELETE FROM medi_connect.medecin WHERE id='${id}'`
+    const result: any = await pool.query(sql, [id])
+
+    console.log(sql)
+
+    if (result.affectedRows === 0) {
+      return { erreur: true, message: 'medecin non trouvé' }
+    }
+
+    return { erreur: false, data: true }
+  } catch (error) {
+    console.error('Error deleting:', error)
+
+    return { erreur: true, message: 'Erreur lors de la suppression' }
   }
 }

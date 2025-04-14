@@ -1,9 +1,12 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+
 import { Button, Grid, TextField } from '@mui/material'
-import { Modal } from '@/components/ui/modal'
+
 import { FaExclamationCircle, FaExclamationTriangle } from 'react-icons/fa'
+
+import { Modal } from '@/components/ui/modal'
 
 export default function PatientDelete({ isOpen, onClose, patientData, setUpdate }: any) {
   const handleDelete = async () => {
@@ -11,6 +14,7 @@ export default function PatientDelete({ isOpen, onClose, patientData, setUpdate 
 
     if (!patientId) {
       console.log('Erreur: ID du patient manquant')
+
       return
     }
 
@@ -24,6 +28,7 @@ export default function PatientDelete({ isOpen, onClose, patientData, setUpdate 
 
       const response = await fetch(url, requestOptions)
       const responseData = await response.json()
+
       setUpdate(new Date().toDateString())
 
       if (responseData.erreur) {

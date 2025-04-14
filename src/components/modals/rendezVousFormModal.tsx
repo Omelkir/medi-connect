@@ -2,9 +2,10 @@
 
 import { useEffect, useState } from 'react'
 
+import { Button, Grid, TextField } from '@mui/material'
+
 import { Modal } from '../ui/modal'
 
-import { Button, Grid, TextField } from '@mui/material'
 export default function RendezVousFormModal({ isOpen, onClose, medecinId, laboId }: any) {
   const [data, setData] = useState<any>({
     nom: '',
@@ -17,6 +18,7 @@ export default function RendezVousFormModal({ isOpen, onClose, medecinId, laboId
     medecinId: medecinId,
     laboId: laboId
   })
+
   useEffect(() => {
     setData((prev: any) => ({ ...prev, medecinId, laboId }))
   }, [medecinId, laboId])
@@ -29,6 +31,7 @@ export default function RendezVousFormModal({ isOpen, onClose, medecinId, laboId
     date: false,
     heure: false
   })
+
   const clearForm = () => {
     setData({ nom: '', prenom: '', email: '', tel: '', date: '', heure: '', message: '' })
     setControls({
@@ -40,9 +43,11 @@ export default function RendezVousFormModal({ isOpen, onClose, medecinId, laboId
       heure: false
     })
   }
+
   const handleSave = async () => {
     try {
       const url = `${window.location.origin}/api/rendez-vous/ajouter`
+
       const newControls = {
         email: data.email.trim() === '',
         nom: data.nom.trim() === '',
@@ -63,6 +68,7 @@ export default function RendezVousFormModal({ isOpen, onClose, medecinId, laboId
         idMed: data.medecinId,
         idLabo: data.laboId
       })
+
       const requestOptions = {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -81,6 +87,7 @@ export default function RendezVousFormModal({ isOpen, onClose, medecinId, laboId
       console.log('Erreur:', error)
     }
   }
+
   return (
     <Modal
       isOpen={isOpen}

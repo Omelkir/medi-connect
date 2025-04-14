@@ -64,7 +64,22 @@ export const menuAdmin = [
   {
     label: 'Ville',
     path: '/ville',
-    icon: 'ri-map-pin-fill'
+    icon: 'ri-building-2-fill'
+  },
+  {
+    label: 'Service',
+    path: '/service',
+    icon: 'ri-service-fill'
+  },
+  {
+    label: 'Réclamation',
+    path: '/reclamation',
+    icon: 'ri-mail-unread-line'
+  },
+  {
+    label: 'Confirmation',
+    path: '/reclamation',
+    icon: 'ri-pass-valid-line'
   }
 
   // Autres éléments du menu

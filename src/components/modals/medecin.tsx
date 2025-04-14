@@ -1,9 +1,13 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { Modal } from '../ui/modal'
+
 import { Button, FormControl, Grid, Input, InputLabel, MenuItem, Select, TextField } from '@mui/material'
 import { toast } from 'react-toastify'
+
+import { Label } from 'recharts'
+
+import { Modal } from '../ui/modal'
 
 export default function MedecinModal({
   isOpen,
@@ -17,19 +21,23 @@ export default function MedecinModal({
   setUpdate: any
 }) {
   const mailCheck = (email: any) => !/^[^\s@]+@[^\s@]+\.[a-zA-Z]{2,}$/.test(email)
+
   const [data, setData] = useState<any>({
     imageSrc: '/img/placeholder-image.jpg',
     image: '',
     email: '',
     tarif: 0,
     id_ville: 0,
-    horaires: '',
+    heurD: '',
+    heurF: '',
     info: '',
     nom_ut: '',
     spe: 0
   })
+
   const handleImageChange = (e: any) => {
     const file = e.target.files[0]
+
     if (file) {
       setData((prev: any) => ({
         ...prev,
@@ -38,6 +46,7 @@ export default function MedecinModal({
 
       // Lire le fichier en Base64
       const reader = new FileReader()
+
       reader.onloadend = () => {
         // Une fois l'image convertie en Base64, mettre à jour l'état
         setData((prev: any) => ({
@@ -45,21 +54,39 @@ export default function MedecinModal({
           image: reader.result // Image en Base64
         }))
       }
+
       reader.readAsDataURL(file) // Convertir le fichier en Base64
     }
   }
+
   const [controls, setControls] = useState<any>({
     email: false,
     emailValid: false,
     nom_ut: false
   })
-  const options = [
-    { label: 'Utilisateur', value: 1 },
-    { label: 'Médecin', value: 2 },
-    { label: 'Laboratoire', value: 3 }
-  ]
+
+  useEffect(() => {
+    if (medecinData) {
+      setData(medecinData)
+    } else {
+      setData({
+        imageSrc: '/img/placeholder-image.jpg',
+        image: '',
+        email: '',
+        tarif: 0,
+        id_ville: 0,
+        heurD: '',
+        heurF: '',
+        info: '',
+        nom_ut: '',
+        spe: 0
+      })
+    }
+  }, [medecinData])
+
   const [villeListe, setVilleListe] = useState<any[]>([])
   const [speListe, setSpeListe] = useState<any[]>([])
+
   async function getVilleList() {
     try {
       const url = `${window.location.origin}/api/ville/liste`
@@ -74,6 +101,7 @@ export default function MedecinModal({
       if (!response.ok) throw new Error('Erreur lors de la requête')
 
       const responseData = await response.json()
+
       console.log('API Response:', responseData)
 
       if (responseData.erreur) {
@@ -86,9 +114,11 @@ export default function MedecinModal({
       alert('Une erreur est survenue lors de la récupération des données.')
     }
   }
+
   useEffect(() => {
     getVilleList()
   }, [])
+
   async function getSpeList() {
     try {
       const url = `${window.location.origin}/api/specialite/liste`
@@ -103,6 +133,7 @@ export default function MedecinModal({
       if (!response.ok) throw new Error('Erreur lors de la requête')
 
       const responseData = await response.json()
+
       console.log('API Response:', responseData)
 
       if (responseData.erreur) {
@@ -115,6 +146,7 @@ export default function MedecinModal({
       alert('Une erreur est survenue lors de la récupération des données.')
     }
   }
+
   useEffect(() => {
     getSpeList()
   }, [])
@@ -126,7 +158,8 @@ export default function MedecinModal({
       email: '',
       tarif: 0,
       id_ville: 0,
-      horaires: '',
+      heurD: '',
+      heurF: '',
       info: '',
       nom_ut: '',
       spe: 0
@@ -136,10 +169,13 @@ export default function MedecinModal({
       nom_ut: false
     })
   }
+
   const isAdd = !medecinData
+
   const handleSave = async () => {
     try {
       const url = `${window.location.origin}/api/medecin/${isAdd ? 'ajouter' : 'modifier'}`
+
       const newControls = {
         email: data.email.trim() === '',
         emailValid: mailCheck(data.email.trim()),
@@ -151,15 +187,17 @@ export default function MedecinModal({
       if (Object.values(newControls).some(value => value)) {
         return
       }
+
       setData({ data })
       const requestBody = JSON.stringify(data)
+
       const requestOptions = {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: requestBody
       }
 
-      const response = await fetch(url, requestOptions).then((responseData: any) => {
+      await fetch(url, requestOptions).then((responseData: any) => {
         setUpdate(new Date().getDate().toString())
 
         if (responseData.erreur) {
@@ -170,6 +208,7 @@ export default function MedecinModal({
           } else {
             toast.success('Le médecin a été modifié avec succès')
           }
+
           onClose()
         }
       })
@@ -177,6 +216,7 @@ export default function MedecinModal({
       console.log('Erreur:', error)
     }
   }
+
   return (
     <Modal
       isOpen={isOpen}
@@ -205,12 +245,12 @@ export default function MedecinModal({
         </div>
       }
     >
-      <form noValidate autoComplete='off' className='w-full space-y-6 mt-8'>
-        <Grid container spacing={6}>
+      <form noValidate autoComplete='off' className='w-full space-y-6'>
+        <Grid container spacing={3}>
           <Grid item xs={2} md={2}>
             <Input
               type='file'
-              id='image_prod'
+              id='image'
               onChange={(e: any) => {
                 setData((prev: any) => ({
                   ...prev,
@@ -221,7 +261,7 @@ export default function MedecinModal({
               }}
               style={{ zoom: 0.8, display: 'none' }}
             />
-            <InputLabel htmlFor='image_prod'>
+            <InputLabel htmlFor='image'>
               <img src={data.imageSrc} style={{ cursor: 'pointer' }} alt='' width={60} height={60} />
             </InputLabel>
           </Grid>
@@ -358,35 +398,6 @@ export default function MedecinModal({
               }}
             />
           </Grid>
-
-          <Grid item xs={6} md={6}>
-            <TextField
-              fullWidth
-              label='Horaire'
-              value={data?.horaires ?? ''}
-              onChange={(e: any) => {
-                setData((prev: any) => ({
-                  ...prev,
-                  horaires: e.target.value
-                }))
-              }}
-              autoFocus
-              InputLabelProps={{
-                sx: { fontSize: '1rem' }
-              }}
-              InputProps={{
-                sx: {
-                  height: 60,
-                  '&.Mui-focused': {
-                    '& + .MuiInputLabel-root': {
-                      fontSize: '1rem'
-                    }
-                  }
-                }
-              }}
-            />
-          </Grid>
-
           <Grid item xs={6} md={6}>
             <FormControl fullWidth>
               <InputLabel>Ville</InputLabel>
@@ -409,6 +420,60 @@ export default function MedecinModal({
               </Select>
             </FormControl>
           </Grid>
+          <Grid item xs={6} md={6}>
+            <TextField
+              fullWidth
+              type='time'
+              value={data?.heurD ?? ''}
+              onChange={(e: any) => {
+                setData((prev: any) => ({
+                  ...prev,
+                  heurD: e.target.value
+                }))
+              }}
+              autoFocus
+              InputLabelProps={{
+                sx: { fontSize: '1rem' }
+              }}
+              InputProps={{
+                sx: {
+                  height: 60,
+                  '&.Mui-focused': {
+                    '& + .MuiInputLabel-root': {
+                      fontSize: '1rem'
+                    }
+                  }
+                }
+              }}
+            />
+          </Grid>
+          <Grid item xs={6} md={6}>
+            <TextField
+              fullWidth
+              type='time'
+              value={data?.heurF ?? ''}
+              onChange={(e: any) => {
+                setData((prev: any) => ({
+                  ...prev,
+                  heurF: e.target.value
+                }))
+              }}
+              autoFocus
+              InputLabelProps={{
+                sx: { fontSize: '1rem' }
+              }}
+              InputProps={{
+                sx: {
+                  height: 60,
+                  '&.Mui-focused': {
+                    '& + .MuiInputLabel-root': {
+                      fontSize: '1rem'
+                    }
+                  }
+                }
+              }}
+            />
+          </Grid>
 
           <Grid item xs={12} md={12}>
             <TextField
@@ -423,7 +488,7 @@ export default function MedecinModal({
                 }))
               }}
               minRows={2}
-              maxRows={3}
+              maxRows={2}
               InputLabelProps={{
                 sx: { fontSize: '1rem' }
               }}

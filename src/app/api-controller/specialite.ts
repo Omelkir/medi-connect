@@ -1,4 +1,5 @@
 import pool from '@/utils/connexion'
+
 export const ajouter = async (req: any) => {
   try {
     const json: any = req
@@ -11,9 +12,11 @@ export const ajouter = async (req: any) => {
     return { erreur: false, data: true }
   } catch (error) {
     console.error('Erreur lors de l’enregistrement', error)
+
     return { erreur: true, message: 'Erreur lors de l’enregistrement' }
   }
 }
+
 export const liste = async (req: any) => {
   try {
     const json: any = req
@@ -22,14 +25,16 @@ export const liste = async (req: any) => {
 
     const totalCountResult: any = await pool.query(totalCountQuery)
     const totalCount = totalCountResult[0][0].count
+
     // const currentPage = parseInt(req.query.page as string) || 1
     // const itemsPerPage = parseInt(req.query.limit as string) || 6
     const currentPage = 1
     const itemsPerPage = 6
     const offset = (currentPage - 1) * itemsPerPage
-    let sql = `SELECT * FROM specialite`
+    const sql = `SELECT * FROM specialite`
     const [rows] = await pool.query(sql)
     const data: any = rows
+
     const pi: any = {
       total: totalCount,
       currentPage: currentPage,
@@ -46,24 +51,31 @@ export const liste = async (req: any) => {
           : null,
       prevPageUrl: currentPage > 1 ? `/api/specialite/liste?limit=${itemsPerPage}&page=${currentPage - 1}` : null
     }
+
     return { erreur: false, data: data, paginatorInfo: pi }
   } catch (error) {
     console.error('Erreur lors de la récupération des specialites:', error)
+
     return { erreur: true, message: 'Erreur lors de l’enregistrement' }
   }
 }
+
 export const modifier = async (req: any) => {
   try {
     const json: any = req
-    let id = json.id
-    let sql = `UPDATE medi_connect.specialite SET spe ='${json.spe}' where id='${id}'`
+    const id = json.id
+    const sql = `UPDATE medi_connect.specialite SET spe ='${json.spe}' where id='${id}'`
+
     await pool.query(sql)
+
     return { erreur: false, data: true }
   } catch (error) {
     console.error('Erreur lors de l’enregistrement', error)
+
     return { erreur: true, message: 'Erreur lors de l’enregistrement' }
   }
 }
+
 // export const supprimer = async (req: any) => {
 //   try {
 //     const id = req.params.id

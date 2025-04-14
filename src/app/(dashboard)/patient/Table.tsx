@@ -1,8 +1,10 @@
 // MUI Imports
+import { useEffect, useState } from 'react'
+
 import Typography from '@mui/material/Typography'
 import Card from '@mui/material/Card'
+
 import tableStyles from '@core/styles/table.module.css'
-import { useEffect, useState } from 'react'
 import { getStorageData } from '@/utils/helpers'
 
 const Table = ({
@@ -16,6 +18,7 @@ const Table = ({
 }) => {
   const [rowsData, setRowsData] = useState<any[]>([])
   const DocteurData = getStorageData('user')
+
   async function handleSave() {
     try {
       const url = `${window.location.origin}/api/patient/liste?id_med=${DocteurData.id}`
@@ -30,6 +33,7 @@ const Table = ({
       if (!response.ok) throw new Error('Erreur lors de la requête')
 
       const responseData = await response.json()
+
       console.log('API Response:', responseData)
 
       if (responseData.erreur) {

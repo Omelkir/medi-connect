@@ -1,13 +1,17 @@
 'use client'
 
+import { useState } from 'react'
+
 import { Button, Card, CardContent, Grid, TextField } from '@mui/material'
+
+import { Stethoscope } from 'lucide-react'
 
 import Table from '@/app/(dashboard)/medecin/Table'
 import Pagination from '@/components/ui/pagination'
 import Arrow from '@/views/dashboard/Arrow'
-import { Stethoscope } from 'lucide-react'
-import { useState } from 'react'
 import MedecinModal from '@/components/modals/medecin'
+import DeleteModal from '@/components/modals/deleteModal/deleteModal'
+import { toast } from 'react-toastify'
 
 const Medecin = () => {
   const [isModalOpen, setIsModalOpen] = useState(false)
@@ -23,6 +27,37 @@ const Medecin = () => {
   const handleOpenDeleteModal = (med: any = null) => {
     setSelected(med)
     setIsDeleteModalOpen(true)
+  }
+
+  const handleDelete = async (row: any) => {
+    const id = row?.id
+
+    if (!id) return console.error('ID manquant pour la suppression')
+
+    try {
+      const url = `${window.location.origin}/api/medecin/supprimer?id=${id}`
+
+      const response = await fetch(url, {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' }
+      })
+
+      const result = await response.json()
+
+      if (result.erreur) {
+        console.error('Erreur:', result.message)
+      } else {
+        setUpdate(new Date().toDateString())
+        toast.success('Le médecin a été supprimé avec succès')
+      }
+    } catch (error) {
+      console.error('Erreur lors de la suppression:', error)
+    }
+  }
+
+  const handleConfirmDelete = async () => {
+    await handleDelete(selected)
+    setIsDeleteModalOpen(false)
   }
 
   return (
@@ -45,6 +80,7 @@ const Medecin = () => {
           </Grid>
           <Grid item xs={12} className='mt-6 justify-items-end'>
             <Pagination
+
             // total={paginatorInfo.total}
             // current={paginatorInfo.currentPage}
             // pageSize={paginatorInfo.perPage}
@@ -57,9 +93,16 @@ const Medecin = () => {
             onClose={() => setIsModalOpen(false)}
             setUpdate={setUpdate}
           />
+          <DeleteModal
+            isOpen={isDeleteModalOpen}
+            onClose={() => setIsDeleteModalOpen(false)}
+            onConfirm={handleConfirmDelete}
+            label={`le médecin ${selected?.nom_ut}`}
+          />
         </CardContent>
       </Card>
     </div>
   )
 }
+
 export default Medecin

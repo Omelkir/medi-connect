@@ -1,9 +1,11 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { Modal } from '../ui/modal'
+
 import { Button, Grid, TextField } from '@mui/material'
 import { toast } from 'react-toastify'
+
+import { Modal } from '../ui/modal'
 import { getStorageData } from '@/utils/helpers'
 
 export default function PatientModal({
@@ -18,6 +20,7 @@ export default function PatientModal({
   setUpdate: any
 }) {
   const userData = getStorageData('user')
+
   const [data, setData] = useState<any>({
     nom: '',
     prenom: '',
@@ -25,6 +28,7 @@ export default function PatientModal({
     tel: '',
     id_med: userData.id
   })
+
   useEffect(() => {
     if (patientData) {
       setData(patientData)
@@ -32,6 +36,7 @@ export default function PatientModal({
       setData({ nom: '', prenom: '', email: '', tel: '', id_med: userData.id })
     }
   }, [patientData])
+
   const [controls, setControls] = useState<any>({
     nom: false,
     prenom: false,
@@ -43,11 +48,13 @@ export default function PatientModal({
     setData({ nom: '', prenom: '', email: '', tel: '', id_med: userData.id })
     setControls({ nom: false, prenom: false, email: false, tel: false })
   }
+
   const isAdd = !patientData
 
   const handleSave = async () => {
     try {
       const url = `${window.location.origin}/api/patient/${isAdd ? 'ajouter' : 'modifier'}`
+
       setData({ ...data, id_med: userData.id })
       const requestBody = JSON.stringify(data)
       const requestOptions = { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: requestBody }
@@ -64,6 +71,7 @@ export default function PatientModal({
           } else {
             toast.success('Le patient a été modifié avec succès')
           }
+
           onClose()
         }
       })

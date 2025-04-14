@@ -1,4 +1,6 @@
 // MUI Imports
+import { useEffect, useState } from 'react'
+
 import Typography from '@mui/material/Typography'
 import Card from '@mui/material/Card'
 import Chip from '@mui/material/Chip'
@@ -11,18 +13,6 @@ import CustomAvatar from '@core/components/mui/Avatar'
 
 // Styles Imports
 import tableStyles from '@core/styles/table.module.css'
-import { useEffect, useState } from 'react'
-
-type TableBodyRowType = {
-  avatarSrc?: string
-  name: string
-  username: string
-  email: string
-  iconClass: string
-  roleIcon?: string
-  role: string
-  status: string
-}
 
 const Table = ({
   onEdit,
@@ -34,6 +24,7 @@ const Table = ({
   update: string
 }) => {
   const [rowsData, setRowsData] = useState<any[]>([])
+
   async function getMedecinsList() {
     try {
       const url = `${window.location.origin}/api/medecin/liste`
@@ -48,6 +39,7 @@ const Table = ({
       if (!response.ok) throw new Error('Erreur lors de la requête')
 
       const responseData = await response.json()
+
       console.log('API Response:', responseData)
 
       if (responseData.erreur) {
@@ -60,9 +52,11 @@ const Table = ({
       alert('Une erreur est survenue lors de la récupération des données.')
     }
   }
+
   useEffect(() => {
     getMedecinsList()
   }, [update])
+
   return (
     <Card>
       <div className='overflow-x-auto'>

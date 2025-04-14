@@ -1,9 +1,11 @@
 'use client'
 
 import React, { useEffect, useRef, useState } from 'react'
-import { Modal } from '../ui/modal'
+
 import { Button, FormControl, Grid, InputLabel, MenuItem, Select, TextField } from '@mui/material'
 import { toast } from 'react-toastify'
+
+import { Modal } from '../ui/modal'
 import { getStorageData } from '@/utils/helpers'
 
 export default function ConsultationModal({
@@ -56,6 +58,7 @@ export default function ConsultationModal({
     try {
       const payload = { ...data, id_med: userData.id }
       const url = `${window.location.origin}/api/consultation/${isAdd ? 'ajouter' : 'modifier'}`
+
       const requestOptions = {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -70,6 +73,7 @@ export default function ConsultationModal({
       } else {
         toast.success('Action réussie !')
         setUpdate(new Date().getTime().toString())
+        clearForm()
         onClose()
       }
     } catch (error) {
@@ -94,6 +98,7 @@ export default function ConsultationModal({
     }
   })
   const myModalRef = useRef<HTMLDivElement | null>(null) // Création de myModalRef
+
   useEffect(() => {
     if (isOpen) {
       // Gérer le focus sur le modal au moment où il devient visible
@@ -129,39 +134,41 @@ export default function ConsultationModal({
     >
       <form className='space-y-4'>
         <Grid container spacing={3}>
-          <Grid item xs={12} md={12}>
-            <FormControl fullWidth>
-              <InputLabel>Patient</InputLabel>
-              <Select
-                label='patient'
-                key={'test21'}
-                className={`${controls?.patient === true ? 'isReq' : ''}`}
-                value={data?.patient || null}
-                onChange={(e: any) => {
-                  if (e === null) {
-                    setControls({ ...controls, patient: true })
-                    setData((prev: any) => ({
-                      ...prev,
-                      patient: e.target.value
-                    }))
-                  } else {
-                    setControls({ ...controls, patient: false })
-                    setData((prev: any) => ({
-                      ...prev,
-                      patient: e.target.value
-                    }))
-                  }
-                }}
-              >
-                {patientListe.map(item => (
-                  <MenuItem value={item.id} key={item.id}>
-                    {item.nom}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-            {controls.patient && <span className='errmsg'>Veuillez sélectionner un patient !</span>}
-          </Grid>
+          {userData.role === 2 ? (
+            <Grid item xs={12} md={12}>
+              <FormControl fullWidth>
+                <InputLabel>Patient</InputLabel>
+                <Select
+                  label='patient'
+                  key={'test21'}
+                  className={`${controls?.patient === true ? 'isReq' : ''}`}
+                  value={data?.patient || null}
+                  onChange={(e: any) => {
+                    if (e === null) {
+                      setControls({ ...controls, patient: true })
+                      setData((prev: any) => ({
+                        ...prev,
+                        patient: e.target.value
+                      }))
+                    } else {
+                      setControls({ ...controls, patient: false })
+                      setData((prev: any) => ({
+                        ...prev,
+                        patient: e.target.value
+                      }))
+                    }
+                  }}
+                >
+                  {patientListe.map(item => (
+                    <MenuItem value={item.id} key={item.id}>
+                      {item.nom}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+              {controls.patient && <span className='errmsg'>Veuillez sélectionner un patient !</span>}
+            </Grid>
+          ) : null}
           <Grid item xs={12} md={12}>
             <TextField
               fullWidth

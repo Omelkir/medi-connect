@@ -1,5 +1,5 @@
 export function setStorageData(el: string, value: any) {
-  let storageString = window.localStorage.getItem('storage_data')
+  const storageString = window.localStorage.getItem('storage_data')
   let storage: any = {}
 
   // Parse only if the string is not null
@@ -14,7 +14,7 @@ export function setStorageData(el: string, value: any) {
 }
 
 export function getStorageData(el?: string) {
-  let storageString = window.localStorage.getItem('storage_data')
+  const storageString = window.localStorage.getItem('storage_data')
 
   if (!storageString) return el ? undefined : {}
 
@@ -26,6 +26,7 @@ export function getStorageData(el?: string) {
 
   return el ? storage[el] : storage
 }
+
 export function deleteStorageData() {
   window.localStorage.removeItem('storage_data')
 }
