@@ -1,12 +1,16 @@
 'use client'
-import React from 'react'
+
+import React, { useRef, useState } from 'react'
+
 import { IoMdMenu } from 'react-icons/io'
 import { motion } from 'framer-motion'
+
+import Badge from '@mui/material/Badge'
+
+import Avatar from '@mui/material/Avatar'
+import { styled } from '@mui/material/styles'
+
 import Logo from '@/components/layout/shared/Logo'
-import { Button } from '@mui/material'
-import { useRouter } from 'next/navigation'
-import path from 'path'
-import Link from '@/components/Link'
 
 const NavbarMenu = [
   {
@@ -40,14 +44,31 @@ const NavbarMenu = [
     path: '/login'
   }
 ]
+
+const BadgeContentSpan = styled('span')({
+  width: 8,
+  height: 8,
+  borderRadius: '50%',
+  cursor: 'pointer',
+  backgroundColor: 'var(--mui-palette-success-main)',
+  boxShadow: '0 0 0 2px var(--mui-palette-background-paper)'
+})
+
 const Navbar = () => {
-  const router = useRouter()
+  const anchorRef = useRef<HTMLDivElement>(null)
+  const [open, setOpen] = useState(false)
+
+  const handleDropdownOpen = () => {
+    !open ? setOpen(true) : setOpen(false)
+  }
+
   return (
     <nav className='relative z-20'>
       <motion.div
         initial={{ opacity: 0, y: -50 }}
         animate={{ opacity: 1, y: 0 }}
         className='py-2 px-20 bg-white flex justify-between font-poppins items-center'
+
         // style={{ position: 'absolute', top: 0, left: 0, right: 0, zIndex: 10 }}
       >
         {/* Logo section */}
@@ -67,11 +88,25 @@ const Navbar = () => {
             ))}
           </ul>
         </div>
-        {/* Mobile Hamburger menu section */}
 
         <div className='lg:hidden'>
           <IoMdMenu className='text-4xl' />
         </div>
+        <Badge
+          ref={anchorRef}
+          overlap='circular'
+          badgeContent={<BadgeContentSpan onClick={handleDropdownOpen} />}
+          anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+          className='mis-2'
+        >
+          <Avatar
+            ref={anchorRef}
+            alt='John Doe'
+            src='/images/avatars/1.png'
+            onClick={handleDropdownOpen}
+            className='cursor-pointer bs-[38px] is-[38px]'
+          />
+        </Badge>
       </motion.div>
     </nav>
   )

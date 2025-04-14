@@ -20,6 +20,7 @@ import Typography from '@mui/material/Typography'
 import Divider from '@mui/material/Divider'
 import MenuItem from '@mui/material/MenuItem'
 import Button from '@mui/material/Button'
+
 import { deleteStorageData, getStorageData } from '@/utils/helpers'
 
 // Styled component for badge content
@@ -57,7 +58,9 @@ const UserDropdown = () => {
 
     setOpen(false)
   }
+
   const userData: any = getStorageData('user')
+
   return (
     <>
       <Badge
