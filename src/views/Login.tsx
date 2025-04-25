@@ -70,7 +70,8 @@ const Login = () => {
       if (!result.erreur) {
         setStorageData('typeOfLogger', result.role)
         setStorageData('user', result.user)
-        router.push('/dashboard')
+        if (result.role == 1 || result.role == 2 || result.role3) router.push('/')
+        else router.push('/front_page')
       } else {
         setTypeOfLogger(0)
       }

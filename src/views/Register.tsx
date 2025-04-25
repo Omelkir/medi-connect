@@ -124,7 +124,6 @@ const Register = () => {
       const reader = new FileReader()
 
       reader.onloadend = () => {
-        // Une fois l'image convertie en Base64, mettre à jour l'état
         setData((prev: any) => ({
           ...prev,
           image: reader.result // Image en Base64
@@ -200,9 +199,11 @@ const Register = () => {
         mdp: data.mdp.trim() === '',
         conMdp: data.conMdp.trim() === '',
         nom_ut: data.nom_ut.trim() === '',
-        nom: data.nom.trim() === '',
-        prenom: data.prenom.trim() === '',
-        role: data.role === 0
+        role: data.role === 0,
+        ...(data.role === 4 && {
+          nom: data.nom.trim() === '',
+          prenom: data.prenom.trim() === ''
+        })
       }
 
       setControls(newControls)
