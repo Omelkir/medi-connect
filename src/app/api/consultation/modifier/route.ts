@@ -1,12 +1,12 @@
 import type { NextRequest } from 'next/server'
 import { NextResponse } from 'next/server'
 
-import { ajouter } from '@/app/api-controller/patient'
+import { modifier } from '@/app/api-controller/consultation'
 
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json()
-    const data = await ajouter(body)
+    const data = await modifier(body)
 
     return NextResponse.json(data)
   } catch (error) {

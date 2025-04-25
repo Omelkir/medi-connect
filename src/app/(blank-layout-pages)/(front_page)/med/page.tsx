@@ -71,7 +71,7 @@ const Medecin = () => {
   ]
 
   const [isModalOpen, setIsModalOpen] = useState(false)
-  const [selectedMedecinId, setSelectedMedecinId] = useState<number | null>(null)
+  const [selectedMedecinId, setSelectedMedecinId] = useState<any>(null)
   const [data, setData] = useState<any>({ nom_ut: '', spe: 0, ville: 0 })
   const [medecins, setMedecins] = useState<any[]>([])
 
@@ -104,6 +104,17 @@ const Medecin = () => {
   useEffect(() => {
     handleSave()
   }, [])
+
+  async function upValue(e: any, id: any, user: any) {
+    try {
+      const url = `${window.location.origin}/api/score/ajouter`
+      const requestBody = JSON.stringify({ pr: e * 20, id_el: id, el: 2, user })
+
+      const requestOptions = { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: requestBody }
+
+      await fetch(url, requestOptions)
+    } catch (error) {}
+  }
 
   return (
     <div className='bg-white pl-3 pr-3'>
@@ -181,7 +192,7 @@ const Medecin = () => {
                           {specialites.find(spe => spe.value === medecin.spe)?.label || 'Spécialité non définie'}
                         </p>
                         <div className='mt-2'>
-                          <StarRating size='sm' initialRating={3.5} readOnly />
+                          <StarRating size='sm' initialRating={medecin?.sc ?? 0} readOnly />
                         </div>
                       </div>
                     </div>
@@ -198,14 +209,6 @@ const Medecin = () => {
                       >
                         Rendez-vous
                       </Button>
-
-                      <ConsultationModal
-                        isOpen={isModalOpen}
-                        onClose={() => setIsModalOpen(false)}
-                        setUpdate={setUpdate}
-
-                        // medecinId={selectedMedecinId}
-                      />
                     </div>
                   </div>
                   <hr className='my-4 border-t border-gray-300' />
@@ -226,13 +229,28 @@ const Medecin = () => {
                       <span>{medecin.tarif} dt</span>
                     </div>
                     <div className='flex justify-end mt-4'>
-                      <StarRating size='sm' />
+                      <StarRating
+                        size='sm'
+                        onChange={async (e: any) => {
+                          console.log(e)
+                          await upValue(e, medecin.id, 1)
+                        }}
+                      />
                     </div>
                   </CardContent>
                 </Card>
               </Grid>
             ))
           : null}
+
+        <ConsultationModal
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+          setUpdate={setUpdate}
+          dataUp={{ id_patient: 1, id_el: selectedMedecinId, el: 2 }}
+
+          // medecinId={selectedMedecinId}
+        />
       </Grid>
     </div>
   )

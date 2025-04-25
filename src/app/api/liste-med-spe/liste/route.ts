@@ -1,5 +1,7 @@
+import type { NextRequest } from 'next/server'
+import { NextResponse } from 'next/server'
+
 import { liste } from '@/app/api-controller/liste-med-spe'
-import { NextRequest, NextResponse } from 'next/server'
 
 export async function POST(req: NextRequest) {
   try {
@@ -13,6 +15,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json(data)
   } catch (error) {
     console.error(error)
+
     return NextResponse.json({ erreur: true, message: 'Erreur interne du serveur' }, { status: 500 })
   }
 }

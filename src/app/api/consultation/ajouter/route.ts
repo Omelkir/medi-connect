@@ -1,7 +1,7 @@
 import type { NextRequest } from 'next/server'
 import { NextResponse } from 'next/server'
 
-import { ajouter } from '@/app/api-controller/patient'
+import { ajouter } from '@/app/api-controller/consultation'
 
 export async function POST(req: NextRequest) {
   try {

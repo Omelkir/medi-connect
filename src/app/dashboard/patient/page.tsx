@@ -1,16 +1,18 @@
 'use client'
 
+import { useState } from 'react'
+
 import { Button, Card, CardContent, Grid } from '@mui/material'
 import { IconUserPlus } from '@tabler/icons-react'
-import Arrow from '@/views/dashboard/Arrow'
-import PatientModal from '@/components/modals/patient'
-import { useState } from 'react'
-import Table from './Table'
-import PatientDelete from '@/components/modals/deleteModal/patient'
-import Pagination from '@/components/ui/pagination'
+
 import * as Tabs from '@radix-ui/react-tabs'
 
-const Patient = ({ paginatorInfo }: any) => {
+import Arrow from '@/views/dashboard/Arrow'
+import PatientModal from '@/components/modals/patient'
+import Table from './Table'
+import PatientDelete from '@/components/modals/deleteModal/patient'
+
+const Patient = ({}: any) => {
   const [isPatientModalOpen, setIsPatientModalOpen] = useState(false)
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
   const [selectedPatient, setSelectedPatient] = useState<any>(null)
@@ -59,14 +61,6 @@ const Patient = ({ paginatorInfo }: any) => {
 
           <Grid item xs={12}>
             <Table onEditPatient={handleOpenPatientModal} onDeletePatient={handleOpenDeleteModal} update={update} />
-          </Grid>
-          <Grid item xs={12} className='mt-6 justify-items-end'>
-            <Pagination
-            // total={paginatorInfo.total}
-            // current={paginatorInfo.currentPage}
-            // pageSize={paginatorInfo.perPage}
-            // onChange={onPagination}
-            />
           </Grid>
         </CardContent>
       </Card>

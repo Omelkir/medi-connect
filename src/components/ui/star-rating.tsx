@@ -1,7 +1,9 @@
 'use client'
 
 import { useState } from 'react'
+
 import { Star } from 'lucide-react'
+
 import { cn } from '@/libs/utl'
 
 interface StarRatingProps {
@@ -28,6 +30,7 @@ export function StarRating({
     if (readOnly) return
 
     const newRating = index + 1
+
     setRating(newRating)
     onChange?.(newRating)
   }

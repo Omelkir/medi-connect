@@ -1,6 +1,8 @@
 'use client'
 
 // React Imports
+import { log } from 'console'
+
 import { useState } from 'react'
 import type { FormEvent } from 'react'
 
@@ -8,9 +10,6 @@ import type { FormEvent } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 
-// MUI Imports
-import Card from '@mui/material/Card'
-import CardContent from '@mui/material/CardContent'
 import Typography from '@mui/material/Typography'
 import TextField from '@mui/material/TextField'
 import IconButton from '@mui/material/IconButton'
@@ -18,27 +17,20 @@ import InputAdornment from '@mui/material/InputAdornment'
 import Checkbox from '@mui/material/Checkbox'
 import Button from '@mui/material/Button'
 import FormControlLabel from '@mui/material/FormControlLabel'
-import Divider from '@mui/material/Divider'
 
 // Type Imports
-import type { Mode } from '@core/types'
+import { Box } from '@mui/material'
+
+import { IconExclamationCircle } from '@tabler/icons-react'
 
 // Component Imports
 import Logo from '@components/layout/shared/Logo'
-import Illustrations from '@components/Illustrations'
 
-// Config Imports
-import themeConfig from '@configs/themeConfig'
-
-// Hook Imports
-import { useImageVariant } from '@core/hooks/useImageVariant'
-import { Box } from '@mui/material'
 import { getStorageData, setStorageData } from '@/utils/helpers'
-import { log } from 'console'
-import { IconExclamationCircle } from '@tabler/icons-react'
 
 const Login = () => {
   const router = useRouter()
+
   const isLogged: any =
     getStorageData('typeOfLogger') !== -1 &&
     getStorageData('typeOfLogger') !== null &&
@@ -47,10 +39,12 @@ const Login = () => {
   if (isLogged) {
     router.push('/')
   }
+
   // States
   const [isPasswordShown, setIsPasswordShown] = useState(false)
   const [data, setData] = useState<any>({ email: '', mdp: '' })
   const [typeOfLogger, setTypeOfLogger] = useState<number>(-1)
+
   const [controls, setControls] = useState<any>({
     email: false,
     mdp: false
@@ -68,6 +62,7 @@ const Login = () => {
         headers: { 'Content-Type': 'application/json' },
         body: requestBody
       }
+
       const response = await fetch(url, requestOptions)
 
       const result = await response.json()
@@ -75,7 +70,7 @@ const Login = () => {
       if (!result.erreur) {
         setStorageData('typeOfLogger', result.role)
         setStorageData('user', result.user)
-        router.push('/')
+        router.push('/dashboard')
       } else {
         setTypeOfLogger(0)
       }

@@ -1,27 +1,39 @@
-import pool from '@/utils/connexion'
-import { RowDataPacket } from 'mysql2'
 import { NextRequest, NextResponse } from 'next/server'
+
+import type { RowDataPacket } from 'mysql2'
+
+import pool from '@/utils/connexion'
+
 export const liste = async (req: any) => {
   try {
     const { spe, nom_ut, ville } = req
 
-    let sql = `SELECT *
-               FROM medi_connect.medecin
-               WHERE 1=1`
+    let sql = `SELECT 
+  m.*, 
+  COALESCE(AVG(s.pr) * 5 / 100, 0) AS sc
+FROM medi_connect.medecin m
+LEFT JOIN medi_connect.score s 
+  ON s.id_el = m.id AND s.el = 2
+ where 1 = 1 
+`
     const params: any[] = []
 
     if (spe) {
-      sql += ` AND spe = ?`
+      sql += ` AND m.spe = ?`
       params.push(spe)
     }
+
     if (nom_ut) {
-      sql += ` AND nom_ut = ?`
+      sql += ` AND m.nom_ut = ?`
       params.push(nom_ut)
     }
+
     if (ville) {
-      sql += ` AND ville = ?`
+      sql += ` AND m.ville = ?`
       params.push(ville)
     }
+
+    sql += ' GROUP BY m.id '
     const [rows] = await pool.query<RowDataPacket[]>(sql, params)
 
     // let totalCount = rows.length
@@ -54,6 +66,7 @@ export const liste = async (req: any) => {
     return { erreur: false, data: rows }
   } catch (error) {
     console.error('Erreur SQL:', error)
+
     return { erreur: true, message: 'Erreur lors de la récupération des données' }
   }
 }

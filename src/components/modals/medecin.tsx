@@ -252,17 +252,28 @@ export default function MedecinModal({
               type='file'
               id='image'
               onChange={(e: any) => {
-                setData((prev: any) => ({
-                  ...prev,
-                  image: e.target.files[0] // Corrected here
-                }))
+                const file: any = e.target.files?.[0]
 
-                handleImageChange(e)
+                if (file) {
+                  setData((prev: any) => ({
+                    ...prev,
+                    image: file,
+                    imageSrc: URL.createObjectURL(file)
+                  }))
+                  handleImageChange(e)
+                }
               }}
               style={{ zoom: 0.8, display: 'none' }}
             />
+
             <InputLabel htmlFor='image'>
-              <img src={data.imageSrc} style={{ cursor: 'pointer' }} alt='' width={60} height={60} />
+              <img
+                src={data.imageSrc ? data.imageSrc : '/img/placeholder-image.jpg'}
+                style={{ cursor: 'pointer', borderRadius: '8px' }}
+                alt='Preview'
+                width={60}
+                height={60}
+              />
             </InputLabel>
           </Grid>
           <Grid item xs={10} md={10}>

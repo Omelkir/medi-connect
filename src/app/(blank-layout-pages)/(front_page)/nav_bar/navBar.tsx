@@ -11,6 +11,9 @@ import Avatar from '@mui/material/Avatar'
 import { styled } from '@mui/material/styles'
 
 import Logo from '@/components/layout/shared/Logo'
+import { getStorageData } from '@/utils/helpers'
+
+const userData = getStorageData('user')
 
 const NavbarMenu = [
   {
@@ -92,21 +95,23 @@ const Navbar = () => {
         <div className='lg:hidden'>
           <IoMdMenu className='text-4xl' />
         </div>
-        <Badge
-          ref={anchorRef}
-          overlap='circular'
-          badgeContent={<BadgeContentSpan onClick={handleDropdownOpen} />}
-          anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-          className='mis-2'
-        >
-          <Avatar
+        {/* {userData.role === '4' ? (
+          <Badge
             ref={anchorRef}
-            alt='John Doe'
-            src='/images/avatars/1.png'
-            onClick={handleDropdownOpen}
-            className='cursor-pointer bs-[38px] is-[38px]'
-          />
-        </Badge>
+            overlap='circular'
+            badgeContent={<BadgeContentSpan onClick={handleDropdownOpen} />}
+            anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+            className='mis-2'
+          >
+            <Avatar
+              ref={anchorRef}
+              alt='John Doe'
+              src='/images/avatars/1.png'
+              onClick={handleDropdownOpen}
+              className='cursor-pointer bs-[38px] is-[38px]'
+            />
+          </Badge>
+        ) : null} */}
       </motion.div>
     </nav>
   )

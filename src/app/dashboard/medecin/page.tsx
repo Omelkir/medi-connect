@@ -6,12 +6,13 @@ import { Button, Card, CardContent, Grid, TextField } from '@mui/material'
 
 import { Stethoscope } from 'lucide-react'
 
+import { toast } from 'react-toastify'
+
 import Table from '@/app/(dashboard)/medecin/Table'
 import Pagination from '@/components/ui/pagination'
 import Arrow from '@/views/dashboard/Arrow'
 import MedecinModal from '@/components/modals/medecin'
 import DeleteModal from '@/components/modals/deleteModal/deleteModal'
-import { toast } from 'react-toastify'
 
 const Medecin = () => {
   const [isModalOpen, setIsModalOpen] = useState(false)

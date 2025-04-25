@@ -1,14 +1,17 @@
 'use client'
 
-import { Card, CardContent, FormControl, Grid, InputLabel, MenuItem, Select, Typography } from '@mui/material'
-import Arrow from '@/views/dashboard/Arrow'
-import { useState } from 'react'
-import * as Tabs from '@radix-ui/react-tabs'
-import { getStorageData } from '@/utils/helpers'
-import tableStyles from '@core/styles/table.module.css'
-import React from 'react'
+import React, { useState } from 'react'
 
 import { useSearchParams } from 'next/navigation'
+
+import { Card, CardContent, FormControl, Grid, InputLabel, MenuItem, Select, Typography } from '@mui/material'
+
+import * as Tabs from '@radix-ui/react-tabs'
+
+import Arrow from '@/views/dashboard/Arrow'
+
+import { getStorageData } from '@/utils/helpers'
+import tableStyles from '@core/styles/table.module.css'
 
 const Patient = () => {
   const searchParams = useSearchParams()
@@ -21,12 +24,14 @@ const Patient = () => {
   const [ordonnances, setOrdonnances] = useState<any[]>([])
   const [selectedPatient, setSelectedPatient] = useState<any>(idFiche ? patientListe.find(p => p.id === idFiche) : null)
   const userData = getStorageData('user')
+
   const [data, setData] = useState<any>({
     patient: idFiche ?? '',
     id_med: userData.id
   })
 
   const DocteurData = getStorageData('user')
+
   async function getPatientListe() {
     const url = `${window.location.origin}/api/patient/liste?id_med=${DocteurData.id}`
 
@@ -34,11 +39,13 @@ const Patient = () => {
       method: 'GET',
       headers: { 'Content-Type': 'application/json' }
     }
+
     const response = await fetch(url, requestOptions)
 
     if (!response.ok) throw new Error('Erreur lors de la requête')
 
     const responseData = await response.json()
+
     if (idFiche !== null) {
       setSelectedPatient(responseData?.data?.find((p: any) => p.id == idFiche))
     }
@@ -51,21 +58,27 @@ const Patient = () => {
       setPatientListe(responseData.data)
     }
   }
+
   React.useEffect(() => {
     getPatientListe()
   }, [])
+
   async function getConsultations() {
     if (!selectedPatient) return
     const url = `${window.location.origin}/api/consultation/liste?id_patient=${selectedPatient.id}`
+
     try {
       const response = await fetch(url, { method: 'GET', headers: { 'Content-Type': 'application/json' } })
+
       if (!response.ok) throw new Error('Erreur lors de la requête')
       const responseData = await response.json()
+
       setConsultations(responseData.data || [])
     } catch (error) {
       console.error(error)
     }
   }
+
   React.useEffect(() => {
     getConsultations()
   }, [selectedPatient])
@@ -73,15 +86,19 @@ const Patient = () => {
   async function getAnalyse() {
     if (!selectedPatient) return
     const url = `${window.location.origin}/api/analyse/liste?id_patient=${selectedPatient.id}`
+
     try {
       const response = await fetch(url, { method: 'GET', headers: { 'Content-Type': 'application/json' } })
+
       if (!response.ok) throw new Error('Erreur lors de la requête')
       const responseData = await response.json()
+
       setAnalyses(responseData.data || [])
     } catch (error) {
       console.error(error)
     }
   }
+
   React.useEffect(() => {
     getAnalyse()
   }, [selectedPatient])
@@ -89,15 +106,19 @@ const Patient = () => {
   async function getOrdonnance() {
     if (!selectedPatient) return
     const url = `${window.location.origin}/api/ordonnance/liste?id_patient=${selectedPatient.id}`
+
     try {
       const response = await fetch(url, { method: 'GET', headers: { 'Content-Type': 'application/json' } })
+
       if (!response.ok) throw new Error('Erreur lors de la requête')
       const responseData = await response.json()
+
       setOrdonnances(responseData.data || [])
     } catch (error) {
       console.error(error)
     }
   }
+
   React.useEffect(() => {
     getOrdonnance()
   }, [selectedPatient])
@@ -122,6 +143,7 @@ const Patient = () => {
                       patient: e.target.value
                     }))
                     const patient = patientListe.find(p => p.id === e.target.value)
+
                     setSelectedPatient(patient || null)
                   }}
                 >
@@ -254,6 +276,7 @@ const Patient = () => {
                         <tbody>
                           {consultations.map((consultation, index) => {
                             const dateObj = new Date(consultation.date)
+
                             return (
                               <tr key={index} className='bg-gray-100'>
                                 <td className='px-4 py-2 text-sm text-gray-700'>{dateObj.toLocaleDateString()}</td>

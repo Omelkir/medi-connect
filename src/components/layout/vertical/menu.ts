@@ -16,11 +16,6 @@ export const menuMed = [
     label: 'Demandes de rendez-vous',
     path: '/de',
     icon: 'ri-file-list-fill'
-  },
-  {
-    label: 'Rapport',
-    path: '/medecin',
-    icon: 'ri-file-fill'
   }
 ]
 export const menulabo = [
