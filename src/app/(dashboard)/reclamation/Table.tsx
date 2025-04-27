@@ -4,34 +4,32 @@ import { useEffect, useState } from 'react'
 import Typography from '@mui/material/Typography'
 import Card from '@mui/material/Card'
 
-// Components Imports
+import Chip from '@mui/material/Chip'
+
 import { Grid } from '@mui/material'
 
-import CustomAvatar from '@core/components/mui/Avatar'
-
-// Styles Imports
 import tableStyles from '@core/styles/table.module.css'
 import Pagination from '@/components/ui/pagination'
 
 const Table = ({
-  onEdit,
+  onRead,
   onDelete,
   update
 }: {
-  onEdit: (med: any) => void
-  onDelete: (med: any) => void
+  onDelete: (rec: any) => void
+  onRead: (rec: any) => void
   update: string
 }) => {
   const [rowsData, setRowsData] = useState<any[]>([])
   const [paginatorInfo, setPaginatorInfo] = useState<any>({ total: 6 })
 
   const onPagination = (e: any) => {
-    getMedecinsList(e)
+    getRéclamationList(e)
   }
 
-  async function getMedecinsList(page = 1) {
+  async function getRéclamationList(page = 1) {
     try {
-      const url = `${window.location.origin}/api/medecin/liste?page=${page}`
+      const url = `${window.location.origin}/api/reclamation/liste?page=${page}`
 
       const requestOptions = {
         method: 'GET',
@@ -54,12 +52,11 @@ const Table = ({
       }
     } catch (error) {
       console.error('Erreur:', error)
-      alert('Une erreur est survenue lors de la récupération des données.')
     }
   }
 
   useEffect(() => {
-    getMedecinsList()
+    getRéclamationList()
   }, [update])
 
   return (
@@ -69,10 +66,12 @@ const Table = ({
           <table className={tableStyles.table}>
             <thead>
               <tr>
-                <th>Nom Utilisateur</th>
+                <th>Nom</th>
+                <th>Prenom</th>
                 <th>Email</th>
-                <th>Ville</th>
-                <th>Spéciallité</th>
+                <th>Numéro téléphone</th>
+                <th>Message</th>
+                <th>Type de message</th>
                 <th className='text-center'>Action</th>
               </tr>
             </thead>
@@ -80,29 +79,61 @@ const Table = ({
               {rowsData.map((row, index) => (
                 <tr key={index}>
                   <td className='!plb-1'>
-                    <div className='flex items-center gap-3'>
-                      <CustomAvatar src={row.image} size={34} />
-                      <div className='flex flex-col'>
-                        <Typography color='text.primary' className='font-medium'>
-                          {row.nom_ut}
-                        </Typography>
-                      </div>
-                    </div>
+                    <Typography>{row.nom}</Typography>
+                  </td>
+                  <td className='!plb-1'>
+                    <Typography>{row.prenom}</Typography>
                   </td>
                   <td className='!plb-1'>
                     <Typography>{row.email}</Typography>
                   </td>
                   <td className='!plb-1'>
-                    <Typography>{row.ville}</Typography>
+                    <Typography>{row.tel}</Typography>
                   </td>
                   <td className='!plb-1'>
-                    <Typography>{row.spe}</Typography>
+                    <Typography>
+                      <button
+                        className='ri-message-2-fill text-yellow-500 text-xl hover:text-2xl'
+                        onClick={() => onRead(row)}
+                      ></button>
+                    </Typography>
                   </td>
+                  <td className='!pb-1'>
+                    {(() => {
+                      let label = ''
+                      let color: 'primary' | 'warning' | 'info' | 'error' | 'secondary' = 'secondary'
+
+                      switch (row.type) {
+                        case 1:
+                          label = 'Message concernant un rendez-vous'
+                          color = 'primary'
+                          break
+                        case 2:
+                          label = 'Message concernant un médecin'
+                          color = 'warning'
+                          break
+                        case 3:
+                          label = 'Message concernant un laboratoire'
+                          color = 'info'
+                          break
+                        case 4:
+                          label = 'Message concernant un problème technique'
+                          color = 'error'
+                          break
+                        case 5:
+                          label = 'Autres'
+                          color = 'secondary'
+                          break
+                        default:
+                          label = 'Inconnu'
+                          color = 'secondary'
+                      }
+
+                      return <Chip className='capitalize' variant='tonal' color={color} label={label} size='small' />
+                    })()}
+                  </td>
+
                   <td className='flex justify-center gap-2'>
-                    <button
-                      className='ri-edit-box-line text-yellow-500 text-xl hover:text-2xl'
-                      onClick={() => onEdit(row)}
-                    ></button>
                     <button
                       onClick={() => onDelete(row)}
                       className='ri-delete-bin-line text-red-500 text-xl hover:text-2xl'

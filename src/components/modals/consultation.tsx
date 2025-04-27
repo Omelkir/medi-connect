@@ -36,17 +36,17 @@ export default function ConsultationModal({
   const userData = getStorageData('user')
 
   const [patientListe, setPatientListe] = useState<any[]>([])
-  const [data, setData] = useState<any>({ id_patient: 0, date: '', id_el: userData.id, el: userData.nom })
+  const [data, setData] = useState<any>({ id_patient: 0, date: '', id_el: userData?.id, el: userData?.role })
   const [controls, setControls] = useState<any>({ id_patient: false, date: false })
 
   const clearForm = () => {
-    setData({ id_patient: 0, date: '', id_el: userData.id, el: userData.nom })
+    setData({ id_patient: 0, date: '', id_el: userData?.id, el: userData?.role })
     setControls({ id_patient: false, date: false })
   }
 
   async function getPatientListe() {
     try {
-      const url = `${window.location.origin}/api/patient/liste?id_med=${userData.id}`
+      const url = `${window.location.origin}/api/patient/liste?id_med=${userData?.id}`
       const response = await fetch(url, { method: 'GET', headers: { 'Content-Type': 'application/json' } })
 
       if (!response.ok) throw new Error('Erreur lors de la requête')
@@ -71,9 +71,9 @@ export default function ConsultationModal({
 
   const handleSave = async () => {
     try {
-      const payload = { ...data, id_el: userData.id, el: userData.nom }
+      const payload = { ...data, id_el: userData?.id, el: userData?.role }
 
-      console.log('idmed:', userData.id)
+      console.log('idmed:', userData?.id)
 
       const url = `${window.location.origin}/api/consultation/${isAdd ? 'ajouter' : 'modifier'}`
 
@@ -142,7 +142,6 @@ export default function ConsultationModal({
 
   return (
     <Modal
-      // ref={myModalRef}
       isOpen={isOpen}
       onClose={onClose}
       title={
@@ -166,7 +165,7 @@ export default function ConsultationModal({
     >
       <form className='space-y-4'>
         <Grid container spacing={3}>
-          {userData.role === '2' ? (
+          {userData?.role === '2' ? (
             <Grid item xs={12} md={12}>
               <FormControl fullWidth>
                 <InputLabel>Patient</InputLabel>

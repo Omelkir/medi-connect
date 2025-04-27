@@ -19,8 +19,11 @@ import { FaMoneyBillAlt, FaRegClock } from 'react-icons/fa'
 import { SimpleSlideshow } from '@/components/auto-images/images'
 import { StarRating } from '@/components/ui/star-rating'
 import ConsultationModal from '@/components/modals/consultation'
+import { getStorageData } from '@/utils/helpers'
 
 const Medecin = () => {
+  const userData = getStorageData('user')
+
   const villes = [
     { label: 'Ariana', value: 1 },
     { label: 'Béja', value: 2 },
@@ -77,10 +80,9 @@ const Medecin = () => {
 
   async function handleSave() {
     try {
-      const url = `${window.location.origin}/api/liste-med-spe/liste`
-      const requestBody = JSON.stringify({ spe: data.spe, nom_ut: data.nom_ut, ville: data.ville })
+      const url = `${window.location.origin}/api/liste-med-spe/liste?spe=${data.spe}&nom_ut=${data.nom_ut}&ville=${data.ville}`
 
-      const requestOptions = { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: requestBody }
+      const requestOptions = { method: 'GET' }
 
       const response = await fetch(url, requestOptions)
 
@@ -97,13 +99,12 @@ const Medecin = () => {
       }
     } catch (error) {
       console.error('Erreur:', error)
-      alert('Une erreur est survenue lors de la récupération des données.')
     }
   }
 
   useEffect(() => {
     handleSave()
-  }, [])
+  }, [update])
 
   async function upValue(e: any, id: any, user: any) {
     try {
@@ -247,7 +248,7 @@ const Medecin = () => {
           isOpen={isModalOpen}
           onClose={() => setIsModalOpen(false)}
           setUpdate={setUpdate}
-          dataUp={{ id_patient: 1, id_el: selectedMedecinId, el: 2 }}
+          dataUp={{ id_patient: userData?.id, id_el: selectedMedecinId, el: 2 }}
 
           // medecinId={selectedMedecinId}
         />

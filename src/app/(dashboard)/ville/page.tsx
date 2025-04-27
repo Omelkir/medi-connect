@@ -9,11 +9,10 @@ import { Plus } from 'lucide-react'
 import Arrow from '@/views/dashboard/Arrow'
 import Table from './Table'
 import PatientDelete from '@/components/modals/deleteModal/patient'
-import Pagination from '@/components/ui/pagination'
 
 import VilleModal from '@/components/modals/ville'
 
-const Ville = ({ paginatorInfo }: any) => {
+const Ville = () => {
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [selected, setSelected] = useState<any>(null)
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
@@ -56,15 +55,6 @@ const Ville = ({ paginatorInfo }: any) => {
 
           <Grid item xs={12}>
             <Table onEdit={handleOpenModal} onDelete={handleOpenDeleteModal} update={update} />
-          </Grid>
-          <Grid item xs={12} className='mt-6 justify-items-end'>
-            <Pagination
-
-            // total={paginatorInfo.total}
-            // current={paginatorInfo.currentPage}
-            // pageSize={paginatorInfo.perPage}
-            // onChange={onPagination}
-            />
           </Grid>
         </CardContent>
       </Card>

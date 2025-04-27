@@ -73,7 +73,7 @@ export const menuAdmin = [
   },
   {
     label: 'Confirmation',
-    path: '/reclamation',
+    path: '/conf',
     icon: 'ri-pass-valid-line'
   }
 

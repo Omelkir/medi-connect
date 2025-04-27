@@ -1,12 +1,10 @@
-import { NextRequest, NextResponse } from 'next/server'
-
 import type { RowDataPacket } from 'mysql2'
 
 import pool from '@/utils/connexion'
 
 export const liste = async (req: any) => {
   try {
-    const { spe, nom_ut, ville } = req
+    const { spe, nom_ut, ville } = req.query
 
     let sql = `SELECT 
   m.*, 
@@ -18,50 +16,21 @@ LEFT JOIN medi_connect.score s
 `
     const params: any[] = []
 
-    if (spe) {
-      sql += ` AND m.spe = ?`
-      params.push(spe)
+    const filters = {
+      'm.spe': spe,
+      'm.nom_ut': nom_ut,
+      'm.ville': ville
     }
 
-    if (nom_ut) {
-      sql += ` AND m.nom_ut = ?`
-      params.push(nom_ut)
-    }
-
-    if (ville) {
-      sql += ` AND m.ville = ?`
-      params.push(ville)
+    for (const [column, value] of Object.entries(filters)) {
+      if (value) {
+        sql += ` AND ${column} = ?`
+        params.push(value)
+      }
     }
 
     sql += ' GROUP BY m.id '
     const [rows] = await pool.query<RowDataPacket[]>(sql, params)
-
-    // let totalCount = rows.length
-
-    // let currentPage = parseInt(req.query.page as string) || 1
-    // let itemsPerPage = parseInt(req.query.limit as string) || 6
-    // let offset = (currentPage - 1) * itemsPerPage
-    // let pi: any = {
-    //   total: totalCount,
-    //   currentPage: currentPage,
-    //   count: rows.length,
-    //   lastPage: Math.ceil(totalCount / itemsPerPage),
-    //   firstItem: offset + 1,
-    //   lastItem: offset + rows.length,
-    //   perPage: itemsPerPage.toString(),
-    //   firstPageUrl: `${process.env.BACK_HOST}/api/clients?search=&answer=null&limit=${itemsPerPage}&page=1`,
-    //   lastPageUrl: `${process.env.BACK_HOST}/api/clients?search=&answer=null&limit=${itemsPerPage}&page=${Math.ceil(
-    //     totalCount / itemsPerPage
-    //   )}`,
-    //   nextPageUrl:
-    //     currentPage < Math.ceil(totalCount / itemsPerPage)
-    //       ? `${process.env.BACK_HOST}/api/clients?search=&answer=null&limit=${itemsPerPage}&page=${currentPage + 1}`
-    //       : null,
-    //   prevPageUrl:
-    //     currentPage > 1
-    //       ? `${process.env.BACK_HOST}/api/clients?search=&answer=null&limit=${itemsPerPage}&page=${currentPage - 1}`
-    //       : null
-    // }
 
     return { erreur: false, data: rows }
   } catch (error) {

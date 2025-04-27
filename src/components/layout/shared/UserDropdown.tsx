@@ -61,7 +61,8 @@ const UserDropdown = () => {
 
   const userData: any = getStorageData('user')
 
-  // console.log('user:', userData)
+  console.log('user:', userData)
+
   // console.log('img:', userData.image.length)
 
   return (
@@ -100,10 +101,7 @@ const UserDropdown = () => {
               <ClickAwayListener onClickAway={() => {}}>
                 <MenuList>
                   <div className='flex items-center plb-2 pli-4 gap-2' tabIndex={-1}>
-                    <Avatar
-                      alt='John Doe'
-                      src={userData?.image?.startsWith('data:image') ? userData.image : '/images/avatars/1.png'}
-                    />
+                    <Avatar alt='John Doe' src={userData?.image ?? '/images/avatars/1.png'} />
                     <div className='flex items-start flex-col'>
                       <Typography className='font-medium' color='text.primary'>
                         {userData?.nom ?? ''}

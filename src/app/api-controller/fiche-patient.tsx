@@ -1,4 +1,5 @@
 import pool from '@/utils/connexion'
+
 export const liste = async (req: any) => {
   try {
     const json: any = req
@@ -22,14 +23,16 @@ export const liste = async (req: any) => {
 
     const totalCountResult: any = await pool.query(totalCountQuery)
     const totalCount = totalCountResult[0][0].count
+
     // const currentPage = parseInt(req.query.page as string) || 1
     // const itemsPerPage = parseInt(req.query.limit as string) || 6
     const currentPage = 1
     const itemsPerPage = 6
     const offset = (currentPage - 1) * itemsPerPage
-    let sql = `SELECT * FROM medi_connect.fiche ${whereClause}`
+    const sql = `SELECT * FROM medi_connect.fiche ${whereClause}`
     const [rows] = await pool.query(sql)
     const data: any = rows
+
     const pi: any = {
       total: totalCount,
       currentPage: currentPage,
@@ -46,9 +49,11 @@ export const liste = async (req: any) => {
           : null,
       prevPageUrl: currentPage > 1 ? `/api/fiche/liste?limit=${itemsPerPage}&page=${currentPage - 1}` : null
     }
+
     return { erreur: false, data: data, paginatorInfo: pi }
   } catch (error) {
     console.error('Erreur lors de la récupération des fiches:', error)
+
     return { erreur: true, message: 'Erreur lors de l’enregistrement' }
   }
 }

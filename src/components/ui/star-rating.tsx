@@ -51,7 +51,7 @@ export function StarRating({
             'cursor-pointer transition-all duration-150',
             (hoverRating > 0 ? index < hoverRating : index < rating)
               ? 'fill-yellow-400 text-yellow-400'
-              : 'text-gray-300',
+              : 'text-gray-500',
             readOnly && 'cursor-default'
           )}
           onClick={() => handleClick(index)}

@@ -2,31 +2,31 @@
 
 import { useState } from 'react'
 
-import { Button, Card, CardContent, Grid, TextField } from '@mui/material'
+import { Button, Card, CardContent, Grid } from '@mui/material'
 
-import { Stethoscope } from 'lucide-react'
+import { Plus } from 'lucide-react'
 
 import { toast } from 'react-toastify'
 
-import Table from '@/app/(dashboard)/medecin/Table'
-
 import Arrow from '@/views/dashboard/Arrow'
-import MedecinModal from '@/components/modals/medecin'
-import DeleteModal from '@/components/modals/deleteModal/deleteModal'
 
-const Medecin = () => {
+import DeleteModal from '@/components/modals/deleteModal/deleteModal'
+import ReclamationModal from '@/components/modals/reclamation'
+import Table from './Table'
+
+const Reclamation = () => {
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [selected, setSelected] = useState<any>(null)
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
   const [update, setUpdate] = useState<string>(new Date().toDateString())
 
-  const handleOpenModal = (med: any = null) => {
-    setSelected(med)
+  const handleOpenModal = (rec: any = null) => {
+    setSelected(rec)
     setIsModalOpen(true)
   }
 
-  const handleOpenDeleteModal = (med: any = null) => {
-    setSelected(med)
+  const handleOpenDeleteModal = (rec: any = null) => {
+    setSelected(rec)
     setIsDeleteModalOpen(true)
   }
 
@@ -36,7 +36,7 @@ const Medecin = () => {
     if (!id) return console.error('ID manquant pour la suppression')
 
     try {
-      const url = `${window.location.origin}/api/medecin/supprimer?id=${id}`
+      const url = `${window.location.origin}/api/reclamation/supprimer?id=${id}`
 
       const response = await fetch(url, {
         method: 'DELETE',
@@ -49,7 +49,7 @@ const Medecin = () => {
         console.error('Erreur:', result.message)
       } else {
         setUpdate(new Date().toDateString())
-        toast.success('Le médecin a été supprimé avec succès')
+        toast.success('La réclamation a été supprimée avec succès')
       }
     } catch (error) {
       console.error('Erreur lors de la suppression:', error)
@@ -65,24 +65,14 @@ const Medecin = () => {
     <div>
       <Card>
         <CardContent>
-          <Arrow title='Dashboard' subTitle='Médecin' />
+          <Arrow title='Dashboard' subTitle='Réclamation' />
 
-          <Button
-            fullWidth
-            variant='contained'
-            color='primary'
-            className='h-12 w-1/6 mb-12'
-            onClick={() => handleOpenModal()}
-          >
-            <Stethoscope className='mr-2' /> Ajouter
-          </Button>
           <Grid item xs={12}>
-            <Table onEdit={handleOpenModal} onDelete={handleOpenDeleteModal} update={update} />
+            <Table onRead={handleOpenModal} onDelete={handleOpenDeleteModal} update={update} />
           </Grid>
-
-          <MedecinModal
+          <ReclamationModal
             isOpen={isModalOpen}
-            medecinData={selected}
+            recData={selected}
             onClose={() => setIsModalOpen(false)}
             setUpdate={setUpdate}
           />
@@ -90,7 +80,7 @@ const Medecin = () => {
             isOpen={isDeleteModalOpen}
             onClose={() => setIsDeleteModalOpen(false)}
             onConfirm={handleConfirmDelete}
-            label={`le médecin ${selected?.nom_ut}`}
+            label={`La réclamation du (de la) patient(e) ${selected?.nom}`}
           />
         </CardContent>
       </Card>
@@ -98,4 +88,4 @@ const Medecin = () => {
   )
 }
 
-export default Medecin
+export default Reclamation

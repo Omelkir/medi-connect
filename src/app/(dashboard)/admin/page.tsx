@@ -80,15 +80,7 @@ const Admin = () => {
           <Grid item xs={12}>
             <Table onEdit={handleOpenModal} onDelete={handleOpenDeleteModal} update={update} />
           </Grid>
-          <Grid item xs={12} className='mt-6 justify-items-end'>
-            <Pagination
 
-            // total={paginatorInfo.total}
-            // current={paginatorInfo.currentPage}
-            // pageSize={paginatorInfo.perPage}
-            // onChange={onPagination}
-            />
-          </Grid>
           <AdminModal
             isOpen={isModalOpen}
             adminData={selected}

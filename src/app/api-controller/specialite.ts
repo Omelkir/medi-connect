@@ -20,18 +20,43 @@ export const ajouter = async (req: any) => {
 export const liste = async (req: any) => {
   try {
     const json: any = req
+    const urlParams = new URLSearchParams(new URL(json.url).search)
 
-    const totalCountQuery = `SELECT COUNT(*) as count FROM medi_connect.specialite`
+    // Convertir les paramètres en un objet JSON
+    const paramsObj = Object.fromEntries(urlParams.entries())
+    let whereClause = ''
+    let currentPage = 1
+    let itemsPerPage = 6
+
+    Object.keys(paramsObj).forEach((key, index) => {
+      if (paramsObj[key] && ['page', 'limit'].indexOf(key) === -1) {
+        // Ajoute la condition WHERE
+        if (index === 0) {
+          whereClause += ` WHERE ${key} = ${paramsObj[key]}`
+        } else {
+          whereClause += ` AND ${key} = ${paramsObj[key]}`
+        }
+      }
+
+      if (key === 'page') {
+        currentPage = parseInt(paramsObj[key] as string)
+      }
+
+      if (key === 'limit') {
+        itemsPerPage = parseInt(paramsObj[key] as string)
+      }
+    })
+    const totalCountQuery = `SELECT COUNT(*) as count FROM medi_connect.specialite ${whereClause}`
 
     const totalCountResult: any = await pool.query(totalCountQuery)
     const totalCount = totalCountResult[0][0].count
-
-    // const currentPage = parseInt(req.query.page as string) || 1
-    // const itemsPerPage = parseInt(req.query.limit as string) || 6
-    const currentPage = 1
-    const itemsPerPage = 6
     const offset = (currentPage - 1) * itemsPerPage
-    const sql = `SELECT * FROM specialite`
+
+    const sql = `SELECT * FROM specialite ${whereClause} LIMIT
+    ${itemsPerPage}
+OFFSET
+    ${offset}`
+
     const [rows] = await pool.query(sql)
     const data: any = rows
 

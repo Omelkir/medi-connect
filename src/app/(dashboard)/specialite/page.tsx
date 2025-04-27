@@ -1,15 +1,18 @@
 'use client'
 
-import { Button, Card, CardContent, Grid } from '@mui/material'
-import Arrow from '@/views/dashboard/Arrow'
 import { useState } from 'react'
+
+import { Button, Card, CardContent, Grid } from '@mui/material'
+
+import { Plus } from 'lucide-react'
+
+import Arrow from '@/views/dashboard/Arrow'
 import Table from './Table'
 import PatientDelete from '@/components/modals/deleteModal/patient'
-import Pagination from '@/components/ui/pagination'
-import { Plus } from 'lucide-react'
+
 import SpecialiteModal from '@/components/modals/specialite'
 
-const Specialite = ({ paginatorInfo }: any) => {
+const Specialite = () => {
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [selected, setSelected] = useState<any>(null)
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
@@ -52,14 +55,6 @@ const Specialite = ({ paginatorInfo }: any) => {
 
           <Grid item xs={12}>
             <Table onEdit={handleOpenModal} onDelete={handleOpenDeleteModal} update={update} />
-          </Grid>
-          <Grid item xs={12} className='mt-6 justify-items-end'>
-            <Pagination
-            // total={paginatorInfo.total}
-            // current={paginatorInfo.currentPage}
-            // pageSize={paginatorInfo.perPage}
-            // onChange={onPagination}
-            />
           </Grid>
         </CardContent>
       </Card>

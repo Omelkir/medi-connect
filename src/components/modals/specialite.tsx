@@ -1,9 +1,11 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { Modal } from '../ui/modal'
+
 import { Button, Grid, TextField } from '@mui/material'
 import { toast } from 'react-toastify'
+
+import { Modal } from '../ui/modal'
 import { getStorageData } from '@/utils/helpers'
 
 export default function SpecialiteModal({
@@ -20,6 +22,7 @@ export default function SpecialiteModal({
   const [data, setData] = useState<any>({
     spe: ''
   })
+
   useEffect(() => {
     if (speData) {
       setData(speData)
@@ -27,6 +30,7 @@ export default function SpecialiteModal({
       setData({ spe: '' })
     }
   }, [speData])
+
   const [controls, setControls] = useState<any>({
     spe: false
   })
@@ -35,10 +39,13 @@ export default function SpecialiteModal({
     setData({ spe: '' })
     setControls({ spe: false })
   }
+
   const isAdd = !speData
+
   const handleSave = async () => {
     try {
       const url = `${window.location.origin}/api/specialite/${isAdd ? 'ajouter' : 'modifier'}`
+
       const newControls = {
         spe: data.spe.trim() === ''
       }
@@ -48,6 +55,7 @@ export default function SpecialiteModal({
       if (Object.values(newControls).some(value => value)) {
         return
       }
+
       setData({ data })
       const requestBody = JSON.stringify(data)
       const requestOptions = { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: requestBody }
@@ -64,6 +72,7 @@ export default function SpecialiteModal({
           } else {
             toast.success('Le spécialité a été modifié avec succès')
           }
+
           onClose()
         }
       })

@@ -4,12 +4,11 @@ import { useState } from 'react'
 
 import { Button, Card, CardContent, Grid } from '@mui/material'
 
-import { FlaskConical, Stethoscope } from 'lucide-react'
+import { FlaskConical } from 'lucide-react'
 
 import { toast } from 'react-toastify'
 
 import Table from '@/app/(dashboard)/laboratoire/Table'
-import Pagination from '@/components/ui/pagination'
 import Arrow from '@/views/dashboard/Arrow'
 import LaboratoireModal from '@/components/modals/laboratoire'
 import DeleteModal from '@/components/modals/deleteModal/deleteModal'
@@ -79,15 +78,7 @@ const Laboratoire = () => {
           <Grid item xs={12}>
             <Table onEdit={handleOpenModal} onDelete={handleOpenDeleteModal} update={update} />
           </Grid>
-          <Grid item xs={12} className='mt-6 justify-items-end'>
-            <Pagination
 
-            // total={paginatorInfo.total}
-            // current={paginatorInfo.currentPage}
-            // pageSize={paginatorInfo.perPage}
-            // onChange={onPagination}
-            />
-          </Grid>
           <LaboratoireModal
             isOpen={isModalOpen}
             laboratoireData={selected}

@@ -1,5 +1,6 @@
 'use client'
 import React from 'react'
+
 import { useRouter } from 'next/navigation'
 
 import { FaEnvelope } from 'react-icons/fa'
@@ -28,6 +29,7 @@ const ConnectezNous = () => {
   ]
 
   const router = useRouter()
+
   return (
     <motion.div
       initial={{ opacity: 0, y: -50 }}

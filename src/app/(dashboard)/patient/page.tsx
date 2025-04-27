@@ -5,8 +5,6 @@ import { useState } from 'react'
 import { Button, Card, CardContent, Grid } from '@mui/material'
 import { IconUserPlus } from '@tabler/icons-react'
 
-import * as Tabs from '@radix-ui/react-tabs'
-
 import Arrow from '@/views/dashboard/Arrow'
 import PatientModal from '@/components/modals/patient'
 import Table from './Table'
@@ -17,7 +15,6 @@ const Patient = ({}: any) => {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
   const [selectedPatient, setSelectedPatient] = useState<any>(null)
   const [update, setUpdate] = useState<string>(new Date().toDateString())
-  const [activeTab, setActiveTab] = useState('dashboard')
 
   const handleOpenPatientModal = (patient: any = null) => {
     setSelectedPatient(patient)
