@@ -56,21 +56,12 @@ export default function LaboratoireModal({
     if (file) {
       setData((prev: any) => ({
         ...prev,
-        imageSrc: URL.createObjectURL(file) // Prévisualisation de l'image
+        imageSrc: URL.createObjectURL(file)
       }))
 
-      // Lire le fichier en Base64
       const reader = new FileReader()
 
-      reader.onloadend = () => {
-        // Une fois l'image convertie en Base64, mettre à jour l'état
-        setData((prev: any) => ({
-          ...prev,
-          image: reader.result // Image en Base64
-        }))
-      }
-
-      reader.readAsDataURL(file) // Convertir le fichier en Base64
+      reader.readAsDataURL(file)
     }
   }
 
@@ -183,13 +174,23 @@ export default function LaboratoireModal({
         return
       }
 
-      setData({ data })
-      const requestBody = JSON.stringify(data)
+      const formData = new FormData()
+
+      clearForm()
+
+      for (const key in data) {
+        if (data.hasOwnProperty(key)) {
+          if (data[key] instanceof File) {
+            formData.append(key, data[key])
+          } else {
+            formData.append(key, data[key])
+          }
+        }
+      }
 
       const requestOptions = {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: requestBody
+        body: formData
       }
 
       await fetch(url, requestOptions).then((responseData: any) => {
@@ -241,23 +242,34 @@ export default function LaboratoireModal({
       }
     >
       <form noValidate autoComplete='off' className='w-full space-y-6 mt-8'>
-        <Grid container spacing={6}>
+        <Grid container spacing={3}>
           <Grid item xs={2} md={2}>
             <Input
               type='file'
-              id='image_prod'
+              id='image'
               onChange={(e: any) => {
-                setData((prev: any) => ({
-                  ...prev,
-                  image: e.target.files[0] // Corrected here
-                }))
+                const file: any = e.target.files?.[0]
 
-                handleImageChange(e)
+                if (file) {
+                  setData((prev: any) => ({
+                    ...prev,
+                    image: file,
+                    imageSrc: URL.createObjectURL(file)
+                  }))
+                  handleImageChange(e)
+                }
               }}
               style={{ zoom: 0.8, display: 'none' }}
             />
-            <InputLabel htmlFor='image_prod'>
-              <img src={data.imageSrc} style={{ cursor: 'pointer' }} alt='' width={60} height={60} />
+
+            <InputLabel htmlFor='image'>
+              <img
+                src={data.imageSrc ? data.imageSrc : '/img/placeholder-image.jpg'}
+                style={{ cursor: 'pointer', borderRadius: '8px' }}
+                alt='Preview'
+                width={60}
+                height={60}
+              />
             </InputLabel>
           </Grid>
           <Grid item xs={10} md={10}>
@@ -359,7 +371,7 @@ export default function LaboratoireModal({
               >
                 {serListe.map(item => (
                   <MenuItem value={item.id} key={item.id}>
-                    {item.service}
+                    {item.ser}
                   </MenuItem>
                 ))}
               </Select>

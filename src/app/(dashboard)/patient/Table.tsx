@@ -20,16 +20,22 @@ const Table = ({
   update: string
 }) => {
   const [rowsData, setRowsData] = useState<any[]>([])
-  const DocteurData = getStorageData('user')
+  const userData = getStorageData('user')
   const [paginatorInfo, setPaginatorInfo] = useState<any>({ total: 6 })
 
   const onPagination = (e: any) => {
-    handleSave(e)
+    getPatientList(e)
   }
 
-  async function handleSave(page = 1) {
+  async function getPatientList(page = 1) {
     try {
-      const url = `${window.location.origin}/api/patient/liste?id_med=${DocteurData.id}&page=${page}`
+      let url = `${window.location.origin}/api/patient/liste`
+
+      if (userData.role === 2 || userData.role === 3) {
+        url += `?id_el=${userData.id}&page=${page}`
+      } else {
+        url += `?page=${page}`
+      }
 
       const requestOptions = {
         method: 'GET',
@@ -45,19 +51,18 @@ const Table = ({
       console.log('API Response:', responseData)
 
       if (responseData.erreur) {
-        alert(responseData.message)
+        console.error('Erreur')
       } else {
         setRowsData(responseData.data)
         setPaginatorInfo(responseData?.paginatorInfo)
       }
     } catch (error) {
       console.error('Erreur:', error)
-      alert('Une erreur est survenue lors de la récupération des données.')
     }
   }
 
   useEffect(() => {
-    handleSave()
+    getPatientList()
   }, [update])
 
   return (
@@ -90,10 +95,13 @@ const Table = ({
                     <Typography>{row.tel}</Typography>
                   </td>
                   <td className='flex justify-center gap-2'>
-                    <button
-                      className='ri-folder-line text-blue-500 text-xl hover:text-2xl'
-                      onClick={() => window.open('/fiche-patient?id=' + row.id, '_blank', 'noopener,noreferrer')}
-                    ></button>
+                    {userData.role === 2 ? (
+                      <button
+                        className='ri-folder-line text-blue-500 text-xl hover:text-2xl'
+                        onClick={() => window.open('/fiche-patient?id=' + row.id, '_blank', 'noopener,noreferrer')}
+                      ></button>
+                    ) : null}
+
                     <button
                       className='ri-edit-box-line text-yellow-500 text-xl hover:text-2xl'
                       onClick={() => onEditPatient(row)}

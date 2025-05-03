@@ -33,7 +33,7 @@ const Patient = () => {
   const DocteurData = getStorageData('user')
 
   async function getPatientListe() {
-    const url = `${window.location.origin}/api/patient/liste?id_med=${DocteurData.id}`
+    const url = `${window.location.origin}/api/patient/liste?id_el=${DocteurData.id}`
 
     const requestOptions = {
       method: 'GET',

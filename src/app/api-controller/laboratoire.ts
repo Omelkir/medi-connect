@@ -1,5 +1,13 @@
-import bcrypt from 'bcrypt'
+import { mkdir, writeFile } from 'fs/promises'
+
+import path from 'path'
+
+import fs from 'fs'
+
 import nodemailer from 'nodemailer'
+import bcrypt from 'bcrypt'
+
+import { v4 as uuidv4 } from 'uuid'
 
 import pool from '@/utils/connexion'
 
@@ -29,7 +37,33 @@ function genererMotDePasse(): string {
 
 export const ajouter = async (req: any) => {
   try {
-    const json: any = req
+    const formData = await req.formData()
+    const file = formData.get('image') as File
+
+    req.checkUrl = ''
+
+    if (file) {
+      const bytes = await file.arrayBuffer()
+      const buffer = Buffer.from(bytes)
+
+      const uploadDir = path.join(process.cwd(), 'public', 'uploads')
+
+      if (!fs.existsSync(uploadDir)) {
+        await mkdir(uploadDir, { recursive: true })
+      }
+
+      const filename = `${uuidv4()}_${file.name}`
+      const filepath = path.join(uploadDir, filename)
+
+      req.checkUrl = '/uploads/' + filename
+      await writeFile(filepath, buffer)
+    }
+
+    const json: Record<string, any> = {}
+
+    formData.forEach((value: any, key: any) => {
+      json[key] = value
+    })
     const { email, nom_ut } = json
 
     const transporter = nodemailer.createTransport({
@@ -46,7 +80,7 @@ export const ajouter = async (req: any) => {
     const hashedPassword = await bcrypt.hash(motDePasse, 10)
 
     const sql = `INSERT INTO medi_connect.laboratoire (nom_ut, email, mdp,role,image,id_ville,heurD,heurF,id_ser,info,isApproved) 
-                       VALUES ('${json.nom_ut}', '${json.email}', '${hashedPassword}',3, '${json.image}', '${json.id_ville}', '${json.heurD}','${json.heurF}', '${json.id_ser}', '${json.info}',1)`
+                       VALUES ('${json.nom_ut}', '${json.email}', '${hashedPassword}',3, '${req.checkUrl}', '${json.id_ville}', '${json.heurD}','${json.heurF}', '${json.id_ser}', '${json.info}',1)`
 
     await pool.query(sql)
 
@@ -84,7 +118,6 @@ export const liste = async (req: any) => {
     const json: any = req
     const urlParams = new URLSearchParams(new URL(json.url).search)
 
-    // Convertir les paramètres en un objet JSON
     const paramsObj = Object.fromEntries(urlParams.entries())
     let whereClause = ''
     let currentPage = 1
@@ -115,7 +148,7 @@ export const liste = async (req: any) => {
     const offset = (currentPage - 1) * itemsPerPage
 
     const sql = `
-    SELECT l.*, v.ville AS ville, s.service AS ser
+    SELECT l.*, v.ville AS ville, s.ser AS ser
     FROM laboratoire l 
     LEFT JOIN ville v ON l.id_ville = v.id 
     LEFT JOIN service s ON l.id_ser = s.id
@@ -155,7 +188,12 @@ export const liste = async (req: any) => {
 
 export const modifier = async (req: any) => {
   try {
-    const json: any = req
+    const formData = await req.formData()
+    const json: Record<string, any> = {}
+
+    formData.forEach((value: any, key: any) => {
+      json[key] = value
+    })
     const id = json.id
     const sql = `UPDATE medi_connect.laboratoire SET nom_ut ='${json.nom_ut}',email ='${json.email}',image='${json.image}',id_ville='${json.id_ville}',heurD='${json.heurD}',heurF='${json.heurF}',id_ser='${json.id_ser}',info='${json.info}' where id='${id}'`
 

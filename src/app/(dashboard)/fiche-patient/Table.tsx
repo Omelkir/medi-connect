@@ -1,8 +1,10 @@
 // MUI Imports
+import { useEffect, useState } from 'react'
+
 import Typography from '@mui/material/Typography'
 import Card from '@mui/material/Card'
+
 import tableStyles from '@core/styles/table.module.css'
-import { useEffect, useState } from 'react'
 
 const Table = ({
   onEditPatient,
@@ -27,6 +29,7 @@ const Table = ({
       if (!response.ok) throw new Error('Erreur lors de la requête')
 
       const responseData = await response.json()
+
       console.log('API Response:', responseData)
 
       if (responseData.erreur) {

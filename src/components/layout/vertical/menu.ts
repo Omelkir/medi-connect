@@ -1,3 +1,5 @@
+import { SubMenu } from '@/@menu/vertical-menu'
+
 export const menuMed = [
   {
     label: 'Dashboard Med',
@@ -9,7 +11,7 @@ export const menuMed = [
     path: '/patient',
     icon: 'ri-user-fill'
   },
-  { label: 'Fiche Patient', path: '/fiche-patient ', icon: 'ri-file-fill' },
+  { label: 'Fiche Patient', path: '/fiche-patient ', icon: 'ri-dossier-line' },
 
   { label: 'Rendez-vous', path: '/rendez-vous', icon: 'ri-calendar-fill' },
   {
@@ -23,6 +25,22 @@ export const menulabo = [
     label: 'Dashboard Labo',
     path: '/',
     icon: 'ri-dashboard-fill'
+  },
+  {
+    label: 'Patient',
+    path: '/patient',
+    icon: 'ri-user-fill'
+  },
+  {
+    label: 'Bilan',
+    path: '/bilan',
+    icon: 'ri-file-fill'
+  },
+  { label: 'Rendez-vous', path: '/rendez-vous', icon: 'ri-calendar-fill' },
+  {
+    label: 'Demandes de rendez-vous',
+    path: '/de',
+    icon: 'ri-file-list-fill'
   }
 ]
 export const menuAdmin = [
@@ -52,20 +70,27 @@ export const menuAdmin = [
     icon: 'ri-user-fill'
   },
   {
-    label: 'Spécialité',
-    path: '/specialite',
-    icon: 'ri-star-fill'
+    label: 'Paramétrage',
+    icon: 'ri-settings-3-fill',
+    subMenu: [
+      {
+        label: 'Spécialité',
+        path: '/specialite',
+        icon: 'ri-star-fill'
+      },
+      {
+        label: 'Ville',
+        path: '/ville',
+        icon: 'ri-building-2-fill'
+      },
+      {
+        label: 'Service',
+        path: '/service',
+        icon: 'ri-service-fill'
+      }
+    ]
   },
-  {
-    label: 'Ville',
-    path: '/ville',
-    icon: 'ri-building-2-fill'
-  },
-  {
-    label: 'Service',
-    path: '/service',
-    icon: 'ri-service-fill'
-  },
+
   {
     label: 'Réclamation',
     path: '/reclamation',
@@ -73,7 +98,7 @@ export const menuAdmin = [
   },
   {
     label: 'Confirmation',
-    path: '/conf',
+    path: '/confirmation',
     icon: 'ri-pass-valid-line'
   }
 

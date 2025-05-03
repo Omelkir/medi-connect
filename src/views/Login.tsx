@@ -82,9 +82,6 @@ const Login = () => {
     }
   }
 
-  const darkImg = '/images/pages/auth-v1-mask-dark.png'
-  const lightImg = '/images/pages/auth-v1-mask-light.png'
-
   const handleClickShowPassword = () => setIsPasswordShown(show => !show)
 
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {

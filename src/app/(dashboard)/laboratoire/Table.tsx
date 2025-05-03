@@ -47,7 +47,7 @@ const Table = ({
       console.log('API Response:', responseData)
 
       if (responseData.erreur) {
-        alert(responseData.message)
+        console.log(responseData.message)
       } else {
         setRowsData(responseData.data)
         setPaginatorInfo(responseData?.paginatorInfo)

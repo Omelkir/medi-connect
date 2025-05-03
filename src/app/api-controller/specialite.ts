@@ -101,25 +101,27 @@ export const modifier = async (req: any) => {
   }
 }
 
-// export const supprimer = async (req: any) => {
-//   try {
-//     const id = req.params.id
+export const supprimer = async (req: any) => {
+  try {
+    const id = req.params.id
 
-//     if (!id) {
-//       return { erreur: true, message: 'ID is required' }
-//     }
+    if (!id) {
+      return { erreur: true, message: 'ID is required' }
+    }
 
-//     const sql = `DELETE FROM medi_connect.specialite WHERE id='${id}'`
-//     const result: any = await pool.query(sql, [id])
-//     console.log(sql)
+    const sql = `DELETE FROM medi_connect.specialite WHERE id='${id}'`
+    const result: any = await pool.query(sql, [id])
 
-//     if (result.affectedRows === 0) {
-//       return { erreur: true, message: 'specialite non trouvé' }
-//     }
+    console.log(sql)
 
-//     return { erreur: false, data: true }
-//   } catch (error) {
-//     console.error('Error deleting:', error)
-//     return { erreur: true, message: 'Erreur lors de la suppression' }
-//   }
-// }
+    if (result.affectedRows === 0) {
+      return { erreur: true, message: 'specialite non trouvé' }
+    }
+
+    return { erreur: false, data: true }
+  } catch (error) {
+    console.error('Error deleting:', error)
+
+    return { erreur: true, message: 'Erreur lors de la suppression' }
+  }
+}

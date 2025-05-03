@@ -6,11 +6,14 @@ import { Button, Card, CardContent, Grid } from '@mui/material'
 
 import { Plus } from 'lucide-react'
 
+import { toast } from 'react-toastify'
+
 import Arrow from '@/views/dashboard/Arrow'
 import Table from './Table'
 import PatientDelete from '@/components/modals/deleteModal/patient'
 
 import VilleModal from '@/components/modals/ville'
+import DeleteModal from '@/components/modals/deleteModal/deleteModal'
 
 const Ville = () => {
   const [isModalOpen, setIsModalOpen] = useState(false)
@@ -18,14 +21,45 @@ const Ville = () => {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
   const [update, setUpdate] = useState<string>(new Date().toDateString())
 
-  const handleOpenModal = (spe: any = null) => {
-    setSelected(spe)
+  const handleOpenModal = (ville: any = null) => {
+    setSelected(ville)
     setIsModalOpen(true)
   }
 
-  const handleOpenDeleteModal = (spe: any = null) => {
-    setSelected(spe)
+  const handleOpenDeleteModal = (ville: any = null) => {
+    setSelected(ville)
     setIsDeleteModalOpen(true)
+  }
+
+  const handleDelete = async (row: any) => {
+    const id = row?.id
+
+    if (!id) return console.error('ID manquant pour la suppression')
+
+    try {
+      const url = `${window.location.origin}/api/ville/supprimer?id=${id}`
+
+      const response = await fetch(url, {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' }
+      })
+
+      const result = await response.json()
+
+      if (result.erreur) {
+        console.error('Erreur:', result.message)
+      } else {
+        setUpdate(new Date().toDateString())
+        toast.success('Le ville a été supprimé avec succès')
+      }
+    } catch (error) {
+      console.error('Erreur lors de la suppression:', error)
+    }
+  }
+
+  const handleConfirmDelete = async () => {
+    await handleDelete(selected)
+    setIsDeleteModalOpen(false)
   }
 
   return (
@@ -51,7 +85,12 @@ const Ville = () => {
             setUpdate={setUpdate}
           />
 
-          <PatientDelete isOpen={isDeleteModalOpen} onClose={() => setIsDeleteModalOpen(false)} setUpdate={setUpdate} />
+          <DeleteModal
+            isOpen={isDeleteModalOpen}
+            onClose={() => setIsDeleteModalOpen(false)}
+            onConfirm={handleConfirmDelete}
+            label={`le ville ${selected?.ville}`}
+          />
 
           <Grid item xs={12}>
             <Table onEdit={handleOpenModal} onDelete={handleOpenDeleteModal} update={update} />

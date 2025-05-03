@@ -67,6 +67,8 @@ export const verifierUtilisateur = async (req: any) => {
 
     const user = rows[0]
 
+    console.log('user:', user)
+
     if (user.role === 1) {
       // Ne pas utiliser bcrypt pour les admins
       if (mdp !== user.mdp) {

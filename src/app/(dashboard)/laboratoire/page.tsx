@@ -89,7 +89,7 @@ const Laboratoire = () => {
             isOpen={isDeleteModalOpen}
             onClose={() => setIsDeleteModalOpen(false)}
             onConfirm={handleConfirmDelete}
-            label={`le médecin ${selected?.nom_ut}`}
+            label={`l'aboratoire ${selected?.nom_ut}`}
           />
         </CardContent>
       </Card>

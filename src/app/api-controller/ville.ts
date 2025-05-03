@@ -103,3 +103,28 @@ export const modifier = async (req: any) => {
     return { erreur: true, message: 'Erreur lors de l’enregistrement' }
   }
 }
+
+export const supprimer = async (req: any) => {
+  try {
+    const id = req.params.id
+
+    if (!id) {
+      return { erreur: true, message: 'ID is required' }
+    }
+
+    const sql = `DELETE FROM medi_connect.ville WHERE id='${id}'`
+    const result: any = await pool.query(sql, [id])
+
+    console.log(sql)
+
+    if (result.affectedRows === 0) {
+      return { erreur: true, message: 'ville non trouvé' }
+    }
+
+    return { erreur: false, data: true }
+  } catch (error) {
+    console.error('Error deleting:', error)
+
+    return { erreur: true, message: 'Erreur lors de la suppression' }
+  }
+}

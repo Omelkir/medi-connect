@@ -1,62 +1,107 @@
+import { mkdir, writeFile } from 'fs/promises'
+
+import path from 'path'
+
+import fs from 'fs'
+
 import bcrypt from 'bcrypt'
+
+import multer from 'multer'
+
+import { v4 as uuidv4 } from 'uuid'
 
 import pool from '@/utils/connexion'
 
 export const ajouter = async (req: any) => {
-  try {
-    const json: any = req
-    let table = ''
+  // try {
+  const formData = await req.formData()
+  const file = formData.get('image') as File
 
-    switch (json.role) {
-      case 4:
-        table = 'patient'
+  req.checkUrl = ''
 
-        break
-      case 2:
-        table = 'medecin'
+  if (file) {
+    const bytes = await file.arrayBuffer()
+    const buffer = Buffer.from(bytes)
 
-        break
-      case 3:
-        table = 'laboratoire'
+    const uploadDir = path.join(process.cwd(), 'public', 'uploads')
 
-        break
-
-      default:
-        table = ''
-        break
+    // ✨ تأكد إلي المجلد موجود
+    if (!fs.existsSync(uploadDir)) {
+      await mkdir(uploadDir, { recursive: true })
     }
 
-    const checkEmailSql = `SELECT * FROM medi_connect.${table} WHERE email = ?`
-    const [emailExists]: any = await pool.query(checkEmailSql, [json.email])
+    const filename = `${uuidv4()}_${file.name}`
+    const filepath = path.join(uploadDir, filename)
 
-    if (emailExists.length > 0) {
-      return { erreur: true, message: "L'email est déjà utilisé." }
-    }
+    req.checkUrl = '/uploads/' + filename
+    await writeFile(filepath, buffer)
+  }
 
-    const saltRounds = 10
-    const hashedPassword = await bcrypt.hash(json.mdp, saltRounds)
+  const json: Record<string, any> = {}
 
-    if (table === 'patient') {
-      const sql = `INSERT INTO medi_connect.patient (nom, prenom, email, mdp, role, image, id_ville, isApproved, age, tel)
-      VALUES ('${json.nom}', '${json.prenom}','${json.email}','${hashedPassword}',4, '${json.image}', '${json.id_ville}', 0,'${json.age}', '${json.tel}')`
+  formData.forEach((value: any, key: any) => {
+    json[key] = value
+  })
 
-      await pool.query(sql)
-    } else if (table === 'medecin') {
-      const sql = `INSERT INTO medi_connect.medecin (nom_ut, email, mdp, role, image, tarif, id_ville, heurD, heurF, id_spe, info, isApproved)
-      VALUES ('${json.nom_ut}','${json.email}','${hashedPassword}',2, '${json.image}','${json.tarif}', '${json.id_ville}','${json.heurD}','${json.heurF}','${json.id_spe}', '${json.info}',0)`
+  let table = ''
 
-      await pool.query(sql)
-    } else if (table === 'laboratoire') {
-      const sql = `INSERT INTO medi_connect.laboratoire (nom_ut, email, mdp, role, image, id_ville, heurD, heurF, id_ser, info, isApproved)
-      VALUES ('${json.nom_ut}','${json.email}','${hashedPassword}',3, '${json.image}', '${json.id_ville}','${json.heurD}','${json.heurF}','${json.id_ser}', '${json.info}',0)`
+  switch (json.role) {
+    case '4':
+      table = 'patient'
 
-      await pool.query(sql)
-    }
+      break
+    case '2':
+      table = 'medecin'
 
-    return { erreur: false, data: true }
-  } catch (error) {
-    console.error('Erreur lors de l’enregistrement', error)
+      break
+    case '3':
+      table = 'laboratoire'
 
-    return { erreur: true, message: 'Erreur lors de l’enregistrement' }
+      break
+
+    default:
+      table = ''
+      break
+  }
+
+  const checkEmailSql = `SELECT * FROM medi_connect.${table} WHERE email = '${json.email}'`
+  const [emailExists]: any = await pool.query(checkEmailSql)
+
+  if (emailExists.length > 0) {
+    return { erreur: true, message: "L'email est déjà utilisé." }
+  }
+
+  const saltRounds = 10
+  const hashedPassword = await bcrypt.hash(json.mdp, saltRounds)
+
+  if (table === 'patient') {
+    const sql = `INSERT INTO medi_connect.patient (nom, prenom, email, mdp, role, image, id_ville, isApproved, age, tel)
+      VALUES ('${json.nom}', '${json.prenom}','${json.email}','${hashedPassword}',4, '${req.checkUrl}', '${json.id_ville}', 0,'${json.age}', '${json.tel}')`
+
+    await pool.query(sql)
+  } else if (table === 'medecin') {
+    const sql = `INSERT INTO medi_connect.medecin (nom_ut, email, mdp, role, image, tarif, id_ville, heurD, heurF, id_spe, info, isApproved)
+      VALUES ('${json.nom_ut}','${json.email}','${hashedPassword}',2, '${req.checkUrl}','${json.tarif}', '${json.id_ville}','${json.heurD}','${json.heurF}','${json.id_spe}', '${json.info}',0)`
+
+    await pool.query(sql)
+  } else if (table === 'laboratoire') {
+    const sql = `INSERT INTO medi_connect.laboratoire (nom_ut, email, mdp, role, image, id_ville, heurD, heurF, id_ser, info, isApproved)
+      VALUES ('${json.nom_ut}','${json.email}','${hashedPassword}',3, '${req.checkUrl}', '${json.id_ville}','${json.heurD}','${json.heurF}','${json.ser}', '${json.info}',0)`
+
+    await pool.query(sql)
+  }
+
+  return { erreur: false, data: true }
+
+  // } catch (error) {
+  //   console.error('Erreur lors de l’enregistrement', error)
+
+  //   return { erreur: true, message: 'Erreur lors de l’enregistrement' }
+  // }
+}
+
+export const config = {
+  api: {
+    bodyParser: false
   }
 }

@@ -41,21 +41,12 @@ export default function MedecinModal({
     if (file) {
       setData((prev: any) => ({
         ...prev,
-        imageSrc: URL.createObjectURL(file) // Prévisualisation de l'image
+        imageSrc: URL.createObjectURL(file)
       }))
 
-      // Lire le fichier en Base64
       const reader = new FileReader()
 
-      reader.onloadend = () => {
-        // Une fois l'image convertie en Base64, mettre à jour l'état
-        setData((prev: any) => ({
-          ...prev,
-          image: reader.result // Image en Base64
-        }))
-      }
-
-      reader.readAsDataURL(file) // Convertir le fichier en Base64
+      reader.readAsDataURL(file)
     }
   }
 
@@ -188,13 +179,23 @@ export default function MedecinModal({
         return
       }
 
-      setData({ data })
-      const requestBody = JSON.stringify(data)
+      const formData = new FormData()
+
+      clearForm()
+
+      for (const key in data) {
+        if (data.hasOwnProperty(key)) {
+          if (data[key] instanceof File) {
+            formData.append(key, data[key])
+          } else {
+            formData.append(key, data[key])
+          }
+        }
+      }
 
       const requestOptions = {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: requestBody
+        body: formData
       }
 
       await fetch(url, requestOptions).then((responseData: any) => {

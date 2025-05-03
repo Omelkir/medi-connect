@@ -63,7 +63,8 @@ const menuItemStyles = (theme: Theme): MenuItemStyles => {
         marginInlineEnd: theme.spacing(2)
       }),
       ...(level > 0 && {
-        fontSize: '0.75rem',
+        // fontSize: '0.75rem',
+        fontSize: '1rem',
         color: 'var(--mui-palette-text-secondary)',
         marginInlineEnd: theme.spacing(3.5)
       }),

@@ -117,18 +117,11 @@ const Register = () => {
     if (file) {
       setData((prev: any) => ({
         ...prev,
-        imageSrc: URL.createObjectURL(file) // Prévisualisation de l'image
+        imageSrc: URL.createObjectURL(file)
       }))
 
       // Lire le fichier en Base64
       const reader = new FileReader()
-
-      reader.onloadend = () => {
-        setData((prev: any) => ({
-          ...prev,
-          image: reader.result // Image en Base64
-        }))
-      }
 
       reader.readAsDataURL(file) // Convertir le fichier en Base64
     }
@@ -212,12 +205,28 @@ const Register = () => {
         return
       }
 
-      const requestBody = JSON.stringify(data)
+      
+      const formData = new FormData()
 
+     
+      for (const key in data) {
+        if (data.hasOwnProperty(key)) {
+          console.log(key)
+
+          
+          if (data[key] instanceof File) {
+            formData.append(key, data[key])
+          } else {
+           
+            formData.append(key, data[key])
+          }
+        }
+      }
+
+      
       const requestOptions = {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: requestBody
+        body: formData 
       }
 
       const response = await fetch(url, requestOptions)
@@ -290,7 +299,7 @@ const Register = () => {
             <Grid item xs={2} md={2}>
               <Input
                 type='file'
-                id='image_prod'
+                id='image'
                 onChange={(e: any) => {
                   setData((prev: any) => ({
                     ...prev,
@@ -301,7 +310,7 @@ const Register = () => {
                 }}
                 style={{ zoom: 0.8, display: 'none' }}
               />
-              <InputLabel htmlFor='image_prod'>
+              <InputLabel htmlFor='image'>
                 <img
                   src={data.imageSrc}
                   style={{ cursor: 'pointer' }}

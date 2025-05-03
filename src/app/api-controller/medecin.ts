@@ -1,5 +1,10 @@
-import bcrypt from 'bcrypt'
+import { mkdir, writeFile } from 'fs/promises'
+import path from 'path'
+import fs from 'fs'
+
 import nodemailer from 'nodemailer'
+import bcrypt from 'bcrypt'
+import { v4 as uuidv4 } from 'uuid'
 
 import pool from '@/utils/connexion'
 
@@ -29,7 +34,34 @@ function genererMotDePasse(): string {
 
 export const ajouter = async (req: any) => {
   try {
-    const json: any = req
+    const formData = await req.formData()
+    const file = formData.get('image') as File
+
+    req.checkUrl = ''
+
+    if (file) {
+      const bytes = await file.arrayBuffer()
+      const buffer = Buffer.from(bytes)
+
+      const uploadDir = path.join(process.cwd(), 'public', 'uploads')
+
+      if (!fs.existsSync(uploadDir)) {
+        await mkdir(uploadDir, { recursive: true })
+      }
+
+      const filename = `${uuidv4()}_${file.name}`
+      const filepath = path.join(uploadDir, filename)
+
+      req.checkUrl = '/uploads/' + filename
+      await writeFile(filepath, buffer)
+    }
+
+    const json: Record<string, any> = {}
+
+    formData.forEach((value: any, key: any) => {
+      json[key] = value
+    })
+
     const { email, nom_ut } = json
 
     const transporter = nodemailer.createTransport({
@@ -42,11 +74,10 @@ export const ajouter = async (req: any) => {
 
     const motDePasse = genererMotDePasse()
 
-    console.log('mdp:', motDePasse)
     const hashedPassword = await bcrypt.hash(motDePasse, 10)
 
     const sql = `INSERT INTO medi_connect.medecin (nom_ut, email, mdp,role,image,tarif,id_ville,heurD,heurF,id_spe,info,isApproved) 
-                       VALUES ('${json.nom_ut}', '${json.email}', '${hashedPassword}',2, '${json.image}', '${json.tarif}', '${json.id_ville}', '${json.heurD}', '${json.heurF}', '${json.id_spe}', '${json.info}',1)`
+                       VALUES ('${json.nom_ut}', '${json.email}', '${hashedPassword}',2, '${req.checkUrl}', '${json.tarif}', '${json.id_ville}', '${json.heurD}', '${json.heurF}', '${json.id_spe}', '${json.info}',1)`
 
     await pool.query(sql)
 
@@ -81,7 +112,12 @@ export const ajouter = async (req: any) => {
 
 export const modifier = async (req: any) => {
   try {
-    const json: any = req
+    const formData = await req.formData()
+    const json: Record<string, any> = {}
+
+    formData.forEach((value: any, key: any) => {
+      json[key] = value
+    })
     const id = json.id
     const sql = `UPDATE medi_connect.medecin SET nom_ut ='${json.nom_ut}',email ='${json.email}',image='${json.image}',tarif='${json.tarif}',id_ville='${json.id_ville}',heurD='${json.heurD}',heurF='${json.heurF}',id_spe='${json.id_spe}',info='${json.info}' where id='${id}'`
 
@@ -124,7 +160,9 @@ export const liste = async (req: any) => {
         itemsPerPage = parseInt(paramsObj[key] as string)
       }
     })
-    const totalCountQuery = `SELECT COUNT(*) as count FROM medi_connect.medecin ${whereClause}`
+    console.log(whereClause)
+
+    const totalCountQuery = `SELECT COUNT(*) as count FROM medi_connect.medecin ${whereClause} `
 
     const totalCountResult: any = await pool.query(totalCountQuery)
     const totalCount = totalCountResult[0][0].count
