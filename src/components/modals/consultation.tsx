@@ -1,12 +1,13 @@
 'use client'
 
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 
 import { Button, FormControl, Grid, InputLabel, MenuItem, Select, TextField } from '@mui/material'
 import { toast } from 'react-toastify'
 
 import { Modal } from '../ui/modal'
 import { getStorageData } from '@/utils/helpers'
+import { getStorageData as getStorageDataFront } from '@/utils/helpersFront'
 
 export default function ConsultationModal({
   isOpen,
@@ -34,46 +35,61 @@ export default function ConsultationModal({
   }
 
   const userData = getStorageData('user')
+  const userDataFront = getStorageDataFront('user')
 
   const [patientListe, setPatientListe] = useState<any[]>([])
-  const [data, setData] = useState<any>({ id_patient: 0, date: '', id_el: userData?.id, el: userData?.role })
-  const [controls, setControls] = useState<any>({ id_patient: false, date: false })
+
+  const [data, setData] = useState<any>({
+    id_patient: userDataFront !== undefined ? userDataFront.id : 0,
+    date: '',
+    id_el: userData?.id,
+    el: userData?.role,
+    duree: 30,
+    isApproved: 0
+  })
+
+  const [controls, setControls] = useState<any>({ id_patient: false, date: false, duree: false })
 
   const clearForm = () => {
-    setData({ id_patient: 0, date: '', id_el: userData?.id, el: userData?.role })
-    setControls({ id_patient: false, date: false })
+    setData({ id_patient: 0, date: '', id_el: userData?.id, el: userData?.role, duree: 30, isApproved: 0 })
+    setControls({ id_patient: false, date: false, duree: false })
   }
 
-  async function getPatientListe() {
-    try {
-      const url = `${window.location.origin}/api/patient/liste?id_med=${userData?.id}`
-      const response = await fetch(url, { method: 'GET', headers: { 'Content-Type': 'application/json' } })
+  // async function getPatientListe() {
+  //   try {
+  //     const url = `${window.location.origin}/api/patient/listes?id_el=${userData?.id}`
+  //     const response = await fetch(url, { method: 'GET', headers: { 'Content-Type': 'application/json' } })
 
-      if (!response.ok) throw new Error('Erreur lors de la requête')
+  //     if (!response.ok) throw new Error('Erreur lors de la requête')
 
-      const responseData = await response.json()
+  //     const responseData = await response.json()
 
-      if (responseData.erreur) {
-        alert(responseData.message)
-      } else {
-        setPatientListe(responseData.data)
-      }
-    } catch (error) {
-      console.error('Erreur lors de la récupération des patients:', error)
-    }
-  }
+  //     if (responseData.erreur) {
+  //       alert(responseData.message)
+  //     } else {
+  //       setPatientListe(responseData.data)
+  //     }
+  //   } catch (error) {
+  //     console.error('Erreur lors de la récupération des patients:', error)
+  //   }
+  // }
 
-  useEffect(() => {
-    getPatientListe()
-  }, [])
+  // useEffect(() => {
+  //   getPatientListe()
+  // }, [])
 
   const isAdd = !data?.id
 
   const handleSave = async () => {
     try {
-      const payload = { ...data, id_el: userData?.id, el: userData?.role }
+      const payload = {
+        ...data,
+        id_el: userData?.id,
+        el: userData?.role,
+        isApproved: userDataFront !== undefined ? 0 : 1
+      }
 
-      console.log('idmed:', userData?.id)
+      console.log('id_el:', userData?.id)
 
       const url = `${window.location.origin}/api/consultation/${isAdd ? 'ajouter' : 'modifier'}`
 
@@ -132,6 +148,7 @@ export default function ConsultationModal({
     if (dataUp) {
       setData({
         id_patient: Number(dataUp?.id_patient) || 0,
+        duree: Number(dataUp?.duree) || 30,
         date: formatForInput(dataUp?.start) ?? '',
         id_el: dataUp?.id_el ?? userData?.id,
         el: dataUp?.el ?? '',
@@ -165,7 +182,7 @@ export default function ConsultationModal({
     >
       <form className='space-y-4'>
         <Grid container spacing={3}>
-          {userData?.role === '2' ? (
+          {userDataFront === undefined ? (
             <Grid item xs={12} md={12}>
               <FormControl fullWidth>
                 <InputLabel>Patient</InputLabel>
@@ -200,6 +217,7 @@ export default function ConsultationModal({
               {controls.id_patient && <span className='errmsg'>Veuillez sélectionner un patient !</span>}
             </Grid>
           ) : null}
+
           <Grid item xs={12} md={12}>
             <TextField
               fullWidth
@@ -213,6 +231,44 @@ export default function ConsultationModal({
               }}
             />
             {controls.date && <span className='errmsg'>Veuillez saisir la date !</span>}
+          </Grid>
+          <Grid item xs={12} md={12}>
+            <TextField
+              fullWidth
+              label='Durée'
+              value={data?.duree ?? ''}
+              className={`${controls?.duree === true ? 'isReq' : ''}`}
+              onChange={(e: any) => {
+                if (e.target?.value.trim() === '') {
+                  setControls({ ...controls, duree: true })
+                  setData((prev: any) => ({
+                    ...prev,
+                    duree: e.target.value
+                  }))
+                } else {
+                  setControls({ ...controls, duree: false })
+                  setData((prev: any) => ({
+                    ...prev,
+                    duree: e.target.value
+                  }))
+                }
+              }}
+              autoFocus
+              InputLabelProps={{
+                sx: { fontSize: '1rem' }
+              }}
+              InputProps={{
+                sx: {
+                  height: 60,
+                  '&.Mui-focused': {
+                    '& + .MuiInputLabel-root': {
+                      fontSize: '1rem'
+                    }
+                  }
+                }
+              }}
+            />
+            {controls?.duree === true ? <span className='errmsg'>Veuillez saisir la durée !</span> : null}
           </Grid>
         </Grid>
       </form>

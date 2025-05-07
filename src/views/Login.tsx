@@ -71,9 +71,6 @@ const Login = () => {
         setStorageData('typeOfLogger', result.role)
         setStorageData('user', result.user)
         router.push('/')
-
-        // if (result.role == 1 || result.role == 2 || result.role3) router.push('/')
-        // else router.push('/front_page')
       } else {
         setTypeOfLogger(0)
       }
@@ -95,14 +92,16 @@ const Login = () => {
         <span className='absolute block-start-5 sm:block-start-[33px] inline-start-6 sm:inline-start-[38px]'>
           <Logo />
         </span>
-        <img src='/images/pages/doc1.svg' className='max-w-[800px]' />
+        <img src='/images/pages/doctors.svg' className='max-w-[800px]' />
       </div>
 
       {/* Formulaire */}
       <div className='flex flex-col justify-center items-center w-full max-w-xl p-12 min-h-screen space-y-6'>
         <div className='mb-5'>
-          <h3 className='text-3xl font-bold mb-3'>Welcome to MediConnect ! 👋🏻</h3>
-          <Typography className='mbs-1 text-lg '>Please sign-in to your account and start the adventure</Typography>
+          <h3 className='text-3xl font-bold mb-3'>Bienvenue sur MediConnect ! ! 👋🏻</h3>
+          <Typography className='mbs-1 text-lg '>
+            Veuillez vous connecter à votre compte et commencer l’aventure
+          </Typography>
         </div>
         <form className='w-full space-y-6 mt-8'>
           {typeOfLogger === 0 ? (
@@ -203,25 +202,7 @@ const Login = () => {
             />
             {controls?.mdp === true ? <span className='errmsg'>Please enter the password !</span> : null}
           </div>
-          <Box
-            className='flex justify-between items-center'
-            sx={{
-              fontSize: '1rem'
-            }}
-          >
-            <FormControlLabel
-              control={<Checkbox />}
-              label='Remember me'
-              sx={{
-                '& .MuiFormControlLabel-label': {
-                  fontSize: '1rem'
-                }
-              }}
-            />
-            <Link href='/forgot-password' className='text-primary'>
-              Forgot password?
-            </Link>
-          </Box>
+
           <Button
             fullWidth
             variant='contained'
@@ -234,7 +215,7 @@ const Login = () => {
               handleSave()
             }}
           >
-            Log In
+            Se connecter
           </Button>
           <Box
             className='text-center'
@@ -242,9 +223,19 @@ const Login = () => {
               fontSize: '1rem'
             }}
           >
-            <span>New on our platform? </span>
+            <span>Nouveau sur notre plateforme? </span>
             <Link href='/register' className='text-primary'>
-              Create an account
+              Créer un compte
+            </Link>
+          </Box>
+          <Box
+            className='flex justify-center items-center'
+            sx={{
+              fontSize: '1rem'
+            }}
+          >
+            <Link href='/forgot-password' className='text-primary'>
+              Mot de passe oublié?
             </Link>
           </Box>
         </form>

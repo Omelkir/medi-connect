@@ -1,4 +1,6 @@
 'use client'
+import React, { useEffect, useState } from 'react'
+
 import {
   Button,
   Card,
@@ -11,93 +13,150 @@ import {
   Select,
   TextField
 } from '@mui/material'
+import { Mail, MapPin } from 'lucide-react'
+import { FaMoneyBillAlt, FaRegClock } from 'react-icons/fa'
 
-import React, { useEffect, useState } from 'react'
-import { Mail, MapPin, DollarSign } from 'lucide-react'
-import { FaRegClock } from 'react-icons/fa'
-import RendezVousFormModal from '@/components/modals/rendezVousFormModal'
+import Pagination from '@/components/ui/pagination'
 import { SimpleSlideshow } from '@/components/auto-images/images'
 import { StarRating } from '@/components/ui/star-rating'
+import { getStorageData } from '@/utils/helpers'
+import RendezVousModal from '@/components/modals/rendezVousFormModal'
 
 const Laboratoire = () => {
-  const villes = [
-    { label: 'Ariana', value: 1 },
-    { label: 'Béja', value: 2 },
-    { label: 'Ben Arous', value: 3 },
-    { label: 'Bizerte', value: 4 },
-    { label: 'Gabès', value: 5 },
-    { label: 'Gafsa', value: 6 },
-    { label: 'Jendouba', value: 7 },
-    { label: 'Kairouan', value: 8 },
-    { label: 'Kasserine', value: 9 },
-    { label: 'Kébili', value: 10 },
-    { label: 'Kef', value: 11 },
-    { label: 'Mahdia', value: 12 },
-    { label: 'Manouba', value: 13 },
-    { label: 'Médenine', value: 14 },
-    { label: 'Monastir', value: 15 },
-    { label: 'Nabeul', value: 16 },
-    { label: 'Sfax', value: 17 },
-    { label: 'Sidi Bouzid', value: 18 },
-    { label: 'Siliana', value: 19 },
-    { label: 'Sousse', value: 20 },
-    { label: 'Tataouine', value: 21 },
-    { label: 'Tozeur', value: 22 },
-    { label: 'Tunis', value: 23 },
-    { label: 'Zaghouan', value: 24 }
-  ]
-  const images = [
-    {
-      src: 'https://img.freepik.com/premium-photo/low-angle-view-cross-against-clear-blue-sky_1048944-10728740.jpg?w=1380',
-      alt: 'banner1'
-    }
-    // { src: '/img/banner_lab_img/banner4.png', alt: 'banner4' },
-    // { src: '/img/banner_lab_img/banner2.jpg', alt: 'banner2' },
+  const userData = getStorageData('user')
+  const [paginatorInfo, setPaginatorInfo] = useState<any>({ total: 6 })
+  const [update, setUpdate] = useState<string>(new Date().toDateString())
 
-    // { src: '/img/banner_lab_img/banner6.jpg', alt: 'banner6' }
-  ]
+  const onPagination = (e: any) => {
+    getLaboratoireList(e)
+  }
 
-  const services = [
-    { label: 'Service1', value: 1 },
-    { label: 'Service2', value: 2 },
-    { label: 'Service3', value: 3 },
-    { label: 'Service4', value: 4 },
-    { label: 'Service5', value: 5 },
-    { label: 'Service6', value: 6 },
-    { label: 'Service7', value: 7 }
-  ]
-  const [isModalOpen, setIsModalOpen] = useState(false)
-  const [data, setData] = useState<any>({ nom_ut: '', service: 0, ville: 0 })
-  const [laboratoires, setLaboratoires] = useState<any[]>([])
-  const [selectedLaboId, setSelectedLaboId] = useState<number | null>(null)
+  const [villeListe, setVilleListe] = useState<any[]>([])
+  const [serListe, setSerListe] = useState<any[]>([])
 
-  async function handleSave() {
+  async function getVilleList() {
     try {
-      const url = `${window.location.origin}/api/liste-labo-ser/liste`
-      const requestBody = JSON.stringify({ service: data.service, nom_ut: data.nom_ut, ville: data.ville })
+      const url = `${window.location.origin}/api/ville/liste?getall`
 
-      const requestOptions = { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: requestBody }
+      const requestOptions = {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' }
+      }
 
       const response = await fetch(url, requestOptions)
 
       if (!response.ok) throw new Error('Erreur lors de la requête')
 
       const responseData = await response.json()
+
       console.log('API Response:', responseData)
 
       if (responseData.erreur) {
         alert(responseData.message)
       } else {
-        setLaboratoires(responseData.data)
+        setVilleListe(responseData.data)
       }
     } catch (error) {
       console.error('Erreur:', error)
       alert('Une erreur est survenue lors de la récupération des données.')
     }
   }
+
   useEffect(() => {
-    handleSave()
+    getVilleList()
   }, [])
+
+  async function getSerList() {
+    try {
+      const url = `${window.location.origin}/api/service/liste?getall`
+
+      const requestOptions = {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' }
+      }
+
+      const response = await fetch(url, requestOptions)
+
+      if (!response.ok) throw new Error('Erreur lors de la requête')
+
+      const responseData = await response.json()
+
+      console.log('API Response:', responseData)
+
+      if (responseData.erreur) {
+        alert(responseData.message)
+      } else {
+        setSerListe(responseData.data)
+      }
+    } catch (error) {
+      console.error('Erreur:', error)
+      alert('Une erreur est survenue lors de la récupération des données.')
+    }
+  }
+
+  useEffect(() => {
+    getSerList()
+  }, [])
+
+  const images = [
+    {
+      src: 'https://img.freepik.com/premium-photo/low-angle-view-cross-against-clear-blue-sky_1048944-10728740.jpg?w=1380',
+      alt: 'banner1'
+    }
+
+    // { src: '/img/banner_lab_img/banner4.png', alt: 'banner4' },
+    // { src: '/img/banner_lab_img/banner2.jpg', alt: 'banner2' },
+
+    // { src: '/img/banner_lab_img/banner6.jpg', alt: 'banner6' }
+  ]
+
+  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [selectedLaboId, setSelectedLaboId] = useState<any>(null)
+  const [data, setData] = useState<any>({ nom_ut: '', id_ser: '', id_ville: '' })
+  const [laboratoires, setLaboratoires] = useState<any[]>([])
+
+  async function getLaboratoireList(page = 1) {
+    try {
+      const url = `${window.location.origin}/api/liste-labo-ser/liste?nom_ut=${data.nom_ut}&id_ser=${data.id_ser}&id_ville=${data.id_ville}&page=${page}`
+
+      const requestOptions = { method: 'GET' }
+
+      const response = await fetch(url, requestOptions)
+
+      if (!response.ok) throw new Error('Erreur lors de la requête')
+
+      const responseData = await response.json()
+
+      console.log('API Response:', responseData)
+
+      if (responseData.erreur) {
+        alert(responseData.message)
+      } else {
+        setLaboratoires(responseData.data)
+        setPaginatorInfo(responseData?.paginatorInfo)
+      }
+    } catch (error) {
+      console.error('Erreur:', error)
+    }
+  }
+
+  useEffect(() => {
+    getLaboratoireList()
+  }, [update])
+
+  async function upValue(e: any, id: any, user: any) {
+    try {
+      const url = `${window.location.origin}/api/score/ajouter`
+      const requestBody = JSON.stringify({ pr: e * 20, id_el: id, el: 2, user })
+
+      const requestOptions = { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: requestBody }
+
+      await fetch(url, requestOptions)
+    } catch (error) {}
+  }
+
+  console.log(laboratoires)
+
   return (
     <div className='bg-white pl-3 pr-3'>
       <SimpleSlideshow interval={5000} images={images} />
@@ -125,12 +184,12 @@ const Laboratoire = () => {
           <InputLabel>Service</InputLabel>
           <Select
             label='Service'
-            value={data?.service || ''}
-            onChange={e => setData((prev: any) => ({ ...prev, service: Number(e.target.value) }))}
+            value={data?.id_ser || ''}
+            onChange={e => setData((prev: any) => ({ ...prev, id_ser: Number(e.target.value) }))}
           >
-            {services.map(item => (
-              <MenuItem value={item.value} key={item.value}>
-                {item.label}
+            {serListe.map((item: any) => (
+              <MenuItem value={item.id} key={item.id}>
+                {item.ser}
               </MenuItem>
             ))}
           </Select>
@@ -140,18 +199,23 @@ const Laboratoire = () => {
           <InputLabel>Ville</InputLabel>
           <Select
             label='Ville'
-            value={data?.ville || ''}
-            onChange={e => setData((prev: any) => ({ ...prev, ville: Number(e.target.value) }))}
+            value={data?.id_ville || ''}
+            onChange={e => setData((prev: any) => ({ ...prev, id_ville: Number(e.target.value) }))}
           >
-            {villes.map(item => (
-              <MenuItem value={item.value} key={item.value}>
-                {item.label}
+            {villeListe.map((item: any) => (
+              <MenuItem value={item.id} key={item.id}>
+                {item.ville}
               </MenuItem>
             ))}
           </Select>
         </FormControl>
 
-        <Button variant='contained' onClick={handleSave}>
+        <Button
+          variant='contained'
+          onClick={() => {
+            getLaboratoireList()
+          }}
+        >
           Rechercher
         </Button>
       </div>
@@ -160,7 +224,7 @@ const Laboratoire = () => {
         {laboratoires?.length > 0
           ? laboratoires.map((laboratoire, index) => (
               <Grid item xs={12} md={4} key={index}>
-                <Card className='shadow-lg rounded-2xl border border-gray-200 bg-white h-70'>
+                <Card className='shadow-lg rounded-2xl border border-gray-200 bg-white h-[350px]'>
                   <div className='flex items-center justify-between p-4'>
                     <div className='flex items-center space-x-4'>
                       <img
@@ -171,11 +235,10 @@ const Laboratoire = () => {
                       <div>
                         <h2 className='text-lg font-semibold text-gray-800'>{laboratoire.nom_ut}</h2>
                         <p className='text-sm text-gray-500'>
-                          {services.find(service => service.value === laboratoire.service)?.label ||
-                            'Service non définie'}
+                          <span>{laboratoire.ser?.trim() ? laboratoire.ser : 'Service non définie'}</span>
                         </p>
                         <div className='mt-2'>
-                          <StarRating size='sm' initialRating={3.5} readOnly />
+                          <StarRating size='sm' initialRating={laboratoire?.sc ?? 0} readOnly />
                         </div>
                       </div>
                     </div>
@@ -192,38 +255,54 @@ const Laboratoire = () => {
                       >
                         Rendez-vous
                       </Button>
-
-                      <RendezVousFormModal
-                        isOpen={isModalOpen}
-                        onClose={() => setIsModalOpen(false)}
-                        laboId={selectedLaboId}
-                      />
                     </div>
                   </div>
-
                   <hr className='my-4 border-t border-gray-300' />
                   <CardContent>
                     <p className='mb-4'>{laboratoire.info}</p>
                     <div className='flex items-center text-gray-600 text-sm mt-4'>
                       <MapPin className='w-4 h-4 mr-2 text-blue-500' />
-                      <span>
-                        {villes.find(ville => ville.value === laboratoire.ville)?.label || 'Ville non définie'}
-                      </span>
+                      <span>{laboratoire.ville?.trim() ? laboratoire.ville : 'Ville non définie'}</span>
 
-                      <Mail className='w-4 h-4 mr-2 text-blue-500 ml-8' />
+                      <Mail className='w-4 h-4 mr-2 text-blue-500 ml-12' />
                       <span>{laboratoire.email}</span>
+                    </div>
+                    <div className='flex items-center text-gray-600 text-sm mt-4'>
+                      <FaRegClock className='w-4 h-4 mr-2 text-blue-500' />
+                      <span>{`${laboratoire.heurD?.slice(0, 5)} - ${laboratoire.heurF?.slice(0, 5)}`}</span>
 
-                      <FaRegClock className='w-4 h-4 mr-2 text-blue-500  m-8' />
-                      <span>{laboratoire.horaires}</span>
+                      <FaMoneyBillAlt className='w-4 h-4 mr-2 text-blue-500 ml-12' />
+                      <span>{laboratoire.tarif} dt</span>
                     </div>
                     <div className='flex justify-end mt-4'>
-                      <StarRating size='sm' />
+                      <StarRating
+                        size='sm'
+                        onChange={async (e: any) => {
+                          console.log(e)
+                          await upValue(e, laboratoire.id, 1)
+                        }}
+                      />
                     </div>
                   </CardContent>
                 </Card>
               </Grid>
             ))
           : null}
+
+        <RendezVousModal
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+          laboId={selectedLaboId}
+          medecinId={null}
+        />
+      </Grid>
+      <Grid item xs={12} className='mt-6 justify-items-end'>
+        <Pagination
+          total={paginatorInfo.total}
+          current={paginatorInfo.currentPage}
+          pageSize={paginatorInfo.perPage}
+          onChange={onPagination}
+        />
       </Grid>
     </div>
   )

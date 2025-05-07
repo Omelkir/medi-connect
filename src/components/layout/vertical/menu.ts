@@ -16,7 +16,7 @@ export const menuMed = [
   { label: 'Rendez-vous', path: '/rendez-vous', icon: 'ri-calendar-fill' },
   {
     label: 'Demandes de rendez-vous',
-    path: '/de',
+    path: '/demande-rendezVous',
     icon: 'ri-file-list-fill'
   }
 ]
@@ -39,7 +39,7 @@ export const menulabo = [
   { label: 'Rendez-vous', path: '/rendez-vous', icon: 'ri-calendar-fill' },
   {
     label: 'Demandes de rendez-vous',
-    path: '/de',
+    path: '/demande-rendezVous',
     icon: 'ri-file-list-fill'
   }
 ]

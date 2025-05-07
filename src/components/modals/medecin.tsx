@@ -8,6 +8,7 @@ import { toast } from 'react-toastify'
 import { Label } from 'recharts'
 
 import { Modal } from '../ui/modal'
+import { useNotification } from '@/context/NotificationContext'
 
 export default function MedecinModal({
   isOpen,
@@ -21,6 +22,7 @@ export default function MedecinModal({
   setUpdate: any
 }) {
   const mailCheck = (email: any) => !/^[^\s@]+@[^\s@]+\.[a-zA-Z]{2,}$/.test(email)
+  const { trigger } = useNotification()
 
   const [data, setData] = useState<any>({
     imageSrc: '/img/placeholder-image.jpg',
@@ -206,6 +208,7 @@ export default function MedecinModal({
         } else {
           if (isAdd) {
             toast.success('Le médecin a été ajouté avec succès')
+            trigger()
           } else {
             toast.success('Le médecin a été modifié avec succès')
           }

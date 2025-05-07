@@ -1,6 +1,8 @@
 'use client'
 
 // Next Imports
+import { useState } from 'react'
+
 import Link from 'next/link'
 
 // MUI Imports
@@ -21,7 +23,6 @@ import Logo from '@components/layout/shared/Logo'
 
 // Hook Imports
 import { useImageVariant } from '@core/hooks/useImageVariant'
-import { useState } from 'react'
 
 const ForgotPassword = () => {
   const [data, setData] = useState<any>({
@@ -32,10 +33,12 @@ const ForgotPassword = () => {
   const [controls, setControls] = useState<any>({
     email: false
   })
+
   const clearForm = () => {
     setData({ email: '' })
     setControls(false)
   }
+
   async function handleSave() {
     try {
       const url = `${window.location.origin}/api/forgot-password/send-mail`
@@ -77,9 +80,9 @@ const ForgotPassword = () => {
       {/* Formulaire */}
       <div className='flex flex-col justify-center items-center w-full max-w-xl p-12 min-h-screen space-y-6'>
         <div className='mb-5'>
-          <h3 className='text-3xl font-bold mb-3'>Forgot Password 🔒</h3>
+          <h3 className='text-3xl font-bold mb-3'>Mot de passe oublié 🔒</h3>
           <Typography className='mbs-1 text-lg'>
-            Enter your email and we&#39;ll send you instructions to reset your password
+            Saisissez votre adresse e-mail et nous vous enverrons les instructions pour réinitialiser votre mot de passe
           </Typography>
         </div>
         <form noValidate autoComplete='off' className='w-full space-y-6 mt-8'>
@@ -109,7 +112,7 @@ const ForgotPassword = () => {
               }
             }}
           />
-          {controls?.email === true ? <span className='errmsg'>Please enter the email !</span> : null}
+          {controls?.email === true ? <span className='errmsg'>Veuillez saisir l'adresse e-mail !</span> : null}
           <Button
             fullWidth
             variant='contained'
@@ -122,13 +125,13 @@ const ForgotPassword = () => {
               handleSave()
             }}
           >
-            Send reset link
+            Envoyer le lien de réinitialisation
           </Button>
 
           <Typography className='flex justify-center items-center mt-4' color='primary'>
             <Link href='/login' className='flex items-center'>
               <DirectionalIcon ltrIconClass='ri-arrow-left-s-line' rtlIconClass='ri-arrow-right-s-line' />
-              <span>Back to Login</span>
+              <span>Retour à la connexion</span>
             </Link>
           </Typography>
         </form>

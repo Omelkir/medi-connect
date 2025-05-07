@@ -2,6 +2,31 @@ import nodemailer from 'nodemailer'
 
 import pool from '@/utils/connexion'
 
+export const ajouter = async (req: any) => {
+  try {
+    const json = await req.json()
+
+    const sql = `
+    INSERT INTO medi_connect.reclamation (
+      id_patient, type, message
+    ) VALUES (
+      '${json.id_patient}',
+      '${json.type}',
+      '${json.message}'
+    
+    )
+  `
+
+    await pool.query(sql)
+
+    return { erreur: false, data: true }
+  } catch (error) {
+    console.error('Erreur lors de l’enregistrement', error)
+
+    return { erreur: true, message: 'Erreur lors de l’enregistrement' }
+  }
+}
+
 export const liste = async (req: any) => {
   try {
     const json: any = req

@@ -5,20 +5,27 @@ import { useEffect, useState } from 'react'
 
 import Link from 'next/link'
 
+import { useRouter } from 'next/navigation'
+
 import Typography from '@mui/material/Typography'
 import TextField from '@mui/material/TextField'
 import IconButton from '@mui/material/IconButton'
 import InputAdornment from '@mui/material/InputAdornment'
 import Button from '@mui/material/Button'
-
 import { FormControl, Input, InputLabel, MenuItem, Select, Grid } from '@mui/material'
 
+import { ArrowLeft } from 'lucide-react'
+
 import Logo from '@components/layout/shared/Logo'
+import { useNotification } from '@/context/NotificationContext'
 
 const Register = () => {
   // States
   // Fonction de validation de l'email
   const mailCheck = (email: any) => !/^[^\s@]+@[^\s@]+\.[a-zA-Z]{2,}$/.test(email)
+
+  const passwordCheck = (password: any) =>
+    !/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&._\-])[A-Za-z\d@$!%*?&._\-]{8,}$/.test(password)
 
   const [isPasswordShown, setIsPasswordShown] = useState(false)
   const [isPasswordShown2, setIsPasswordShown2] = useState(false)
@@ -30,7 +37,7 @@ const Register = () => {
     mdp: '',
     conMdp: '',
     role: 0,
-    tarif: 0,
+    tarif: '',
     id_ville: 0,
     heurD: '',
     heurF: '',
@@ -46,10 +53,11 @@ const Register = () => {
 
   const [villeListe, setVilleListe] = useState<any[]>([])
   const [speListe, setSpeListe] = useState<any[]>([])
+  const [serListe, setSerListe] = useState<any[]>([])
 
   async function getVilleList() {
     try {
-      const url = `${window.location.origin}/api/ville/liste`
+      const url = `${window.location.origin}/api/ville/liste?getall`
 
       const requestOptions = {
         method: 'GET',
@@ -81,7 +89,7 @@ const Register = () => {
 
   async function getSpeList() {
     try {
-      const url = `${window.location.origin}/api/specialite/liste`
+      const url = `${window.location.origin}/api/specialite/liste?getall`
 
       const requestOptions = {
         method: 'GET',
@@ -109,6 +117,38 @@ const Register = () => {
 
   useEffect(() => {
     getSpeList()
+  }, [])
+
+  async function getSerList() {
+    try {
+      const url = `${window.location.origin}/api/service/liste`
+
+      const requestOptions = {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' }
+      }
+
+      const response = await fetch(url, requestOptions)
+
+      if (!response.ok) throw new Error('Erreur lors de la requête')
+
+      const responseData = await response.json()
+
+      console.log('API Response:', responseData)
+
+      if (responseData.erreur) {
+        alert(responseData.message)
+      } else {
+        setSerListe(responseData.data)
+      }
+    } catch (error) {
+      console.error('Erreur:', error)
+      alert('Une erreur est survenue lors de la récupération des données.')
+    }
+  }
+
+  useEffect(() => {
+    getSerList()
   }, [])
 
   const handleImageChange = (e: any) => {
@@ -144,12 +184,6 @@ const Register = () => {
     { label: 'Laboratoire', value: 3 }
   ]
 
-  const optionsLab = [
-    { label: 'Sr1', value: 1 },
-    { label: 'Sr2', value: 2 },
-    { label: 'Sr3', value: 3 }
-  ]
-
   const clearForm = () => {
     setData({
       imageSrc: '/img/placeholder-image.jpg',
@@ -158,7 +192,7 @@ const Register = () => {
       mdp: '',
       conMdp: '',
       role: 0,
-      tarif: 0,
+      tarif: '',
       id_ville: 0,
       heurD: '',
       heurF: '',
@@ -189,13 +223,18 @@ const Register = () => {
       const newControls = {
         email: data.email.trim() === '',
         emailValid: mailCheck(data.email.trim()),
+        mdpValid: passwordCheck(data.mdp.trim()),
+        conMdpValid: passwordCheck(data.conMdp.trim()),
         mdp: data.mdp.trim() === '',
         conMdp: data.conMdp.trim() === '',
-        nom_ut: data.nom_ut.trim() === '',
+
         role: data.role === 0,
         ...(data.role === 4 && {
           nom: data.nom.trim() === '',
           prenom: data.prenom.trim() === ''
+        }),
+        ...((data.role === 2 || data.role === 3) && {
+          nom_ut: data.nom_ut.trim() === ''
         })
       }
 
@@ -205,28 +244,23 @@ const Register = () => {
         return
       }
 
-      
       const formData = new FormData()
 
-     
       for (const key in data) {
         if (data.hasOwnProperty(key)) {
           console.log(key)
 
-          
           if (data[key] instanceof File) {
             formData.append(key, data[key])
           } else {
-           
             formData.append(key, data[key])
           }
         }
       }
 
-      
       const requestOptions = {
         method: 'POST',
-        body: formData 
+        body: formData
       }
 
       const response = await fetch(url, requestOptions)
@@ -236,6 +270,7 @@ const Register = () => {
         alert(responseData.message)
       } else {
         setData(responseData)
+
         clearForm()
       }
     } catch (error) {
@@ -243,6 +278,7 @@ const Register = () => {
     }
   }
 
+  const router = useRouter()
   const handleClickShowPassword = () => setIsPasswordShown(show => !show)
 
   const handleClickShowPassword2 = () => setIsPasswordShown2(show => !show)
@@ -253,7 +289,8 @@ const Register = () => {
         <span className='absolute block-start-5 sm:block-start-[33px] inline-start-6 sm:inline-start-[38px]'>
           <Logo />
         </span>
-        <img src='/images/pages/doc2.svg' className='max-w-[800px] w-full' />
+
+        <img src='/images/pages/doc1.svg' className='max-w-[800px] w-full' />
       </div>
 
       {/* Formulaire */}
@@ -433,19 +470,19 @@ const Register = () => {
                   fullWidth
                   label='Prénom'
                   value={data?.prenom ?? ''}
-                  className={`${controls?.nom === true ? 'isReq' : ''}`}
+                  className={`${controls?.prenom === true ? 'isReq' : ''}`}
                   onChange={(e: any) => {
                     if (e.target?.value.trim() === '') {
-                      setControls({ ...controls, nom: true })
+                      setControls({ ...controls, prenom: true })
                       setData((prev: any) => ({
                         ...prev,
-                        nom: e.target.value
+                        prenom: e.target.value
                       }))
                     } else {
-                      setControls({ ...controls, nom: false })
+                      setControls({ ...controls, prenom: false })
                       setData((prev: any) => ({
                         ...prev,
-                        nom: e.target.value
+                        prenom: e.target.value
                       }))
                     }
                   }}
@@ -474,7 +511,7 @@ const Register = () => {
                     }
                   }}
                 />
-                {controls?.nom === true ? <span className='errmsg'>Veuillez saisir le nom !</span> : null}
+                {controls?.prenom === true ? <span className='errmsg'>Veuillez saisir le prenom !</span> : null}
               </Grid>
             ) : null}
             {data?.role === 4 ? (
@@ -632,7 +669,9 @@ const Register = () => {
               {controls?.email === true ? (
                 <span className='errmsg'>Veuillez saisir l'email !</span>
               ) : controls.emailValid === true ? (
-                <span>mail invalid</span>
+                <span className='errmsg'>
+                  Email invalide : il doit contenir "@" et se terminer par un domaine valide (ex: .com, .net)
+                </span>
               ) : null}
             </Grid>
             {data?.role === 2 ? (
@@ -715,9 +754,9 @@ const Register = () => {
                       }
                     }}
                   >
-                    {optionsLab.map(item => (
-                      <MenuItem value={item.value} key={item.value}>
-                        {item.label}
+                    {serListe.map((item: any) => (
+                      <MenuItem value={item.id} key={item.id}>
+                        {item.ser}
                       </MenuItem>
                     ))}
                   </Select>
@@ -884,6 +923,7 @@ const Register = () => {
                     }))
                   } else {
                     setControls({ ...controls, mdp: false })
+                    setControls({ ...controls, mdpValid: passwordCheck(e.target.value.trim()) })
                     setData((prev: any) => ({
                       ...prev,
                       mdp: e.target.value
@@ -891,7 +931,14 @@ const Register = () => {
                   }
                 }}
               />
-              {controls?.mdp === true ? <span className='errmsg'>Veuillez saisir le mot de passe !</span> : null}
+              {controls?.mdp === true ? (
+                <span className='errmsg'>Veuillez saisir le mot de passe !</span>
+              ) : controls.mdpValid === true ? (
+                <span className='errmsg'>
+                  Mot de passe invalide : il doit contenir au moins 8 caractères, une majuscule, une minuscule, un
+                  chiffre et un caractère spécial (ex: @, $, !).
+                </span>
+              ) : null}
             </Grid>
             <Grid item xs={6} md={6}>
               <TextField
@@ -949,6 +996,7 @@ const Register = () => {
                     }))
                   } else {
                     setControls({ ...controls, conMdp: false })
+                    setControls({ ...controls, conMdpValid: passwordCheck(e.target.value.trim()) })
                     setData((prev: any) => ({
                       ...prev,
                       conMdp: e.target.value
@@ -956,7 +1004,14 @@ const Register = () => {
                   }
                 }}
               />
-              {controls?.conMdp === true ? <span className='errmsg'>Confirmez le mot de passe !</span> : null}
+              {controls?.conMdp === true ? (
+                <span className='errmsg'>Confirmez le mot de passe !</span>
+              ) : controls.conMdpValid === true ? (
+                <span className='errmsg'>
+                  Mot de passe invalide : il doit contenir au moins 8 caractères, une majuscule, une minuscule, un
+                  chiffre et un caractère spécial (ex: @, $, !).
+                </span>
+              ) : null}
             </Grid>
             {data?.role === 2 || data?.role === 3 ? (
               <Grid item xs={12} md={12}>

@@ -1,5 +1,6 @@
 'use client'
 import React from 'react'
+
 import { RiComputerLine } from 'react-icons/ri'
 import { CiMobile3 } from 'react-icons/ci'
 import { TbDental, TbWorldWww } from 'react-icons/tb'
@@ -78,6 +79,7 @@ const SlideLeft = (delay: any) => {
     }
   }
 }
+
 const Services = () => {
   return (
     <section className='bg-white'>

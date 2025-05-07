@@ -8,10 +8,17 @@ import { Card, CardContent, FormControl, Grid, InputLabel, MenuItem, Select, Typ
 
 import * as Tabs from '@radix-ui/react-tabs'
 
+import { Plus } from 'lucide-react'
+
+import { toast } from 'react-toastify'
+
 import Arrow from '@/views/dashboard/Arrow'
 
 import { getStorageData } from '@/utils/helpers'
-import tableStyles from '@core/styles/table.module.css'
+
+import AnalyseModal from '@/components/modals/analyse'
+import DeleteModal from '@/components/modals/deleteModal/deleteModal'
+import Pagination from '@/components/ui/pagination'
 
 const Patient = () => {
   const searchParams = useSearchParams()
@@ -24,6 +31,10 @@ const Patient = () => {
   const [ordonnances, setOrdonnances] = useState<any[]>([])
   const [selectedPatient, setSelectedPatient] = useState<any>(idFiche ? patientListe.find(p => p.id === idFiche) : null)
   const userData = getStorageData('user')
+  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [selected, setSelected] = useState<any>(null)
+  const [update, setUpdate] = useState<string>(new Date().toDateString())
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
 
   const [data, setData] = useState<any>({
     patient: idFiche ?? '',
@@ -31,6 +42,42 @@ const Patient = () => {
   })
 
   const DocteurData = getStorageData('user')
+
+  const handleOpenDeleteModal = (analyse: any = null) => {
+    setSelected(analyse)
+    setIsDeleteModalOpen(true)
+  }
+
+  const handleDelete = async (analyse: any) => {
+    const id = analyse?.id
+
+    if (!id) return console.error('ID manquant pour la suppression')
+
+    try {
+      const url = `${window.location.origin}/api/analyse/supprimer?id=${id}`
+
+      const response = await fetch(url, {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' }
+      })
+
+      const result = await response.json()
+
+      if (result.erreur) {
+        console.error('Erreur:', result.message)
+      } else {
+        setUpdate(new Date().toDateString())
+        toast.success("L'analyse a été supprimé avec succès")
+      }
+    } catch (error) {
+      console.error('Erreur lors de la suppression:', error)
+    }
+  }
+
+  const handleConfirmDelete = async () => {
+    await handleDelete(selected)
+    setIsDeleteModalOpen(false)
+  }
 
   async function getPatientListe() {
     const url = `${window.location.origin}/api/patient/liste?id_el=${DocteurData.id}`
@@ -59,6 +106,11 @@ const Patient = () => {
     }
   }
 
+  const handleOpenModal = (analyse: any = null) => {
+    setSelected(analyse)
+    setIsModalOpen(true)
+  }
+
   React.useEffect(() => {
     getPatientListe()
   }, [])
@@ -82,10 +134,15 @@ const Patient = () => {
   React.useEffect(() => {
     getConsultations()
   }, [selectedPatient])
+  const [paginatorInfo, setPaginatorInfo] = useState<any>({ total: 6 })
 
-  async function getAnalyse() {
+  const onPagination = (e: any) => {
+    getAnalyse(e)
+  }
+
+  async function getAnalyse(page = 1) {
     if (!selectedPatient) return
-    const url = `${window.location.origin}/api/analyse/liste?id_patient=${selectedPatient.id}`
+    const url = `${window.location.origin}/api/analyse/liste?id_patient=${selectedPatient.id}&page=${page}`
 
     try {
       const response = await fetch(url, { method: 'GET', headers: { 'Content-Type': 'application/json' } })
@@ -94,6 +151,7 @@ const Patient = () => {
       const responseData = await response.json()
 
       setAnalyses(responseData.data || [])
+      setPaginatorInfo(responseData?.paginatorInfo)
     } catch (error) {
       console.error(error)
     }
@@ -122,6 +180,7 @@ const Patient = () => {
   React.useEffect(() => {
     getOrdonnance()
   }, [selectedPatient])
+  console.log('patient', selectedPatient)
 
   return (
     <div>
@@ -204,60 +263,30 @@ const Patient = () => {
               </Tabs.List>
 
               {/* Contenu des onglets */}
-              {/* <Tabs.Content value='informations-generales' className='mt-4'>
+              <Tabs.Content value='informations-generales' className='mt-4'>
                 {selectedPatient ? (
-                  <div className='p-6 bg-white rounded-lg shadow-lg max-w-3xl mx-auto'>
-                    <p className='text-xl font-semibold text-gray-700 mb-3'>
+                  <div className='p-6 max-w-3xl'>
+                    <p className='text-sm font-semibold text-gray-700 mb-3'>
                       <strong>Nom:</strong> <span className='text-gray-500'>{selectedPatient.nom}</span>
                     </p>
-                    <p className='text-xl font-semibold text-gray-700 mb-3'>
+                    <p className='text-sm font-semibold text-gray-700 mb-3'>
                       <strong>Prénom:</strong> <span className='text-gray-500'>{selectedPatient.prenom}</span>
                     </p>
-                    <p className='text-xl font-semibold text-gray-700 mb-3'>
+                    <p className='text-sm font-semibold text-gray-700 mb-3'>
                       <strong>Âge:</strong> <span className='text-gray-500'>{selectedPatient.age}</span>
                     </p>
-                    <p className='text-xl font-semibold text-gray-700 mb-3'>
+                    <p className='text-sm font-semibold text-gray-700 mb-3'>
                       <strong>Ville:</strong> <span className='text-gray-500'>{selectedPatient.ville}</span>
                     </p>
-                    <p className='text-xl font-semibold text-gray-700 mb-3'>
+                    <p className='text-sm font-semibold text-gray-700 mb-3'>
                       <strong>Email:</strong> <span className='text-gray-500'>{selectedPatient.email}</span>
                     </p>
-                    <p className='text-xl font-semibold text-gray-700 mb-3'>
+                    <p className='text-sm font-semibold text-gray-700 mb-3'>
                       <strong>Téléphone:</strong> <span className='text-gray-500'>{selectedPatient.tel}</span>
                     </p>
                   </div>
                 ) : (
                   <p className='text-gray-500'>Sélectionnez un patient pour afficher les informations.</p>
-                )}
-              </Tabs.Content> */}
-              <Tabs.Content value='informations-generales' className='mt-4'>
-                {selectedPatient ? (
-                  <div className='overflow-x-auto'>
-                    <table className='min-w-full bg-white border border-gray-200 rounded-lg shadow-md'>
-                      <thead>
-                        <tr>
-                          <th className='px-4 py-2 text-left text-sm font-medium text-gray-600 border-b'>Nom</th>
-                          <th className='px-4 py-2 text-left text-sm font-medium text-gray-600 border-b'>Prénom</th>
-                          <th className='px-4 py-2 text-left text-sm font-medium text-gray-600 border-b'>Âge</th>
-                          <th className='px-4 py-2 text-left text-sm font-medium text-gray-600 border-b'>Ville</th>
-                          <th className='px-4 py-2 text-left text-sm font-medium text-gray-600 border-b'>Email</th>
-                          <th className='px-4 py-2 text-left text-sm font-medium text-gray-600 border-b'>Téléphone</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        <tr className='bg-gray-100'>
-                          <td className='px-4 py-2 text-sm text-gray-700'>{selectedPatient.nom}</td>
-                          <td className='px-4 py-2 text-sm text-gray-700'>{selectedPatient.prenom}</td>
-                          <td className='px-4 py-2 text-sm text-gray-700'>{selectedPatient.age}</td>
-                          <td className='px-4 py-2 text-sm text-gray-700'>{selectedPatient.ville}</td>
-                          <td className='px-4 py-2 text-sm text-gray-700'>{selectedPatient.email}</td>
-                          <td className='px-4 py-2 text-sm text-gray-700'>{selectedPatient.tel}</td>
-                        </tr>
-                      </tbody>
-                    </table>
-                  </div>
-                ) : (
-                  <p className='text-gray-500 text-center'>Sélectionnez un patient pour afficher les informations.</p>
                 )}
               </Tabs.Content>
 
@@ -275,13 +304,14 @@ const Patient = () => {
                         </thead>
                         <tbody>
                           {consultations.map((consultation, index) => {
-                            const dateObj = new Date(consultation.date)
-
                             return (
                               <tr key={index} className='bg-gray-100'>
-                                <td className='px-4 py-2 text-sm text-gray-700'>{dateObj.toLocaleDateString()}</td>
-                                <td className='px-4 py-2 text-sm text-gray-700'>
-                                  {dateObj.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                <td className='!plb-1'>{new Date(consultation.start).toLocaleDateString('fr-FR')}</td>
+                                <td className='!plb-1'>
+                                  {new Date(consultation.start).toLocaleTimeString('fr-FR', {
+                                    hour: '2-digit',
+                                    minute: '2-digit'
+                                  })}
                                 </td>
                                 <td className='px-4 py-2 text-sm text-gray-700'>{consultation.duree}</td>
                               </tr>
@@ -303,11 +333,20 @@ const Patient = () => {
                   analyses.length > 0 ? (
                     <div className='overflow-x-auto'>
                       <table className='min-w-full bg-white border border-gray-200 rounded-lg shadow-md'>
+                        <colgroup>
+                          <col className='w-1/4' />
+                          <col className='w-1/4' />
+                          <col className='w-1/4' />
+                          <col className='w-1/4' />
+                        </colgroup>
                         <thead>
                           <tr>
                             <th className='px-4 py-2 text-left text-sm font-medium text-gray-600 border-b'>Titre</th>
                             <th className='px-4 py-2 text-left text-sm font-medium text-gray-600 border-b'>Détail</th>
                             <th className='px-4 py-2 text-left text-sm font-medium text-gray-600 border-b'>Analyse</th>
+                            <th className='px-4 py-2 text-left text-sm font-medium text-gray-600 border-b'>
+                              Action <Plus className='text-blue-500 float-right' onClick={() => handleOpenModal()} />
+                            </th>
                           </tr>
                         </thead>
                         <tbody>
@@ -316,6 +355,18 @@ const Patient = () => {
                               <td className='px-4 py-2 text-sm text-gray-700'>{analyse.titre}</td>
                               <td className='px-4 py-2 text-sm text-gray-700'>{analyse.detail}</td>
                               <td className='px-4 py-2 text-sm text-gray-700'></td>
+                              <td className='px-4 py-2 text-sm text-gray-700  gap-2'>
+                                <button
+                                  className='ri-edit-box-line text-yellow-500 text-xl hover:text-2xl mr-3'
+                                  onClick={() => handleOpenModal(analyse)}
+                                ></button>
+                                <button
+                                  onClick={() => {
+                                    handleOpenDeleteModal(analyse)
+                                  }}
+                                  className='ri-delete-bin-line text-red-500 text-xl hover:text-2xl'
+                                ></button>
+                              </td>
                             </tr>
                           ))}
                         </tbody>
@@ -327,7 +378,16 @@ const Patient = () => {
                 ) : (
                   <p className='text-gray-500 text-center'>Sélectionnez un patient pour afficher les analyses.</p>
                 )}
+                <Grid item xs={12} className='mt-6 justify-items-end'>
+                  <Pagination
+                    total={paginatorInfo.total}
+                    current={paginatorInfo.currentPage}
+                    pageSize={paginatorInfo.perPage}
+                    onChange={onPagination}
+                  />
+                </Grid>
               </Tabs.Content>
+
               <Tabs.Content value='ordonnance' className='mt-4'>
                 {selectedPatient ? (
                   ordonnances.length > 0 ? (
@@ -347,7 +407,8 @@ const Patient = () => {
                             <tr key={index} className='bg-gray-100 hover:bg-gray-200'>
                               <td className='px-4 py-2 text-sm text-gray-700'>{ordonnance.medi}</td>
                               <td className='px-4 py-2 text-sm text-gray-700'>{ordonnance.dosage}</td>
-                              <td className='px-4 py-2 text-sm text-gray-700'>{ordonnance.duree} jours</td>
+                              <td className='px-4 py-2 text-sm text-gray-700'>{ordonnance.duree}</td>
+                              <td className='px-4 py-2 text-sm text-gray-700'></td>
                             </tr>
                           ))}
                         </tbody>
@@ -363,6 +424,20 @@ const Patient = () => {
             </Tabs.Root>
           </div>
         </CardContent>
+        <AnalyseModal
+          isOpen={isModalOpen}
+          analyseData={selected}
+          patient={selectedPatient}
+          id_el={userData.id}
+          onClose={() => setIsModalOpen(false)}
+          setUpdate={setUpdate}
+        />
+        <DeleteModal
+          isOpen={isDeleteModalOpen}
+          onClose={() => setIsDeleteModalOpen(false)}
+          onConfirm={handleConfirmDelete}
+          label={`cette analyse`}
+        />
       </Card>
     </div>
   )

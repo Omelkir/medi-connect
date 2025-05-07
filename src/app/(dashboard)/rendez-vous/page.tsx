@@ -12,7 +12,7 @@ import listPlugin from '@fullcalendar/list'
 import frLocale from '@fullcalendar/core/locales/fr'
 
 import 'react-big-calendar/lib/css/react-big-calendar.css'
-import { Button, Card, CardContent } from '@mui/material'
+import { Button, Card, CardContent, Typography } from '@mui/material'
 
 import { CalendarCheck } from 'lucide-react'
 import { momentLocalizer } from 'react-big-calendar'
@@ -24,8 +24,10 @@ import withReactContent from 'sweetalert2-react-content'
 import Arrow from '@/views/dashboard/Arrow'
 import ConsultationModal from '@/components/modals/consultation'
 import 'sweetalert2/src/sweetalert2.scss'
+import tableStyles from '@core/styles/table.module.css'
+import CustomAvatar from '@/@core/components/mui/Avatar'
+import { getStorageData } from '@/utils/helpers'
 
-// Définition du type des événements
 interface Evenement {
   title: string
   start: Date
@@ -41,7 +43,7 @@ const CalendrierRendezvous = () => {
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [evenements, setEvenements] = useState<Evenement[]>([])
   const [update, setUpdate] = useState<string>(new Date().toDateString())
-
+  const userData = getStorageData('user')
   const [dataUp, setDataUp] = useState<any>({})
   const [isLoading, setIsLoading] = useState(false)
 
@@ -53,7 +55,7 @@ const CalendrierRendezvous = () => {
   async function refrech_envent() {
     try {
       setIsLoading(true)
-      const url = `${window.location.origin}/api/consultation/liste`
+      const url = `${window.location.origin}/api/consultation/liste?consultation.isApproved=1&consultation.id_el=${userData.id}`
 
       const requestOptions = { method: 'GET', headers: { 'Content-Type': 'application/json' } }
 
@@ -88,13 +90,6 @@ const CalendrierRendezvous = () => {
     refrech_envent()
   }, [update])
 
-  // const handleSelectSlot = ({ start }: { start: Date }) => {
-  //   const title = prompt('Entrez le nombre de rendez-vous :')
-
-  //   if (title) {
-  //     setEvenements([...evenements, { title: `${title} Rendez-vous`, start, end: start }])
-  //   }
-  // }
   function generateSummaryEvents(events: any) {
     const countMap: any = {}
 
@@ -108,8 +103,8 @@ const CalendrierRendezvous = () => {
       id: `summary-${date}`,
       start: date,
       allDay: true,
-      title: `(${count}) Rendez-vous ${count > 1 ? 's' : ''}`,
-      isSummary: true // marqueur pour l'eventContent
+      title: `(${count}) Rendez-vous ${count > 1 ? '(s)' : ''}`,
+      isSummary: true
     }))
   }
 
@@ -125,36 +120,48 @@ const CalendrierRendezvous = () => {
                 <th>Prenom</th>
                 <th>Email</th>
                 <th>Téléphone</th>
+                <th>Durée</th>
                 <th className='text-center'>Action</th>
               </tr>
             </thead>
             <tbody>
-              {rowsData.map((row, index) => (
+              {data.data?.map((row: any, index: any) => (
                 <tr key={index}>
                   <td className='!plb-1'>
-                    <Typography>{row.nom}</Typography>
+                    <div className='flex items-center gap-3'>
+                      <CustomAvatar src={row.image} size={34} />
+                      <div className='flex flex-col'>
+                        <Typography color='text.primary' className='font-medium'>
+                          {row.nom}
+                        </Typography>
+                      </div>
+                    </div>
                   </td>
                   <td className='!plb-1'>
-                    <Typography>{row.prenom}</Typography>
+                    <Typography color='text.primary' className='font-medium'>
+                      {row.prenom}
+                    </Typography>
                   </td>
                   <td className='!plb-1'>
-                    <Typography>{row.email}</Typography>
+                    <Typography color='text.primary' className='font-medium'>
+                      {row.email}
+                    </Typography>
                   </td>
                   <td className='!plb-1'>
-                    <Typography>{row.tel}</Typography>
+                    <Typography color='text.primary' className='font-medium'>
+                      {row.tel}
+                    </Typography>
+                  </td>
+                  <td className='!plb-1'>
+                    <Typography color='text.primary' className='font-medium'>
+                      {row.duree + ' (s)'}
+                    </Typography>
                   </td>
                   <td className='flex justify-center gap-2'>
-                    {userData.role === 2 ? (
-                      <button
-                        className='ri-folder-line text-blue-500 text-xl hover:text-2xl'
-                        onClick={() => window.open('/fiche-patient?id=' + row.id, '_blank', 'noopener,noreferrer')}
-                      ></button>
-                    ) : null}
-
-                    <button
+                    {/* <button
                       className='ri-edit-box-line text-yellow-500 text-xl hover:text-2xl'
                       onClick={() => onEdit(row)}
-                    ></button>
+                    ></button> */}
                   </td>
                 </tr>
               ))}
@@ -216,21 +223,19 @@ const CalendrierRendezvous = () => {
                   // // 🟦 Afficher liste des événements du jour dans un modal par ex
                   // setDayEvents(eventsOfDay)
                   // setShowEventListModal(true)
+
                   MySwal.fire({
-                    title: '<small>titre</small>', // Petit titre
-                    html: <MessageAlertEvent data={eventsOfDay} />, // Message HTML personnalisé
-                    showConfirmButton: false, // Désactiver le bouton OK
+                    html: <MessageAlertEvent data={eventsOfDay} />,
+
+                    showConfirmButton: false,
                     customClass: {
-                      title: 'custom-title', // Pour personnaliser le titre
-                      popup: 'custom-popup' // Pour personnaliser la fenêtre de l'alerte
+                      title: 'custom-title',
+                      popup: 'custom-popup'
                     },
-                    didOpen: () => {
-                      // Si vous avez besoin d'une action après l'ouverture
-                    }
+                    didOpen: () => {}
                   })
                   console.log(eventsOfDay)
                 } else {
-                  // 👉 Clic sur un vrai event (si jamais tu les réactives)
                   setIsModalOpen(true)
                   setDataUp({
                     el: 2,
@@ -242,7 +247,7 @@ const CalendrierRendezvous = () => {
               }}
               dateClick={(info: any) => {
                 setIsModalOpen(true)
-                const isoDateTime = info.date.toISOString() // ✅ ex: 2025-04-22T10:00:00.000Z
+                const isoDateTime = info.date.toISOString()
 
                 setDataUp({
                   start: isoDateTime,
@@ -250,9 +255,8 @@ const CalendrierRendezvous = () => {
                   el: 2
                 })
               }}
-              events={generateSummaryEvents(evenements)} // 👈 injecte juste les résumés
+              events={generateSummaryEvents(evenements)}
               eventContent={arg => {
-                // n'afficher que les événements de résumé
                 if (arg.event.extendedProps.isSummary) {
                   return {
                     html: `<div style="font-weight:bold;color:white;font-size:0.8rem">${arg.event.title}</div>`

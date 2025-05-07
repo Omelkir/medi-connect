@@ -1,4 +1,38 @@
 import pool from '@/utils/connexion'
+
+export const ajouter = async (req: any) => {
+  try {
+    const json: any = req
+
+    const sql = `INSERT INTO medi_connect.analyse (id_patient,titre,detail,id_el,el) 
+                       VALUES ('${json.id_patient}','${json.titre}','${json.detail}','${json.id_el}',2)`
+
+    await pool.query(sql)
+
+    return { erreur: false, data: true }
+  } catch (error) {
+    console.error('Erreur lors de l’enregistrement', error)
+
+    return { erreur: true, message: 'Erreur lors de l’enregistrement' }
+  }
+}
+
+export const modifier = async (req: any) => {
+  try {
+    const json: any = req
+    const id = json.id
+    const sql = `UPDATE medi_connect.analyse SET titre ='${json.titre}',detail ='${json.detail}' where id='${id}'`
+
+    await pool.query(sql)
+
+    return { erreur: false, data: true }
+  } catch (error) {
+    console.error('Erreur lors de l’enregistrement', error)
+
+    return { erreur: true, message: 'Erreur lors de l’enregistrement' }
+  }
+}
+
 export const liste = async (req: any) => {
   try {
     const json: any = req
@@ -7,9 +41,11 @@ export const liste = async (req: any) => {
     // Convertir les paramètres en un objet JSON
     const paramsObj = Object.fromEntries(urlParams.entries())
     let whereClause = ''
+    let currentPage = 1
+    let itemsPerPage = 6
 
     Object.keys(paramsObj).forEach((key, index) => {
-      if (paramsObj[key]) {
+      if (paramsObj[key] && ['getall', 'page', 'limit'].indexOf(key) === -1) {
         // Ajoute la condition WHERE
         if (index === 0) {
           whereClause += ` WHERE ${key} = ${paramsObj[key]}`
@@ -17,30 +53,35 @@ export const liste = async (req: any) => {
           whereClause += ` AND ${key} = ${paramsObj[key]}`
         }
       }
+
+      if (key === 'page') {
+        currentPage = parseInt(paramsObj[key] as string)
+      }
+
+      if (key === 'limit') {
+        itemsPerPage = parseInt(paramsObj[key] as string)
+      }
     })
     const totalCountQuery = `SELECT COUNT(*) as count FROM medi_connect.analyse ${whereClause}`
 
     const totalCountResult: any = await pool.query(totalCountQuery)
     const totalCount = totalCountResult[0][0].count
-    // const currentPage = parseInt(req.query.page as string) || 1
-    // const itemsPerPage = parseInt(req.query.limit as string) || 6
-    const currentPage = 1
-    const itemsPerPage = 6
+
+    if (paramsObj['getall'] !== undefined) {
+      itemsPerPage = totalCount
+    }
+
     const offset = (currentPage - 1) * itemsPerPage
-    let sql = `SELECT * FROM medi_connect.analyse ${whereClause}`
+
+    const sql = `SELECT * FROM analyse ${whereClause} LIMIT
+    ${itemsPerPage}
+OFFSET
+    ${offset}`
+
+    console.log(sql)
+
     const [rows] = await pool.query(sql)
-
-    const data = rows?.map((row: any) => {
-      const appointmentDate = new Date(row.date) // Convertir la date SQL en objet Date
-
-      return {
-        ...row,
-
-        title: row.id + ' Rendez-vous',
-        start: new Date(appointmentDate).toString(),
-        end: new Date(appointmentDate.getTime() + row.duree * 60000).toString()
-      }
-    })
+    const data: any = rows
 
     const pi: any = {
       total: totalCount,
@@ -58,9 +99,36 @@ export const liste = async (req: any) => {
           : null,
       prevPageUrl: currentPage > 1 ? `/api/analyse/liste?limit=${itemsPerPage}&page=${currentPage - 1}` : null
     }
+
     return { erreur: false, data: data, paginatorInfo: pi }
   } catch (error) {
     console.error('Erreur lors de la récupération des analyses:', error)
+
     return { erreur: true, message: 'Erreur lors de l’enregistrement' }
+  }
+}
+
+export const supprimer = async (req: any) => {
+  try {
+    const id = req.params.id
+
+    if (!id) {
+      return { erreur: true, message: 'ID is required' }
+    }
+
+    const sql = `DELETE FROM medi_connect.analyse WHERE id='${id}'`
+    const result: any = await pool.query(sql, [id])
+
+    console.log(sql)
+
+    if (result.affectedRows === 0) {
+      return { erreur: true, message: 'analyse non trouvé' }
+    }
+
+    return { erreur: false, data: true }
+  } catch (error) {
+    console.error('Error deleting:', error)
+
+    return { erreur: true, message: 'Erreur lors de la suppression' }
   }
 }

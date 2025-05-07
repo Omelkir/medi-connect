@@ -11,12 +11,18 @@ export const liste = async (req: any) => {
     const json: any = req
     const urlParams = new URLSearchParams(new URL(json.url).search)
 
+    console.log('urlParams:', urlParams)
+
     // Convertir les paramètres en un objet JSON
     const paramsObj = Object.fromEntries(urlParams.entries())
+
+    console.log('paramsObj:', paramsObj)
     let whereClause = ''
+    let currentPage = 1
+    let itemsPerPage = 6
 
     Object.keys(paramsObj).forEach((key, index) => {
-      if (paramsObj[key]) {
+      if (paramsObj[key] && ['page', 'limit'].indexOf(key) === -1) {
         // Ajoute la condition WHERE
         if (index === 0) {
           whereClause += ` WHERE ${key} = ${paramsObj[key]}`
@@ -24,22 +30,29 @@ export const liste = async (req: any) => {
           whereClause += ` AND ${key} = ${paramsObj[key]}`
         }
       }
+
+      if (key === 'page') {
+        currentPage = parseInt(paramsObj[key] as string)
+      }
+
+      if (key === 'limit') {
+        itemsPerPage = parseInt(paramsObj[key] as string)
+      }
     })
     const totalCountQuery = `SELECT COUNT(*) as count FROM medi_connect.consultation ${whereClause}`
 
     const totalCountResult: any = await pool.query(totalCountQuery)
+
     const totalCount = totalCountResult[0][0].count
 
-    // const currentPage = parseInt(req.query.page as string) || 1
-    // const itemsPerPage = parseInt(req.query.limit as string) || 6
-    const currentPage = 1
-    const itemsPerPage = req.query?.getAll ? totalCount : 6
     const offset = (currentPage - 1) * itemsPerPage
-    const sql = `SELECT *,id as idd FROM medi_connect.consultation ${whereClause} where is_approved=1`
+
+    const sql = `SELECT consultation.*,consultation.id as idd,p.nom as nom ,p.prenom as prenom, p.email as email,p.tel as tel,p.image as image FROM consultation  LEFT JOIN patient p ON consultation.id_patient = p.id ${whereClause} LIMIT ${itemsPerPage} OFFSET ${offset}`
+
     const [rows] = await pool.query(sql)
 
     const data = rows?.map((row: any) => {
-      const appointmentDate = new Date(row.date) // Convertir la date SQL en objet Date
+      const appointmentDate = new Date(row.date)
 
       delete row.date
 
@@ -50,6 +63,8 @@ export const liste = async (req: any) => {
         end: toLocalISOString(new Date(appointmentDate.getTime() + row.duree * 60000))
       }
     })
+
+    console.log(data)
 
     const pi: any = {
       total: totalCount,
@@ -80,8 +95,8 @@ export const ajouter = async (req: any) => {
   try {
     const json: any = req
 
-    await pool.query(`INSERT INTO medi_connect.consultation (id_el,el,date,id_patient, is_approved, duree) 
-                       VALUES ('${json.id_el}','${json.el}','${json.date}', '${json.id_patient}', 1, '${json.duree}')`)
+    await pool.query(`INSERT INTO medi_connect.consultation (id_el,el,date,id_patient, isApproved, duree) 
+                       VALUES ('${json.id_el}','${json.el}','${json.date}', '${json.id_patient}', '${json.isApproved}', '${json.duree}')`)
 
     return { erreur: false, data: true }
   } catch (error) {

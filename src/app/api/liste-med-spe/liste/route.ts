@@ -1,7 +1,7 @@
 import type { NextRequest } from 'next/server'
 import { NextResponse } from 'next/server'
 
-import { liste } from '@/app/api-controller/reclamation'
+import { liste } from '@/app/api-controller/liste-med-spe'
 
 export async function GET(req: NextRequest) {
   try {

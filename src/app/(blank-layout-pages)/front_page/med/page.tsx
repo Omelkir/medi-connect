@@ -16,71 +16,95 @@ import {
 import { Mail, MapPin } from 'lucide-react'
 import { FaMoneyBillAlt, FaRegClock } from 'react-icons/fa'
 
+import Pagination from '@/components/ui/pagination'
 import { SimpleSlideshow } from '@/components/auto-images/images'
 import { StarRating } from '@/components/ui/star-rating'
 import ConsultationModal from '@/components/modals/consultation'
 import { getStorageData } from '@/utils/helpers'
+import RendezVousModal from '@/components/modals/rendezVousFormModal'
 
 const Medecin = () => {
   const userData = getStorageData('user')
-
-  const villes = [
-    { label: 'Ariana', value: 1 },
-    { label: 'Béja', value: 2 },
-    { label: 'Ben Arous', value: 3 },
-    { label: 'Bizerte', value: 4 },
-    { label: 'Gabès', value: 5 },
-    { label: 'Gafsa', value: 6 },
-    { label: 'Jendouba', value: 7 },
-    { label: 'Kairouan', value: 8 },
-    { label: 'Kasserine', value: 9 },
-    { label: 'Kébili', value: 10 },
-    { label: 'Kef', value: 11 },
-    { label: 'Mahdia', value: 12 },
-    { label: 'Manouba', value: 13 },
-    { label: 'Médenine', value: 14 },
-    { label: 'Monastir', value: 15 },
-    { label: 'Nabeul', value: 16 },
-    { label: 'Sfax', value: 17 },
-    { label: 'Sidi Bouzid', value: 18 },
-    { label: 'Siliana', value: 19 },
-    { label: 'Sousse', value: 20 },
-    { label: 'Tataouine', value: 21 },
-    { label: 'Tozeur', value: 22 },
-    { label: 'Tunis', value: 23 },
-    { label: 'Zaghouan', value: 24 }
-  ]
-
-  const images = [
-    // {
-    //   src: '/img/banner_doctors_img/banner6.jpg',
-    //   alt: 'Mountain landscape with a lake'
-    // },
-    { src: '/img/banner_doctors_img/banner8.jpg', alt: 'Sunset over mountains' },
-    { src: '/img/banner_doctors_img/banner5.png', alt: 'Forest with sunlight' },
-    { src: '/img/banner_doctors_img/banner4.webp', alt: 'Foggy mountains' }
-  ]
-
+  const [paginatorInfo, setPaginatorInfo] = useState<any>({ total: 6 })
   const [update, setUpdate] = useState<string>(new Date().toDateString())
 
-  const specialites = [
-    { label: 'Médecine dentaire', value: 1 },
-    { label: 'Cardiologie', value: 2 },
-    { label: 'Dermatologie', value: 3 },
-    { label: 'Ophtalmologie', value: 4 },
-    { label: 'Pneumologie', value: 5 },
-    { label: 'Orthopédie - Traumatologie', value: 6 },
-    { label: 'Médecine interne', value: 7 }
-  ]
+  const onPagination = (e: any) => {
+    getMedecinList(e)
+  }
+
+  const [villeListe, setVilleListe] = useState<any[]>([])
+  const [speListe, setSpeListe] = useState<any[]>([])
+
+  async function getVilleList() {
+    try {
+      const url = `${window.location.origin}/api/ville/liste`
+
+      const requestOptions = {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' }
+      }
+
+      const response = await fetch(url, requestOptions)
+
+      if (!response.ok) throw new Error('Erreur lors de la requête')
+
+      const responseData = await response.json()
+
+      if (responseData.erreur) {
+        alert(responseData.message)
+      } else {
+        setVilleListe(responseData.data)
+      }
+    } catch (error) {
+      console.error('Erreur:', error)
+      alert('Une erreur est survenue lors de la récupération des données.')
+    }
+  }
+
+  useEffect(() => {
+    getVilleList()
+  }, [])
+
+  async function getSpeList() {
+    try {
+      const url = `${window.location.origin}/api/specialite/liste`
+
+      const requestOptions = {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' }
+      }
+
+      const response = await fetch(url, requestOptions)
+
+      if (!response.ok) throw new Error('Erreur lors de la requête')
+
+      const responseData = await response.json()
+
+      if (responseData.erreur) {
+        alert(responseData.message)
+      } else {
+        setSpeListe(responseData.data)
+      }
+    } catch (error) {
+      console.error('Erreur:', error)
+      alert('Une erreur est survenue lors de la récupération des données.')
+    }
+  }
+
+  useEffect(() => {
+    getSpeList()
+  }, [])
+
+  const images = [{ src: '/img/banner_doctors_img/banner8.jpg', alt: 'Sunset over mountains' }]
 
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [selectedMedecinId, setSelectedMedecinId] = useState<any>(null)
-  const [data, setData] = useState<any>({ nom_ut: '', spe: 0, ville: 0 })
+  const [data, setData] = useState<any>({ nom_ut: '', id_spe: '', id_ville: '' })
   const [medecins, setMedecins] = useState<any[]>([])
 
-  async function handleSave() {
+  async function getMedecinList(page = 1) {
     try {
-      const url = `${window.location.origin}/api/liste-med-spe/liste?spe=${data.spe}&nom_ut=${data.nom_ut}&ville=${data.ville}`
+      const url = `${window.location.origin}/api/liste-med-spe/liste?nom_ut=${data.nom_ut}&id_spe=${data.id_spe}&id_ville=${data.id_ville}&page=${page}`
 
       const requestOptions = { method: 'GET' }
 
@@ -90,20 +114,21 @@ const Medecin = () => {
 
       const responseData = await response.json()
 
-      console.log('API Response:', responseData)
-
       if (responseData.erreur) {
         alert(responseData.message)
       } else {
         setMedecins(responseData.data)
+        setPaginatorInfo(responseData?.paginatorInfo)
       }
-    } catch (error) {
-      console.error('Erreur:', error)
+    } catch (err) {
+      console.error('Erreur dans API:', err)
+
+      return { erreur: true, message: 'Erreur interne' }
     }
   }
 
   useEffect(() => {
-    handleSave()
+    getMedecinList()
   }, [update])
 
   async function upValue(e: any, id: any, user: any) {
@@ -144,12 +169,12 @@ const Medecin = () => {
           <InputLabel>Spécialité</InputLabel>
           <Select
             label='Spécialité'
-            value={data?.spe || ''}
-            onChange={e => setData((prev: any) => ({ ...prev, spe: Number(e.target.value) }))}
+            value={data?.id_spe || ''}
+            onChange={e => setData((prev: any) => ({ ...prev, id_spe: Number(e.target.value) }))}
           >
-            {specialites.map(item => (
-              <MenuItem value={item.value} key={item.value}>
-                {item.label}
+            {speListe.map((item: any) => (
+              <MenuItem value={item.id} key={item.id}>
+                {item.spe}
               </MenuItem>
             ))}
           </Select>
@@ -159,18 +184,23 @@ const Medecin = () => {
           <InputLabel>Ville</InputLabel>
           <Select
             label='Ville'
-            value={data?.ville || ''}
-            onChange={e => setData((prev: any) => ({ ...prev, ville: Number(e.target.value) }))}
+            value={data?.id_ville || ''}
+            onChange={e => setData((prev: any) => ({ ...prev, id_ville: Number(e.target.value) }))}
           >
-            {villes.map(item => (
-              <MenuItem value={item.value} key={item.value}>
-                {item.label}
+            {villeListe.map((item: any) => (
+              <MenuItem value={item.id} key={item.id}>
+                {item.ville}
               </MenuItem>
             ))}
           </Select>
         </FormControl>
 
-        <Button variant='contained' onClick={handleSave}>
+        <Button
+          variant='contained'
+          onClick={() => {
+            getMedecinList()
+          }}
+        >
           Rechercher
         </Button>
       </div>
@@ -190,7 +220,7 @@ const Medecin = () => {
                       <div>
                         <h2 className='text-lg font-semibold text-gray-800'>{medecin.nom_ut}</h2>
                         <p className='text-sm text-gray-500'>
-                          {specialites.find(spe => spe.value === medecin.spe)?.label || 'Spécialité non définie'}
+                          <span>{medecin.spe?.trim() ? medecin.spe : 'Spécialité non définie'}</span>
                         </p>
                         <div className='mt-2'>
                           <StarRating size='sm' initialRating={medecin?.sc ?? 0} readOnly />
@@ -217,7 +247,7 @@ const Medecin = () => {
                     <p className='mb-4'>{medecin.info}</p>
                     <div className='flex items-center text-gray-600 text-sm mt-4'>
                       <MapPin className='w-4 h-4 mr-2 text-blue-500' />
-                      <span>{villes.find(ville => ville.value === medecin.ville)?.label || 'Ville non définie'}</span>
+                      <span>{medecin.ville?.trim() ? medecin.ville : 'Ville non définie'}</span>
 
                       <Mail className='w-4 h-4 mr-2 text-blue-500 ml-12' />
                       <span>{medecin.email}</span>
@@ -233,7 +263,6 @@ const Medecin = () => {
                       <StarRating
                         size='sm'
                         onChange={async (e: any) => {
-                          console.log(e)
                           await upValue(e, medecin.id, 1)
                         }}
                       />
@@ -244,13 +273,19 @@ const Medecin = () => {
             ))
           : null}
 
-        <ConsultationModal
+        <RendezVousModal
           isOpen={isModalOpen}
           onClose={() => setIsModalOpen(false)}
-          setUpdate={setUpdate}
-          dataUp={{ id_patient: userData?.id, id_el: selectedMedecinId, el: 2 }}
-
-          // medecinId={selectedMedecinId}
+          medecinId={selectedMedecinId}
+          laboId={null}
+        />
+      </Grid>
+      <Grid item xs={12} className='mt-6 justify-items-end'>
+        <Pagination
+          total={paginatorInfo.total}
+          current={paginatorInfo.currentPage}
+          pageSize={paginatorInfo.perPage}
+          onChange={onPagination}
         />
       </Grid>
     </div>

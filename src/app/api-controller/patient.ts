@@ -182,6 +182,8 @@ export const liste = async (req: any) => {
     OFFSET
         ${offset}`
 
+  console.log(sql)
+
   const [rows] = await pool.query(sql)
   const data: any = rows
 

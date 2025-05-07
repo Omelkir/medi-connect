@@ -1,18 +1,16 @@
+import type { NextRequest } from 'next/server'
+import { NextResponse } from 'next/server'
+
 import { liste } from '@/app/api-controller/liste-labo-ser'
-import { NextRequest, NextResponse } from 'next/server'
 
-export async function POST(req: NextRequest) {
+export async function GET(req: NextRequest) {
   try {
-    const body = await req.json()
-    const data = await liste(body)
-
-    if (!data) {
-      return NextResponse.json({ erreur: true, message: 'Le paramètre "service" est requis' }, { status: 400 })
-    }
+    const data = await liste(req)
 
     return NextResponse.json(data)
   } catch (error) {
-    console.error(error)
-    return NextResponse.json({ erreur: true, message: 'Erreur interne du serveur' }, { status: 500 })
+    console.error('Erreur lors du traitement de la requête', error)
+
+    return NextResponse.json({ erreur: true, message: 'Erreur lors du traitement de la requête' }, { status: 500 })
   }
 }

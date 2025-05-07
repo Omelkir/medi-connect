@@ -1,12 +1,12 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { Modal } from '../ui/modal'
-import { Button, Grid, TextField } from '@mui/material'
+
+import { Button, Grid, TextField, FormControl, Input, InputLabel, MenuItem, Select } from '@mui/material'
 import { toast } from 'react-toastify'
 import { CloudUpload, Upload } from 'lucide-react'
 
-import { FormControl, Input, InputLabel, MenuItem, Select } from '@mui/material'
+import { Modal } from '../ui/modal'
 
 export default function OrdonnancesAnalysesModal({
   isOpen,
@@ -19,6 +19,7 @@ export default function OrdonnancesAnalysesModal({
 }) {
   const handleImageChange = (e: any) => {
     const file = e.target.files[0]
+
     if (file) {
       setData((prev: any) => ({
         ...prev,
@@ -27,15 +28,18 @@ export default function OrdonnancesAnalysesModal({
       }))
 
       const reader = new FileReader()
+
       reader.onloadend = () => {
         setData((prev: any) => ({
           ...prev,
           image: reader.result
         }))
       }
+
       reader.readAsDataURL(file)
     }
   }
+
   const [data, setData] = useState<any>({
     imageSrc: '/img/placeholder-image.jpg',
     image: '',
@@ -45,6 +49,7 @@ export default function OrdonnancesAnalysesModal({
     ord: '',
     an: ''
   })
+
   useEffect(() => {
     if (OrdAnData) {
       setData(OrdAnData)
@@ -52,6 +57,7 @@ export default function OrdonnancesAnalysesModal({
       setData({ nom: '', prenom: '', ord: '', an: '' })
     }
   }, [OrdAnData])
+
   const [controls, setControls] = useState<any>({
     nom: false,
     prenom: false,
@@ -63,6 +69,7 @@ export default function OrdonnancesAnalysesModal({
     setData({ imageSrc: '/img/placeholder-image.jpg', image: '', nom: '', prenom: '', ord: '', an: '' })
     setControls({ nom: false, prenom: false, ord: false, an: false })
   }
+
   const isAdd = !OrdAnData
 
   const handleSave = async () => {
@@ -75,6 +82,7 @@ export default function OrdonnancesAnalysesModal({
       const response = await fetch(url, requestOptions)
 
       const responseData = await response.json()
+
       toast.success('Action réussie !')
 
       if (responseData.erreur) {

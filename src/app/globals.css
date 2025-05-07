@@ -118,9 +118,24 @@ code {
   background-position-x: right;
   background-position-y: center;
 }
+.bgg {
+  background-image: url('/images/pages/baner.png');
+  background-size: cover;
+  background-position: right;
+  background-position-x: right;
+  background-position-y: center;
+}
+.bgAdmin {
+  background-image: url('/images/pages/design.png');
+  background-size: cover;
+  background-position: right;
+  background-position-x: right;
+  background-position-y: center;
+}
 .bg2 {
   background-image: url('/images/hero-bg.jpg');
   background-size: cover;
+  background-position: right;
 }
 .bg3 {
   background-image: url('/img/banner_doctors_img/banner3.png');
@@ -459,4 +474,11 @@ h1 {
   font-weight: bolder;
   font-style: inherit;
   font-size: 17px;
+}
+.custom-popup {
+  width: 800px !important;
+  max-width: 90vw;
+  margin-left: 200px;
+  position: relative !important;
+  transform: translate(0, 0) !important;
 }

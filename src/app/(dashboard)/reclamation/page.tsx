@@ -2,9 +2,7 @@
 
 import { useState } from 'react'
 
-import { Button, Card, CardContent, Grid } from '@mui/material'
-
-import { Plus } from 'lucide-react'
+import { Card, CardContent, Grid } from '@mui/material'
 
 import { toast } from 'react-toastify'
 

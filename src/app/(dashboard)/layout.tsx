@@ -11,22 +11,25 @@ import Navigation from '@components/layout/vertical/Navigation'
 import Navbar from '@components/layout/vertical/Navbar'
 import VerticalFooter from '@components/layout/vertical/Footer'
 import ToastProvider from '@/components/ui/toast'
+import { NotificationProvider } from '@/context/NotificationContext'
 
 const Layout = async ({ children }: ChildrenType) => {
   // Vars
   const direction = 'ltr'
 
   return (
-    <Providers direction={direction}>
-      <LayoutWrapper
-        verticalLayout={
-          <VerticalLayout navigation={<Navigation />} navbar={<Navbar />} footer={<VerticalFooter />}>
-            <ToastProvider />
-            {children}
-          </VerticalLayout>
-        }
-      />
-    </Providers>
+    <NotificationProvider>
+      <Providers direction={direction}>
+        <LayoutWrapper
+          verticalLayout={
+            <VerticalLayout navigation={<Navigation />} navbar={<Navbar />} footer={<VerticalFooter />}>
+              <ToastProvider />
+              {children}
+            </VerticalLayout>
+          }
+        />
+      </Providers>
+    </NotificationProvider>
   )
 }
 
