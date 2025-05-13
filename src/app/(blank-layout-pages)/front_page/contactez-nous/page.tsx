@@ -18,15 +18,21 @@ import {
 } from '@mui/material'
 
 import { getStorageData } from '@/utils/helpersFront'
+import ConnModal from '@/components/modals/conOblig'
 
 const ConnectezNous = () => {
   const [authError, setAuthError] = useState(false)
 
   const userDataFront = getStorageData('user')
+  const [isModalOpen, setIsModalOpen] = useState(false)
+
+  const handleOpenModal = () => {
+    setIsModalOpen(true)
+  }
 
   const [data, setData] = useState<any>({
     message: '',
-    type: 0,
+    type: '',
     id_patient: ''
   })
 
@@ -38,7 +44,7 @@ const ConnectezNous = () => {
   const clearForm = () => {
     setData({
       message: '',
-      type: 0,
+      type: '',
       id_patient: ''
     })
     setControls({
@@ -58,10 +64,7 @@ const ConnectezNous = () => {
   const handleSave = async () => {
     try {
       if (!userDataFront || !userDataFront.id) {
-        setAuthError(true)
-        setTimeout(() => {
-          router.push('/register')
-        }, 3000)
+        handleOpenModal()
 
         return
       }
@@ -70,8 +73,7 @@ const ConnectezNous = () => {
 
       const newControls = {
         message: data.message.trim() === '',
-
-        type: data.type === 0
+        type: data.type === ''
       }
 
       setControls(newControls)
@@ -142,7 +144,7 @@ const ConnectezNous = () => {
                         }
                       }}
                     >
-                      {options.map(item => (
+                      {options.map((item: any) => (
                         <MenuItem value={item.value} key={item.value}>
                           {item.label}
                         </MenuItem>
@@ -157,7 +159,7 @@ const ConnectezNous = () => {
                     label='Message'
                     multiline
                     value={data?.message ?? ''}
-                    className={`${controls?.message === true}`}
+                    className={`${controls?.message === true ? 'isReqTextearea' : ''}`}
                     onChange={(e: any) => {
                       if (e.target?.value.trim() === '') {
                         setControls({ ...controls, message: true })
@@ -215,6 +217,7 @@ const ConnectezNous = () => {
           </div>
         </CardContent>
       </Card>
+      <ConnModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
     </motion.div>
   )
 }

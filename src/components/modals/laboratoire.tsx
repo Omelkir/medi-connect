@@ -24,46 +24,13 @@ export default function LaboratoireModal({
     imageSrc: '/img/placeholder-image.jpg',
     image: '',
     email: '',
-    id_ville: 0,
+    id_ville: '',
     heurD: '',
     heurF: '',
     info: '',
     nom_ut: '',
-    id_ser: 0
+    id_ser: ''
   })
-
-  useEffect(() => {
-    if (laboratoireData) {
-      setData(laboratoireData)
-    } else {
-      setData({
-        imageSrc: '/img/placeholder-image.jpg',
-        image: '',
-        email: '',
-        id_ville: 0,
-        heurD: '',
-        heurF: '',
-        info: '',
-        nom_ut: '',
-        id_ser: 0
-      })
-    }
-  }, [laboratoireData])
-
-  const handleImageChange = (e: any) => {
-    const file = e.target.files[0]
-
-    if (file) {
-      setData((prev: any) => ({
-        ...prev,
-        imageSrc: URL.createObjectURL(file)
-      }))
-
-      const reader = new FileReader()
-
-      reader.readAsDataURL(file)
-    }
-  }
 
   const [controls, setControls] = useState<any>({
     email: false,
@@ -76,7 +43,7 @@ export default function LaboratoireModal({
 
   async function getVilleList() {
     try {
-      const url = `${window.location.origin}/api/ville/liste`
+      const url = `${window.location.origin}/api/ville/liste?getall`
 
       const requestOptions = {
         method: 'GET',
@@ -108,7 +75,7 @@ export default function LaboratoireModal({
 
   async function getSerList() {
     try {
-      const url = `${window.location.origin}/api/service/liste`
+      const url = `${window.location.origin}/api/service/liste?getall`
 
       const requestOptions = {
         method: 'GET',
@@ -138,20 +105,59 @@ export default function LaboratoireModal({
     getSerList()
   }, [])
 
+  const handleImageChange = (e: any) => {
+    const file = e.target.files[0]
+
+    if (file) {
+      setData((prev: any) => ({
+        ...prev,
+        imageSrc: URL.createObjectURL(file)
+      }))
+
+      const reader = new FileReader()
+
+      reader.readAsDataURL(file)
+    }
+  }
+
+  useEffect(() => {
+    if (laboratoireData) {
+      setData({
+        ...laboratoireData,
+        imageSrc: laboratoireData.image ? `${laboratoireData.image}` : '/img/placeholder-image.jpg',
+        id_ser: laboratoireData.id_ser ?? '',
+        id_ville: laboratoireData.id_ville ?? ''
+      })
+    } else {
+      setData({
+        imageSrc: '/img/placeholder-image.jpg',
+        image: '',
+        email: '',
+        id_ville: '',
+        heurD: '',
+        heurF: '',
+        info: '',
+        nom_ut: '',
+        id_ser: ''
+      })
+    }
+  }, [laboratoireData])
+
   const clearForm = () => {
     setData({
       imageSrc: '/img/placeholder-image.jpg',
       image: '',
       email: '',
-      id_ville: 0,
+      id_ville: '',
       heurD: '',
       heurF: '',
       info: '',
       nom_ut: '',
-      id_ser: 0
+      id_ser: ''
     })
     setControls({
       email: false,
+      emailValid: false,
       nom_ut: false
     })
   }
@@ -188,13 +194,17 @@ export default function LaboratoireModal({
         }
       }
 
+      if (!data.image || !(data.image instanceof File)) {
+        formData.append('currentImage', medecinData?.image || '')
+      }
+
       const requestOptions = {
         method: 'POST',
         body: formData
       }
 
       await fetch(url, requestOptions).then((responseData: any) => {
-        setUpdate(new Date().getDate().toString())
+        setUpdate(Date.now().toString())
 
         if (responseData.erreur) {
           toast.error('Erreur !')
@@ -438,7 +448,7 @@ export default function LaboratoireModal({
               <InputLabel>Ville</InputLabel>
               <Select
                 label='Ville'
-                value={data?.id_ville || null}
+                value={data?.id_ville ?? ''}
                 onChange={(e: any) => {
                   if (e === null) {
                     setData({ ...data, id_ville: e.target.value })

@@ -22,7 +22,7 @@ export const liste = async (req: any) => {
     let itemsPerPage = 6
 
     Object.keys(paramsObj).forEach((key, index) => {
-      if (paramsObj[key] && ['page', 'limit'].indexOf(key) === -1) {
+      if (paramsObj[key] && ['getall', 'page', 'limit'].indexOf(key) === -1) {
         // Ajoute la condition WHERE
         if (index === 0) {
           whereClause += ` WHERE ${key} = ${paramsObj[key]}`
@@ -44,6 +44,10 @@ export const liste = async (req: any) => {
     const totalCountResult: any = await pool.query(totalCountQuery)
 
     const totalCount = totalCountResult[0][0].count
+
+    if (paramsObj['getall'] !== undefined) {
+      itemsPerPage = totalCount
+    }
 
     const offset = (currentPage - 1) * itemsPerPage
 
@@ -96,7 +100,7 @@ export const ajouter = async (req: any) => {
     const json: any = req
 
     await pool.query(`INSERT INTO medi_connect.consultation (id_el,el,date,id_patient, isApproved, duree) 
-                       VALUES ('${json.id_el}','${json.el}','${json.date}', '${json.id_patient}', '${json.isApproved}', '${json.duree}')`)
+                       VALUES ('${json.id_el}','${json.el}','${json.date}', '${json.id_patient}', 1, '${json.duree}')`)
 
     return { erreur: false, data: true }
   } catch (error) {

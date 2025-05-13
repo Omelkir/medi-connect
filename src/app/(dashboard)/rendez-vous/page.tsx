@@ -42,7 +42,7 @@ const CalendrierRendezvous = () => {
 
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [evenements, setEvenements] = useState<Evenement[]>([])
-  const [update, setUpdate] = useState<string>(new Date().toDateString())
+  const [update, setUpdate] = useState<string>('')
   const userData = getStorageData('user')
   const [dataUp, setDataUp] = useState<any>({})
   const [isLoading, setIsLoading] = useState(false)
@@ -55,7 +55,7 @@ const CalendrierRendezvous = () => {
   async function refrech_envent() {
     try {
       setIsLoading(true)
-      const url = `${window.location.origin}/api/consultation/liste?consultation.isApproved=1&consultation.id_el=${userData.id}`
+      const url = `${window.location.origin}/api/consultation/liste?consultation.isApproved=1&consultation.id_el=${userData.id}&getall`
 
       const requestOptions = { method: 'GET', headers: { 'Content-Type': 'application/json' } }
 

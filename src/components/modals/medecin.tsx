@@ -5,10 +5,7 @@ import { useEffect, useState } from 'react'
 import { Button, FormControl, Grid, Input, InputLabel, MenuItem, Select, TextField } from '@mui/material'
 import { toast } from 'react-toastify'
 
-import { Label } from 'recharts'
-
 import { Modal } from '../ui/modal'
-import { useNotification } from '@/context/NotificationContext'
 
 export default function MedecinModal({
   isOpen,
@@ -22,20 +19,92 @@ export default function MedecinModal({
   setUpdate: any
 }) {
   const mailCheck = (email: any) => !/^[^\s@]+@[^\s@]+\.[a-zA-Z]{2,}$/.test(email)
-  const { trigger } = useNotification()
 
   const [data, setData] = useState<any>({
     imageSrc: '/img/placeholder-image.jpg',
     image: '',
     email: '',
-    tarif: 0,
-    id_ville: 0,
+    tarif: '',
+    id_ville: '',
     heurD: '',
     heurF: '',
     info: '',
     nom_ut: '',
-    spe: 0
+    id_spe: ''
   })
+
+  const [controls, setControls] = useState<any>({
+    email: false,
+    emailValid: false,
+    nom_ut: false
+  })
+
+  const [villeListe, setVilleListe] = useState<any[]>([])
+  const [speListe, setSpeListe] = useState<any[]>([])
+
+  async function getVilleList() {
+    try {
+      const url = `${window.location.origin}/api/ville/liste?getall`
+
+      const requestOptions = {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' }
+      }
+
+      const response = await fetch(url, requestOptions)
+
+      if (!response.ok) throw new Error('Erreur lors de la requête')
+
+      const responseData = await response.json()
+
+      console.log('API Response:', responseData)
+
+      if (responseData.erreur) {
+        toast.error(responseData.message)
+      } else {
+        setVilleListe(responseData.data)
+      }
+    } catch (error) {
+      console.error('Erreur:', error)
+      toast.error('Une erreur est survenue lors de la récupération des données.')
+    }
+  }
+
+  useEffect(() => {
+    getVilleList()
+  }, [])
+
+  async function getSpeList() {
+    try {
+      const url = `${window.location.origin}/api/specialite/liste?getall`
+
+      const requestOptions = {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' }
+      }
+
+      const response = await fetch(url, requestOptions)
+
+      if (!response.ok) throw new Error('Erreur lors de la requête')
+
+      const responseData = await response.json()
+
+      console.log('API Response:', responseData)
+
+      if (responseData.erreur) {
+        toast.error(responseData.message)
+      } else {
+        setSpeListe(responseData.data)
+      }
+    } catch (error) {
+      console.error('Erreur:', error)
+      toast.error('Une erreur est survenue lors de la récupération des données.')
+    }
+  }
+
+  useEffect(() => {
+    getSpeList()
+  }, [])
 
   const handleImageChange = (e: any) => {
     const file = e.target.files[0]
@@ -52,113 +121,46 @@ export default function MedecinModal({
     }
   }
 
-  const [controls, setControls] = useState<any>({
-    email: false,
-    emailValid: false,
-    nom_ut: false
-  })
-
   useEffect(() => {
     if (medecinData) {
-      setData(medecinData)
+      setData({
+        ...medecinData,
+        imageSrc: medecinData.image ? `${medecinData.image}` : '/img/placeholder-image.jpg',
+        id_spe: medecinData.id_spe ?? '',
+        id_ville: medecinData.id_ville ?? ''
+      })
     } else {
       setData({
         imageSrc: '/img/placeholder-image.jpg',
         image: '',
         email: '',
-        tarif: 0,
-        id_ville: 0,
+        tarif: '',
+        id_ville: '',
         heurD: '',
         heurF: '',
         info: '',
         nom_ut: '',
-        spe: 0
+        id_spe: ''
       })
     }
   }, [medecinData])
-
-  const [villeListe, setVilleListe] = useState<any[]>([])
-  const [speListe, setSpeListe] = useState<any[]>([])
-
-  async function getVilleList() {
-    try {
-      const url = `${window.location.origin}/api/ville/liste`
-
-      const requestOptions = {
-        method: 'GET',
-        headers: { 'Content-Type': 'application/json' }
-      }
-
-      const response = await fetch(url, requestOptions)
-
-      if (!response.ok) throw new Error('Erreur lors de la requête')
-
-      const responseData = await response.json()
-
-      console.log('API Response:', responseData)
-
-      if (responseData.erreur) {
-        alert(responseData.message)
-      } else {
-        setVilleListe(responseData.data)
-      }
-    } catch (error) {
-      console.error('Erreur:', error)
-      alert('Une erreur est survenue lors de la récupération des données.')
-    }
-  }
-
-  useEffect(() => {
-    getVilleList()
-  }, [])
-
-  async function getSpeList() {
-    try {
-      const url = `${window.location.origin}/api/specialite/liste`
-
-      const requestOptions = {
-        method: 'GET',
-        headers: { 'Content-Type': 'application/json' }
-      }
-
-      const response = await fetch(url, requestOptions)
-
-      if (!response.ok) throw new Error('Erreur lors de la requête')
-
-      const responseData = await response.json()
-
-      console.log('API Response:', responseData)
-
-      if (responseData.erreur) {
-        alert(responseData.message)
-      } else {
-        setSpeListe(responseData.data)
-      }
-    } catch (error) {
-      console.error('Erreur:', error)
-      alert('Une erreur est survenue lors de la récupération des données.')
-    }
-  }
-
-  useEffect(() => {
-    getSpeList()
-  }, [])
 
   const clearForm = () => {
     setData({
       imageSrc: '/img/placeholder-image.jpg',
       image: '',
       email: '',
-      tarif: 0,
-      id_ville: 0,
+      tarif: '',
+      id_ville: '',
       heurD: '',
       heurF: '',
       info: '',
       nom_ut: '',
-      spe: 0
+      id_spe: ''
     })
     setControls({
       email: false,
+      emailValid: false,
       nom_ut: false
     })
   }
@@ -195,20 +197,23 @@ export default function MedecinModal({
         }
       }
 
+      if (!data.image || !(data.image instanceof File)) {
+        formData.append('currentImage', medecinData?.image || '')
+      }
+
       const requestOptions = {
         method: 'POST',
         body: formData
       }
 
       await fetch(url, requestOptions).then((responseData: any) => {
-        setUpdate(new Date().getDate().toString())
+        setUpdate(Date.now().toString())
 
         if (responseData.erreur) {
           toast.error('Erreur !')
         } else {
           if (isAdd) {
             toast.success('Le médecin a été ajouté avec succès')
-            trigger()
           } else {
             toast.success('Le médecin a été modifié avec succès')
           }
@@ -377,7 +382,7 @@ export default function MedecinModal({
                   }
                 }}
               >
-                {speListe.map(item => (
+                {speListe.map((item: any) => (
                   <MenuItem value={item.id} key={item.id}>
                     {item.spe}
                   </MenuItem>
@@ -418,7 +423,7 @@ export default function MedecinModal({
               <InputLabel>Ville</InputLabel>
               <Select
                 label='Ville'
-                value={data?.id_ville || null}
+                value={data?.id_ville ?? ''}
                 onChange={(e: any) => {
                   if (e === null) {
                     setData({ ...data, id_ville: e.target.value })

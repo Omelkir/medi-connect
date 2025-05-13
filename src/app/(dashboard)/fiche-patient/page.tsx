@@ -8,7 +8,7 @@ import { Card, CardContent, FormControl, Grid, InputLabel, MenuItem, Select, Typ
 
 import * as Tabs from '@radix-ui/react-tabs'
 
-import { Plus } from 'lucide-react'
+import { ChevronDown, FileText, Plus } from 'lucide-react'
 
 import { toast } from 'react-toastify'
 
@@ -19,11 +19,11 @@ import { getStorageData } from '@/utils/helpers'
 import AnalyseModal from '@/components/modals/analyse'
 import DeleteModal from '@/components/modals/deleteModal/deleteModal'
 import Pagination from '@/components/ui/pagination'
+import OrdonnancesModal from '@/components/modals/ordonnance'
 
 const Patient = () => {
   const searchParams = useSearchParams()
-  const idFiche = searchParams.get('id') // Récupérer la valeur de "id"
-
+  const idFiche = searchParams.get('id')
   const [activeTab, setActiveTab] = useState('informations-generales')
   const [patientListe, setPatientListe] = useState<any[]>([])
   const [consultations, setConsultations] = useState<any[]>([])
@@ -35,6 +35,75 @@ const Patient = () => {
   const [selected, setSelected] = useState<any>(null)
   const [update, setUpdate] = useState<string>(new Date().toDateString())
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
+
+  const DropdownLogin = ({
+    // onEdit,
+    onDelete,
+    update,
+    date
+  }: {
+    // onEdit: (med: any) => void
+    onDelete: (med: any) => void
+    update: string
+    date: string
+  }) => {
+    const [open, setOpen] = useState(false)
+    const toggleDropdown = () => setOpen(prev => !prev)
+
+    return (
+      <div className='relative'>
+        <div
+          onClick={toggleDropdown}
+          className='inline-flex items-center py-2 px-3 cursor-pointer navigation select-none'
+        >
+          {date}
+          <ChevronDown className={`ml-1 transition-transform duration-300 ${open ? 'rotate-180' : ''}`} size={18} />
+        </div>
+
+        {open &&
+          (ordonnances.length > 0 ? (
+            <div className='overflow-x-auto'>
+              <table className='min-w-full bg-white border border-gray-200 rounded-lg shadow-md'>
+                <thead>
+                  <tr>
+                    <th className='px-4 py-2 text-left text-sm font-medium text-gray-600 border-b'>Médicament</th>
+                    <th className='px-4 py-2 text-left text-sm font-medium text-gray-600 border-b'>Dosage</th>
+                    <th className='px-4 py-2 text-left text-sm font-medium text-gray-600 border-b'>Durée/jour(s)</th>
+                    <th className='px-4 py-2 text-left text-sm font-medium text-gray-600 border-b'>
+                      Action <Plus className='text-blue-500 float-right' onClick={() => handleOpenOrdModal()} />
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {ordonnances.map((ordonnance, index) => (
+                    <tr key={index} className='bg-gray-100 hover:bg-gray-200'>
+                      <td className='px-4 py-2 text-sm text-gray-700'>{ordonnance.medi}</td>
+                      <td className='px-4 py-2 text-sm text-gray-700'>{ordonnance.dosage}</td>
+                      <td className='px-4 py-2 text-sm text-gray-700'>{ordonnance.duree}</td>
+                      <td className='px-4 py-2 text-sm text-gray-700  gap-2'>
+                        <button
+                          className='ri-edit-box-line text-yellow-500 text-xl hover:text-2xl mr-3'
+
+                          // onClick={() => onEdit(ordonnance)}
+                        ></button>
+                        <button
+                          onClick={() => {
+                            onDelete(ordonnance)
+                          }}
+                          className='ri-delete-bin-line text-red-500 text-xl hover:text-2xl'
+                        ></button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          ) : (
+            <p className='text-gray-500 text-center'>Aucune ordonnance trouvée.</p>
+          ))}
+      </div>
+    )
+  }
 
   const [data, setData] = useState<any>({
     patient: idFiche ?? '',
@@ -66,7 +135,8 @@ const Patient = () => {
       if (result.erreur) {
         console.error('Erreur:', result.message)
       } else {
-        setUpdate(new Date().toDateString())
+        setUpdate(Date.now().toString())
+
         toast.success("L'analyse a été supprimé avec succès")
       }
     } catch (error) {
@@ -108,6 +178,11 @@ const Patient = () => {
 
   const handleOpenModal = (analyse: any = null) => {
     setSelected(analyse)
+    setIsModalOpen(true)
+  }
+
+  const handleOpenOrdModal = (ord: any = null) => {
+    setSelected(ord)
     setIsModalOpen(true)
   }
 
@@ -161,9 +236,9 @@ const Patient = () => {
     getAnalyse()
   }, [selectedPatient])
 
-  async function getOrdonnance() {
+  async function getOrdonnance(page = 1) {
     if (!selectedPatient) return
-    const url = `${window.location.origin}/api/ordonnance/liste?id_patient=${selectedPatient.id}`
+    const url = `${window.location.origin}/api/ordonnance/liste?id_patient=${selectedPatient.id}&id_el=${userData?.id}&page=${page}`
 
     try {
       const response = await fetch(url, { method: 'GET', headers: { 'Content-Type': 'application/json' } })
@@ -172,6 +247,7 @@ const Patient = () => {
       const responseData = await response.json()
 
       setOrdonnances(responseData.data || [])
+      setPaginatorInfo(responseData?.paginatorInfo)
     } catch (error) {
       console.error(error)
     }
@@ -354,7 +430,12 @@ const Patient = () => {
                             <tr key={index} className='bg-gray-100 hover:bg-gray-200'>
                               <td className='px-4 py-2 text-sm text-gray-700'>{analyse.titre}</td>
                               <td className='px-4 py-2 text-sm text-gray-700'>{analyse.detail}</td>
-                              <td className='px-4 py-2 text-sm text-gray-700'></td>
+                              <td className='px-4 py-2 text-sm text-gray-700'>
+                                <a href={analyse.analyse} target='_blank' rel='noopener noreferrer'>
+                                  <FileText size={14} />
+                                  Voir le PDF
+                                </a>
+                              </td>
                               <td className='px-4 py-2 text-sm text-gray-700  gap-2'>
                                 <button
                                   className='ri-edit-box-line text-yellow-500 text-xl hover:text-2xl mr-3'
@@ -390,33 +471,12 @@ const Patient = () => {
 
               <Tabs.Content value='ordonnance' className='mt-4'>
                 {selectedPatient ? (
-                  ordonnances.length > 0 ? (
-                    <div className='overflow-x-auto'>
-                      <table className='min-w-full bg-white border border-gray-200 rounded-lg shadow-md'>
-                        <thead>
-                          <tr>
-                            <th className='px-4 py-2 text-left text-sm font-medium text-gray-600 border-b'>
-                              Médicament
-                            </th>
-                            <th className='px-4 py-2 text-left text-sm font-medium text-gray-600 border-b'>Dosage</th>
-                            <th className='px-4 py-2 text-left text-sm font-medium text-gray-600 border-b'>Durée</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {ordonnances.map((ordonnance, index) => (
-                            <tr key={index} className='bg-gray-100 hover:bg-gray-200'>
-                              <td className='px-4 py-2 text-sm text-gray-700'>{ordonnance.medi}</td>
-                              <td className='px-4 py-2 text-sm text-gray-700'>{ordonnance.dosage}</td>
-                              <td className='px-4 py-2 text-sm text-gray-700'>{ordonnance.duree}</td>
-                              <td className='px-4 py-2 text-sm text-gray-700'></td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
-                  ) : (
-                    <p className='text-gray-500 text-center'>Aucune ordonnance trouvée.</p>
-                  )
+                  <DropdownLogin
+                    date='02/05/2025'
+                    // onEdit={handleOpenOrdModal}
+                    onDelete={handleOpenDeleteModal}
+                    update={update}
+                  />
                 ) : (
                   <p className='text-gray-500 text-center'>Sélectionnez un patient pour afficher les ordonnances.</p>
                 )}
@@ -427,6 +487,14 @@ const Patient = () => {
         <AnalyseModal
           isOpen={isModalOpen}
           analyseData={selected}
+          patient={selectedPatient}
+          id_el={userData.id}
+          onClose={() => setIsModalOpen(false)}
+          setUpdate={setUpdate}
+        />
+        <OrdonnancesModal
+          isOpen={isModalOpen}
+          ordananceData={selected}
           patient={selectedPatient}
           id_el={userData.id}
           onClose={() => setIsModalOpen(false)}

@@ -1,18 +1,22 @@
-import pool from '@/utils/connexion'
 import bcrypt from 'bcrypt'
 import nodemailer from 'nodemailer'
+
+import pool from '@/utils/connexion'
+
 export const reset = async (req: any) => {
   try {
     const json: any = req
     const saltRounds = 10
     const hashedPassword = await bcrypt.hash(json.mdp, saltRounds)
+
     await pool.query(`UPDATE medi_connect.compte SET mdp = '${hashedPassword}' where token='${json.token} '`)
     await pool.query(`UPDATE medi_connect.compte SET token = '' where token='${json.token} '`)
+
     const transporter = nodemailer.createTransport({
       service: 'gmail',
       auth: {
         user: 'mediconnect048@gmail.com',
-        pass: 'gteb fgrx puyt isrd'
+        pass: 'eegl izrv lbqd mrib'
       }
     })
 
@@ -32,6 +36,7 @@ export const reset = async (req: any) => {
     return { erreur: false, data: true }
   } catch (error) {
     console.error('Erreur lors de l’enregistrement', error)
+
     return { erreur: true, message: 'Erreur lors de l’enregistrement' }
   }
 }

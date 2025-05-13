@@ -1,15 +1,14 @@
-// MUI Imports
 import { useEffect, useState } from 'react'
 
 import Typography from '@mui/material/Typography'
 import Card from '@mui/material/Card'
 
-// Components Imports
 import { Grid } from '@mui/material'
+
+import { toast } from 'react-toastify'
 
 import CustomAvatar from '@core/components/mui/Avatar'
 
-// Styles Imports
 import tableStyles from '@core/styles/table.module.css'
 import Pagination from '@/components/ui/pagination'
 
@@ -47,7 +46,7 @@ const Table = ({
       console.log('API Response:', responseData)
 
       if (responseData.erreur) {
-        alert(responseData.message)
+        toast.error(responseData.message)
       } else {
         setRowsData(responseData.data)
         setPaginatorInfo(responseData?.paginatorInfo)

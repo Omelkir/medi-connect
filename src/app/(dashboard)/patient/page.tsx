@@ -5,25 +5,59 @@ import { useState } from 'react'
 import { Button, Card, CardContent, Grid } from '@mui/material'
 import { IconUserPlus } from '@tabler/icons-react'
 
+import { toast } from 'react-toastify'
+
 import Arrow from '@/views/dashboard/Arrow'
 import PatientModal from '@/components/modals/patient'
 import Table from './Table'
-import PatientDelete from '@/components/modals/deleteModal/patient'
+
+import DeleteModal from '@/components/modals/deleteModal/deleteModal'
 
 const Patient = ({}: any) => {
   const [isPatientModalOpen, setIsPatientModalOpen] = useState(false)
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
-  const [selectedPatient, setSelectedPatient] = useState<any>(null)
-  const [update, setUpdate] = useState<string>(new Date().toDateString())
+  const [selected, setSelected] = useState<any>(null)
+  const [update, setUpdate] = useState<string>('')
 
   const handleOpenPatientModal = (patient: any = null) => {
-    setSelectedPatient(patient)
+    setSelected(patient)
     setIsPatientModalOpen(true)
   }
 
-  const handleOpenDeleteModal = (patient: any) => {
-    setSelectedPatient(patient)
+  const handleOpenDeleteModal = (patient: any = null) => {
+    setSelected(patient)
     setIsDeleteModalOpen(true)
+  }
+
+  const handleDelete = async (row: any) => {
+    const id = row?.id
+
+    if (!id) return console.error('ID manquant pour la suppression')
+
+    try {
+      const url = `${window.location.origin}/api/patient/supprimer?id=${id}`
+
+      const response = await fetch(url, {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' }
+      })
+
+      const result = await response.json()
+
+      if (result.erreur) {
+        console.error('Erreur:', result.message)
+      } else {
+        setUpdate(Date.now().toString())
+        toast.success('Le compte a été supprimé avec succès')
+      }
+    } catch (error) {
+      console.error('Erreur lors de la suppression:', error)
+    }
+  }
+
+  const handleConfirmDelete = async () => {
+    await handleDelete(selected)
+    setIsDeleteModalOpen(false)
   }
 
   return (
@@ -45,15 +79,15 @@ const Patient = ({}: any) => {
           <PatientModal
             isOpen={isPatientModalOpen}
             onClose={() => setIsPatientModalOpen(false)}
-            patientData={selectedPatient}
+            patientData={selected}
             setUpdate={setUpdate}
           />
 
-          <PatientDelete
+          <DeleteModal
             isOpen={isDeleteModalOpen}
             onClose={() => setIsDeleteModalOpen(false)}
-            patientData={selectedPatient}
-            setUpdate={setUpdate}
+            onConfirm={handleConfirmDelete}
+            label={`le patient ${selected?.prenom + ' '}  ${selected?.nom}`}
           />
 
           <Grid item xs={12}>

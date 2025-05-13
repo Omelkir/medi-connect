@@ -98,8 +98,25 @@ export const menuAdmin = [
   },
   {
     label: 'Confirmation',
-    path: '/confirmation',
-    icon: 'ri-pass-valid-line'
+
+    icon: 'ri-pass-valid-line',
+    subMenu: [
+      {
+        label: 'Médecin',
+        path: '/confirmation-medecin',
+        icon: 'ri-nurse-fill'
+      },
+      {
+        label: 'Laboratoire',
+        path: '/confirmation-laboratoire',
+        icon: 'ri-microscope-fill'
+      },
+      {
+        label: 'Patient',
+        path: '/confirmation-patient',
+        icon: 'ri-user-fill'
+      }
+    ]
   }
 
   // Autres éléments du menu

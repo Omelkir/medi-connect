@@ -70,7 +70,7 @@ export const ajouter = async (req: any) => {
       service: 'gmail',
       auth: {
         user: 'mediconnect048@gmail.com',
-        pass: 'viau pxiq ietj gmoj'
+        pass: 'gkka ctir ardv fyea'
       }
     })
 
@@ -137,92 +137,109 @@ export const ajouter = async (req: any) => {
 }
 
 export const liste = async (req: any) => {
-  // try {
-  const json: any = req
-  const urlParams = new URLSearchParams(new URL(json.url).search)
+  try {
+    const json: any = req
+    const urlParams = new URLSearchParams(new URL(json.url).search)
 
-  console.log('urlParams:', urlParams)
+    const paramsObj = Object.fromEntries(urlParams.entries())
 
-  // Convertir les paramètres en un objet JSON
-  const paramsObj = Object.fromEntries(urlParams.entries())
+    console.log('paramsObj:', paramsObj)
+    let whereClause = ''
+    let currentPage = 1
+    let itemsPerPage = 6
 
-  console.log('paramsObj:', paramsObj)
-  let whereClause = ''
-  let currentPage = 1
-  let itemsPerPage = 6
-
-  Object.keys(paramsObj).forEach((key, index) => {
-    if (paramsObj[key] && ['page', 'limit'].indexOf(key) === -1) {
-      // Ajoute la condition WHERE
-      if (index === 0) {
-        whereClause += ` WHERE ${key} = ${paramsObj[key]}`
-      } else {
-        whereClause += ` AND ${key} = ${paramsObj[key]}`
+    Object.keys(paramsObj).forEach((key, index) => {
+      if (paramsObj[key] && ['page', 'limit'].indexOf(key) === -1) {
+        // Ajoute la condition WHERE
+        if (index === 0) {
+          whereClause += ` WHERE ${key} = ${paramsObj[key]}`
+        } else {
+          whereClause += ` AND ${key} = ${paramsObj[key]}`
+        }
       }
-    }
 
-    if (key === 'page') {
-      currentPage = parseInt(paramsObj[key] as string)
-    }
+      if (key === 'page') {
+        currentPage = parseInt(paramsObj[key] as string)
+      }
 
-    if (key === 'limit') {
-      itemsPerPage = parseInt(paramsObj[key] as string)
-    }
-  })
-  const totalCountQuery = `SELECT COUNT(*) as count FROM medi_connect.patient ${whereClause}`
+      if (key === 'limit') {
+        itemsPerPage = parseInt(paramsObj[key] as string)
+      }
+    })
+    const totalCountQuery = `SELECT COUNT(*) as count FROM medi_connect.patient ${whereClause}`
 
-  const totalCountResult: any = await pool.query(totalCountQuery)
+    const totalCountResult: any = await pool.query(totalCountQuery)
 
-  const totalCount = totalCountResult[0][0].count
+    const totalCount = totalCountResult[0][0].count
 
-  const offset = (currentPage - 1) * itemsPerPage
+    const offset = (currentPage - 1) * itemsPerPage
 
-  const sql = `SELECT p.*, v.ville AS ville FROM patient p LEFT JOIN ville v ON p.id_ville = v.id ${whereClause} LIMIT
+    const sql = `SELECT p.*, v.ville AS ville FROM patient p LEFT JOIN ville v ON p.id_ville = v.id ${whereClause} LIMIT
         ${itemsPerPage}
     OFFSET
         ${offset}`
 
-  console.log(sql)
+    console.log(sql)
 
-  const [rows] = await pool.query(sql)
-  const data: any = rows
+    const [rows] = await pool.query(sql)
+    const data: any = rows
 
-  const pi: any = {
-    total: totalCount,
-    currentPage: currentPage,
-    count: data.length,
-    lastPage: Math.ceil(totalCount / itemsPerPage),
-    firstItem: offset + 1,
-    lastItem: offset + data.length,
-    perPage: itemsPerPage.toString(),
-    firstPageUrl: `/api/patient/liste?limit=${itemsPerPage}&page=1`,
-    lastPageUrl: `/api/patient/liste?limit=${itemsPerPage}&page=${Math.ceil(totalCount / itemsPerPage)}`,
-    nextPageUrl:
-      currentPage < Math.ceil(totalCount / itemsPerPage)
-        ? `/api/patient/liste?limit=${itemsPerPage}&page=${currentPage + 1}`
-        : null,
-    prevPageUrl: currentPage > 1 ? `/api/patient/liste?limit=${itemsPerPage}&page=${currentPage - 1}` : null
+    const pi: any = {
+      total: totalCount,
+      currentPage: currentPage,
+      count: data.length,
+      lastPage: Math.ceil(totalCount / itemsPerPage),
+      firstItem: offset + 1,
+      lastItem: offset + data.length,
+      perPage: itemsPerPage.toString(),
+      firstPageUrl: `/api/patient/liste?limit=${itemsPerPage}&page=1`,
+      lastPageUrl: `/api/patient/liste?limit=${itemsPerPage}&page=${Math.ceil(totalCount / itemsPerPage)}`,
+      nextPageUrl:
+        currentPage < Math.ceil(totalCount / itemsPerPage)
+          ? `/api/patient/liste?limit=${itemsPerPage}&page=${currentPage + 1}`
+          : null,
+      prevPageUrl: currentPage > 1 ? `/api/patient/liste?limit=${itemsPerPage}&page=${currentPage - 1}` : null
+    }
+
+    return { erreur: false, data: data, paginatorInfo: pi }
+  } catch (error) {
+    console.error('Erreur lors de la récupération des patients:', error)
+
+    return { erreur: true, message: 'Erreur lors de l’enregistrement' }
   }
-
-  return { erreur: false, data: data, paginatorInfo: pi }
-
-  // } catch (error) {
-  //   console.error('Erreur lors de la récupération des patients:', error)
-
-  //   return { erreur: true, message: 'Erreur lors de l’enregistrement' }
-  // }
 }
 
 export const modifier = async (req: any) => {
   try {
     const formData = await req.formData()
+    const file = formData.get('image') as File
+    let checkUrl = formData.get('currentImage') || ''
+
+    if (file && file.size > 0) {
+      const bytes = await file.arrayBuffer()
+      const buffer = Buffer.from(bytes)
+
+      const uploadDir = path.join(process.cwd(), 'public', 'uploads')
+
+      if (!fs.existsSync(uploadDir)) {
+        await mkdir(uploadDir, { recursive: true })
+      }
+
+      const filename = `${uuidv4()}_${file.name}`
+      const filepath = path.join(uploadDir, filename)
+
+      await writeFile(filepath, buffer)
+      checkUrl = '/uploads/' + filename
+    }
+
     const json: Record<string, any> = {}
 
     formData.forEach((value: any, key: any) => {
       json[key] = value
     })
+
     const id = json.id
-    const sql = `UPDATE medi_connect.patient SET nom ='${json.nom}',prenom ='${json.prenom}',email ='${json.email}',tel='${json.tel}',age='${json.age}',id_ville='${json.id_ville}' where id='${id}'`
+    const sql = `UPDATE medi_connect.patient SET nom ='${json.nom}',prenom ='${json.prenom}',email ='${json.email}',image=${checkUrl},tel='${json.tel}',age='${json.age}',id_ville='${json.id_ville}' where id='${id}'`
 
     await pool.query(sql)
 

@@ -9,7 +9,7 @@ import Arrow from '@/views/dashboard/Arrow'
 import Table from './Table'
 
 const DemandeRendezVous = () => {
-  const [update, setUpdate] = useState<string>(new Date().toDateString())
+  const [update, setUpdate] = useState<string>('')
 
   return (
     <div>

@@ -23,12 +23,10 @@ function genererMotDePasse(): string {
   motDePasse += chiffres[Math.floor(Math.random() * chiffres.length)]
   motDePasse += caracteresSpeciaux[Math.floor(Math.random() * caracteresSpeciaux.length)]
 
-  // Ajouter les caractères restants (au total 10)
   for (let i = 3; i < 10; i++) {
     motDePasse += tous[Math.floor(Math.random() * tous.length)]
   }
 
-  // Mélanger les caractères
   return motDePasse
     .split('')
     .sort(() => 0.5 - Math.random())
@@ -70,7 +68,7 @@ export const ajouter = async (req: any) => {
       service: 'gmail',
       auth: {
         user: 'mediconnect048@gmail.com',
-        pass: 'viau pxiq ietj gmoj'
+        pass: 'gkka ctir ardv fyea'
       }
     })
 
@@ -125,7 +123,6 @@ export const liste = async (req: any) => {
 
     Object.keys(paramsObj).forEach((key, index) => {
       if (paramsObj[key] && ['page', 'limit'].indexOf(key) === -1) {
-        // Ajoute la condition WHERE
         if (index === 0) {
           whereClause += ` WHERE ${key} = ${paramsObj[key]}`
         } else {
@@ -189,13 +186,34 @@ export const liste = async (req: any) => {
 export const modifier = async (req: any) => {
   try {
     const formData = await req.formData()
+    const file = formData.get('image') as File
+    let checkUrl = formData.get('currentImage') || ''
+
+    if (file && file.size > 0) {
+      const bytes = await file.arrayBuffer()
+      const buffer = Buffer.from(bytes)
+
+      const uploadDir = path.join(process.cwd(), 'public', 'uploads')
+
+      if (!fs.existsSync(uploadDir)) {
+        await mkdir(uploadDir, { recursive: true })
+      }
+
+      const filename = `${uuidv4()}_${file.name}`
+      const filepath = path.join(uploadDir, filename)
+
+      await writeFile(filepath, buffer)
+      checkUrl = '/uploads/' + filename
+    }
+
     const json: Record<string, any> = {}
 
     formData.forEach((value: any, key: any) => {
       json[key] = value
     })
+
     const id = json.id
-    const sql = `UPDATE medi_connect.laboratoire SET nom_ut ='${json.nom_ut}',email ='${json.email}',image='${json.image}',id_ville='${json.id_ville}',heurD='${json.heurD}',heurF='${json.heurF}',id_ser='${json.id_ser}',info='${json.info}' where id='${id}'`
+    const sql = `UPDATE medi_connect.laboratoire SET nom_ut ='${json.nom_ut}',email ='${json.email}',image='${checkUrl}',id_ville='${json.id_ville}',heurD='${json.heurD}',heurF='${json.heurF}',id_ser='${json.id_ser}',info='${json.info}' where id='${id}'`
 
     await pool.query(sql)
 

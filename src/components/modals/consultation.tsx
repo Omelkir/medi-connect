@@ -40,7 +40,7 @@ export default function ConsultationModal({
   const [patientListe, setPatientListe] = useState<any[]>([])
 
   const [data, setData] = useState<any>({
-    id_patient: userDataFront !== undefined ? userDataFront.id : 0,
+    id_patient: '',
     date: '',
     id_el: userData?.id,
     el: userData?.role,
@@ -55,28 +55,28 @@ export default function ConsultationModal({
     setControls({ id_patient: false, date: false, duree: false })
   }
 
-  // async function getPatientListe() {
-  //   try {
-  //     const url = `${window.location.origin}/api/patient/listes?id_el=${userData?.id}`
-  //     const response = await fetch(url, { method: 'GET', headers: { 'Content-Type': 'application/json' } })
+  async function getPatientListe() {
+    try {
+      const url = `${window.location.origin}/api/patient/liste?id_el=${userData?.id}`
+      const response = await fetch(url, { method: 'GET', headers: { 'Content-Type': 'application/json' } })
 
-  //     if (!response.ok) throw new Error('Erreur lors de la requête')
+      if (!response.ok) throw new Error('Erreur lors de la requête')
 
-  //     const responseData = await response.json()
+      const responseData = await response.json()
 
-  //     if (responseData.erreur) {
-  //       alert(responseData.message)
-  //     } else {
-  //       setPatientListe(responseData.data)
-  //     }
-  //   } catch (error) {
-  //     console.error('Erreur lors de la récupération des patients:', error)
-  //   }
-  // }
+      if (responseData.erreur) {
+        alert(responseData.message)
+      } else {
+        setPatientListe(responseData.data)
+      }
+    } catch (error) {
+      console.error('Erreur lors de la récupération des patients:', error)
+    }
+  }
 
-  // useEffect(() => {
-  //   getPatientListe()
-  // }, [])
+  useEffect(() => {
+    getPatientListe()
+  }, [])
 
   const isAdd = !data?.id
 
@@ -106,7 +106,8 @@ export default function ConsultationModal({
         alert(responseData.message)
       } else {
         toast.success('Action réussie !')
-        setUpdate(new Date().getTime().toString())
+        setUpdate(Date.now().toString())
+
         clearForm()
         onClose()
       }
@@ -182,41 +183,40 @@ export default function ConsultationModal({
     >
       <form className='space-y-4'>
         <Grid container spacing={3}>
-          {userDataFront === undefined ? (
-            <Grid item xs={12} md={12}>
-              <FormControl fullWidth>
-                <InputLabel>Patient</InputLabel>
-                <Select
-                  label='patient'
-                  key={'test21'}
-                  className={`${controls?.id_patient === true ? 'isReq' : ''}`}
-                  value={data?.id_patient || ''}
-                  onChange={(e: any) => {
-                    if (e === null) {
-                      setControls({ ...controls, id_patient: true })
-                      setData((prev: any) => ({
-                        ...prev,
-                        id_patient: e.target.value
-                      }))
-                    } else {
-                      setControls({ ...controls, id_patient: false })
-                      setData((prev: any) => ({
-                        ...prev,
-                        id_patient: e.target.value
-                      }))
-                    }
-                  }}
-                >
-                  {patientListe.map(item => (
-                    <MenuItem value={item.id} key={item.id}>
-                      {item.nom}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-              {controls.id_patient && <span className='errmsg'>Veuillez sélectionner un patient !</span>}
-            </Grid>
-          ) : null}
+          <Grid item xs={12} md={12}>
+            <FormControl fullWidth>
+              <InputLabel>Patient</InputLabel>
+              <Select
+                label='patient'
+                key={'test21'}
+                className={`${controls?.id_patient === true ? 'isReq' : ''}`}
+                value={data?.id_patient || ''}
+                onChange={(e: any) => {
+                  if (e === null) {
+                    setControls({ ...controls, id_patient: true })
+                    setData((prev: any) => ({
+                      ...prev,
+                      id_patient: e.target.value
+                    }))
+                  } else {
+                    setControls({ ...controls, id_patient: false })
+                    setData((prev: any) => ({
+                      ...prev,
+                      id_patient: e.target.value
+                    }))
+                  }
+                }}
+              >
+                {patientListe.map(item => (
+                  <MenuItem value={item.id} key={item.id}>
+                    {item.prenom + ' '}
+                    {item.nom}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+            {controls.id_patient && <span className='errmsg'>Veuillez sélectionner un patient !</span>}
+          </Grid>
 
           <Grid item xs={12} md={12}>
             <TextField

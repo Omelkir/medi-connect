@@ -1,6 +1,5 @@
 // MUI Imports
-import { useEffect, useState } from 'react'
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 
 import Typography from '@mui/material/Typography'
 import Card from '@mui/material/Card'
@@ -12,7 +11,7 @@ import CustomAvatar from '@core/components/mui/Avatar'
 import tableStyles from '@core/styles/table.module.css'
 import Pagination from '@/components/ui/pagination'
 
-const Table = ({ update }: { update: string }) => {
+const Table = ({ update, onDelete, setUpdate }: { update: string; onDelete: (admin: any) => void; setUpdate: any }) => {
   const [rowsData, setRowsData] = useState<any[]>([])
   const [paginatorInfo, setPaginatorInfo] = useState<any>({ total: 6 })
 
@@ -47,13 +46,9 @@ const Table = ({ update }: { update: string }) => {
     }
   }
 
-  useEffect(() => {
-    getMedecinsList()
-  }, [update])
-
   const handleChange = async (id: number) => {
     try {
-      const response = await fetch(`${window.location.origin}/api/approuve/modifier`, {
+      const response = await fetch(`${window.location.origin}/api/approve-medecin/modifier`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -67,11 +62,16 @@ const Table = ({ update }: { update: string }) => {
         toast.error('Erreur !')
       } else {
         toast.success('Le compte a été approuvé avec succès')
+        setUpdate(Date.now().toString())
       }
     } catch (err) {
       toast.error('Erreur !')
     }
   }
+
+  useEffect(() => {
+    getMedecinsList()
+  }, [update])
 
   return (
     <>
@@ -110,67 +110,18 @@ const Table = ({ update }: { update: string }) => {
                     <Typography>{row.spe}</Typography>
                   </td>
                   <td className='flex justify-center gap-2'>
-                    {/* <ToggleButtonGroup
-                      exclusive
-                      onChange={(event, newAlignment) => handleChange(index, newAlignment)}
-                      aria-label='Platform'
-                    >
-                      <ToggleButton
-                        value={row.approved?.toString()}
-                        sx={{
-                          color: 'green',
-                          borderColor: 'green',
-                          '&:hover': {
-                            backgroundColor: 'green',
-                            color: 'white'
-                          },
-                          '&.Mui-selected': {
-                            backgroundColor: 'green',
-                            color: 'white',
-                            borderColor: 'green'
-                          },
-                          '&.Mui-selected:hover': {
-                            backgroundColor: '#006400'
-                          }
-                        }}
-                      >
-                        Oui
-                      </ToggleButton>
-                      <ToggleButton
-                        value={row.approved?.toString()}
-                        sx={{
-                          color: 'red',
-                          borderColor: 'red',
-                          '&:hover': {
-                            backgroundColor: 'red',
-                            color: 'white'
-                          },
-                          '&.Mui-selected': {
-                            backgroundColor: 'red',
-                            color: 'white',
-                            borderColor: 'red'
-                          },
-                          '&.Mui-selected:hover': {
-                            backgroundColor: '#8B0000'
-                          }
-                        }}
-                      >
-                        Non
-                      </ToggleButton>
-                    </ToggleButtonGroup> */}
-                    {/* {row?.isApproved == 1 ? (
-                      <span style={{ color: 'white', background: 'green' }}>Approuvé</span>
-                    ) : (
-                    
-                    )} */}
-                    <button
+                    <Check
+                      className='text-green-600 text-xl font-bold cursor-pointer hover:text-2xl'
+                      strokeWidth={3}
                       onClick={async () => {
                         await handleChange(row.id)
                       }}
-                      className='flex justify-center items-center bg-green-600 text-white rounded-xl w-6 h-6 hover:bg-green-800 cursor-pointer'
-                    >
-                      <Check className='text-white w-5 h-5 font-bold' strokeWidth={3} />
-                    </button>
+                    />
+
+                    <i
+                      className='ri-delete-bin-line text-red-500 text-xl hover:text-2xl cursor-pointer'
+                      onClick={() => onDelete(row)}
+                    ></i>
                   </td>
                 </tr>
               ))}

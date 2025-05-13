@@ -7,6 +7,8 @@ import Card from '@mui/material/Card'
 // Components Imports
 import { Grid } from '@mui/material'
 
+import { toast } from 'react-toastify'
+
 import CustomAvatar from '@core/components/mui/Avatar'
 
 // Styles Imports
@@ -47,14 +49,14 @@ const Table = ({
       console.log('API Response:', responseData)
 
       if (responseData.erreur) {
-        alert(responseData.message)
+        toast.error(responseData.message)
       } else {
         setRowsData(responseData.data)
         setPaginatorInfo(responseData?.paginatorInfo)
       }
     } catch (error) {
       console.error('Erreur:', error)
-      alert('Une erreur est survenue lors de la récupération des données.')
+      toast.error('Une erreur est survenue lors de la récupération des données.')
     }
   }
 

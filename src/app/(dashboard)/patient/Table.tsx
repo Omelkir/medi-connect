@@ -9,6 +9,7 @@ import { Grid } from '@mui/material'
 import tableStyles from '@core/styles/table.module.css'
 import { getStorageData } from '@/utils/helpers'
 import Pagination from '@/components/ui/pagination'
+import CustomAvatar from '@/@core/components/mui/Avatar'
 
 const Table = ({
   onEditPatient,
@@ -83,7 +84,14 @@ const Table = ({
               {rowsData.map((row, index) => (
                 <tr key={index}>
                   <td className='!plb-1'>
-                    <Typography>{row.nom}</Typography>
+                    <div className='flex items-center gap-3'>
+                      <CustomAvatar src={row.image} size={34} />
+                      <div className='flex flex-col'>
+                        <Typography color='text.primary' className='font-medium'>
+                          {row.nom}
+                        </Typography>
+                      </div>
+                    </div>
                   </td>
                   <td className='!plb-1'>
                     <Typography>{row.prenom}</Typography>

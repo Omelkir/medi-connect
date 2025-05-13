@@ -1,11 +1,43 @@
+import { mkdir, writeFile } from 'fs/promises'
+import path from 'path'
+import fs from 'fs'
+
+import { v4 as uuidv4 } from 'uuid'
+
 import pool from '@/utils/connexion'
 
 export const ajouter = async (req: any) => {
   try {
-    const json: any = req
+    const formData = await req.formData()
+    const file = formData.get('analyse') as File
 
-    const sql = `INSERT INTO medi_connect.analyse (id_patient,titre,detail,id_el,el) 
-                       VALUES ('${json.id_patient}','${json.titre}','${json.detail}','${json.id_el}',2)`
+    req.checkUrl = ''
+
+    if (file) {
+      const bytes = await file.arrayBuffer()
+      const buffer = Buffer.from(bytes)
+
+      const uploadDir = path.join(process.cwd(), 'public', 'pdf')
+
+      if (!fs.existsSync(uploadDir)) {
+        await mkdir(uploadDir, { recursive: true })
+      }
+
+      const filename = `${uuidv4()}_${file.name}`
+      const filepath = path.join(uploadDir, filename)
+
+      req.checkUrl = '/pdf/' + filename
+      await writeFile(filepath, buffer)
+    }
+
+    const json: Record<string, any> = {}
+
+    formData.forEach((value: any, key: any) => {
+      json[key] = value
+    })
+
+    const sql = `INSERT INTO medi_connect.analyse (id_patient, titre, detail,id_el,el,analyse) 
+                       VALUES ('${json.id_patient}', '${json.titre}', '${json.detail}','${json.id_el}','${json.el}','${req.checkUrl}')`
 
     await pool.query(sql)
 
@@ -19,9 +51,15 @@ export const ajouter = async (req: any) => {
 
 export const modifier = async (req: any) => {
   try {
-    const json: any = req
+    const formData = await req.formData()
+
+    const json: Record<string, any> = {}
+
+    formData.forEach((value: any, key: any) => {
+      json[key] = value
+    })
     const id = json.id
-    const sql = `UPDATE medi_connect.analyse SET titre ='${json.titre}',detail ='${json.detail}' where id='${id}'`
+    const sql = `UPDATE medi_connect.analyse SET titre ='${json.titre}',detail ='${json.detail}',analyse='${json.req.checkUrl}' where id='${id}'`
 
     await pool.query(sql)
 

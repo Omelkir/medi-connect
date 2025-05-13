@@ -60,7 +60,7 @@ export default function VilleModal({
       const requestOptions = { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: requestBody }
 
       await fetch(url, requestOptions).then((responseData: any) => {
-        setUpdate(new Date().getDate().toString())
+        setUpdate(Date.now().toString())
 
         if (responseData.erreur) {
           alert(responseData.message)

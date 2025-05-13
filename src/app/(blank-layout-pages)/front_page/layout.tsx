@@ -17,7 +17,7 @@ const Layout = async ({ children }: ChildrenType) => {
       <div>
         <Navbar />
       </div>
-      <div>{children}</div>
+      <div >{children}</div>
       <div>
         {' '}
         <Footer />

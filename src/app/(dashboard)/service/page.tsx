@@ -18,7 +18,7 @@ const Service = () => {
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [selected, setSelected] = useState<any>(null)
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
-  const [update, setUpdate] = useState<string>(new Date().toDateString())
+  const [update, setUpdate] = useState<string>('')
 
   const handleOpenModal = (ser: any = null) => {
     setSelected(ser)
@@ -48,7 +48,8 @@ const Service = () => {
       if (result.erreur) {
         console.error('Erreur:', result.message)
       } else {
-        setUpdate(new Date().toDateString())
+        setUpdate(Date.now().toString())
+
         toast.success('Le service a été supprimé avec succès')
       }
     } catch (error) {

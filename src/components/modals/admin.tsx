@@ -2,10 +2,8 @@
 
 import { useEffect, useState } from 'react'
 
-import { Button, FormControl, Grid, Input, InputLabel, MenuItem, Select, TextField } from '@mui/material'
+import { Button, Grid, Input, InputLabel, TextField } from '@mui/material'
 import { toast } from 'react-toastify'
-
-import { Label } from 'recharts'
 
 import { Modal } from '../ui/modal'
 
@@ -26,13 +24,14 @@ export default function AdminModal({
     imageSrc: '/img/placeholder-image.jpg',
     image: '',
     email: '',
-    tarif: 0,
-    id_ville: 0,
-    heurD: '',
-    heurF: '',
-    info: '',
-    nom_ut: '',
-    spe: 0
+
+    nom_ut: ''
+  })
+
+  const [controls, setControls] = useState<any>({
+    email: false,
+    emailValid: false,
+    nom_ut: false
   })
 
   const handleImageChange = (e: any) => {
@@ -41,33 +40,18 @@ export default function AdminModal({
     if (file) {
       setData((prev: any) => ({
         ...prev,
-        imageSrc: URL.createObjectURL(file) // Prévisualisation de l'image
+        imageSrc: URL.createObjectURL(file)
       }))
 
-      // Lire le fichier en Base64
       const reader = new FileReader()
 
-      reader.onloadend = () => {
-        // Une fois l'image convertie en Base64, mettre à jour l'état
-        setData((prev: any) => ({
-          ...prev,
-          image: reader.result // Image en Base64
-        }))
-      }
-
-      reader.readAsDataURL(file) // Convertir le fichier en Base64
+      reader.readAsDataURL(file)
     }
   }
 
-  const [controls, setControls] = useState<any>({
-    email: false,
-    emailValid: false,
-    nom_ut: false
-  })
-
   useEffect(() => {
     if (adminData) {
-      setData(adminData)
+      setData({ ...adminData, imageSrc: adminData.image ? `${adminData.image}` : '/img/placeholder-image.jpg' })
     } else {
       setData({
         imageSrc: '/img/placeholder-image.jpg',
@@ -83,11 +67,11 @@ export default function AdminModal({
       imageSrc: '/img/placeholder-image.jpg',
       image: '',
       email: '',
-
       nom_ut: ''
     })
     setControls({
       email: false,
+      emailValid: false,
       nom_ut: false
     })
   }
@@ -110,17 +94,31 @@ export default function AdminModal({
         return
       }
 
-      setData({ data })
-      const requestBody = JSON.stringify(data)
+      const formData = new FormData()
+
+      clearForm()
+
+      for (const key in data) {
+        if (data.hasOwnProperty(key)) {
+          if (data[key] instanceof File) {
+            formData.append(key, data[key])
+          } else {
+            formData.append(key, data[key])
+          }
+        }
+      }
+
+      if (!data.image || !(data.image instanceof File)) {
+        formData.append('currentImage', adminData?.image || '')
+      }
 
       const requestOptions = {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: requestBody
+        body: formData
       }
 
       await fetch(url, requestOptions).then((responseData: any) => {
-        setUpdate(new Date().getDate().toString())
+        setUpdate(Date.now().toString())
 
         if (responseData.erreur) {
           toast.error('Erreur !')
@@ -128,7 +126,7 @@ export default function AdminModal({
           if (isAdd) {
             toast.success("L'administrateur a été ajouté avec succès")
           } else {
-            toast.success("L'administrateur' a été modifié avec succès")
+            toast.success("L'administrateur a été modifié avec succès")
           }
 
           onClose()
@@ -176,17 +174,28 @@ export default function AdminModal({
               type='file'
               id='image'
               onChange={(e: any) => {
-                setData((prev: any) => ({
-                  ...prev,
-                  image: e.target.files[0] // Corrected here
-                }))
+                const file: any = e.target.files?.[0]
 
-                handleImageChange(e)
+                if (file) {
+                  setData((prev: any) => ({
+                    ...prev,
+                    image: file,
+                    imageSrc: URL.createObjectURL(file)
+                  }))
+                  handleImageChange(e)
+                }
               }}
               style={{ zoom: 0.8, display: 'none' }}
             />
+
             <InputLabel htmlFor='image'>
-              <img src={data.imageSrc} style={{ cursor: 'pointer' }} alt='' width={60} height={60} />
+              <img
+                src={data.imageSrc ? data.imageSrc : '/img/placeholder-image.jpg'}
+                style={{ cursor: 'pointer', borderRadius: '8px' }}
+                alt='Preview'
+                width={60}
+                height={60}
+              />
             </InputLabel>
           </Grid>
           <Grid item xs={10} md={10}>

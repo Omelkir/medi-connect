@@ -19,7 +19,7 @@ import { FaMoneyBillAlt, FaRegClock } from 'react-icons/fa'
 import Pagination from '@/components/ui/pagination'
 import { SimpleSlideshow } from '@/components/auto-images/images'
 import { StarRating } from '@/components/ui/star-rating'
-import { getStorageData } from '@/utils/helpers'
+import { getStorageData } from '@/utils/helpersFront'
 import RendezVousModal from '@/components/modals/rendezVousFormModal'
 
 const Laboratoire = () => {
@@ -52,13 +52,13 @@ const Laboratoire = () => {
       console.log('API Response:', responseData)
 
       if (responseData.erreur) {
-        alert(responseData.message)
+        console.log(responseData.message)
       } else {
         setVilleListe(responseData.data)
       }
     } catch (error) {
       console.error('Erreur:', error)
-      alert('Une erreur est survenue lors de la récupération des données.')
+      console.log('Une erreur est survenue lors de la récupération des données.')
     }
   }
 
@@ -84,13 +84,13 @@ const Laboratoire = () => {
       console.log('API Response:', responseData)
 
       if (responseData.erreur) {
-        alert(responseData.message)
+        console.log(responseData.message)
       } else {
         setSerListe(responseData.data)
       }
     } catch (error) {
       console.error('Erreur:', error)
-      alert('Une erreur est survenue lors de la récupération des données.')
+      console.log('Une erreur est survenue lors de la récupération des données.')
     }
   }
 
@@ -103,11 +103,6 @@ const Laboratoire = () => {
       src: 'https://img.freepik.com/premium-photo/low-angle-view-cross-against-clear-blue-sky_1048944-10728740.jpg?w=1380',
       alt: 'banner1'
     }
-
-    // { src: '/img/banner_lab_img/banner4.png', alt: 'banner4' },
-    // { src: '/img/banner_lab_img/banner2.jpg', alt: 'banner2' },
-
-    // { src: '/img/banner_lab_img/banner6.jpg', alt: 'banner6' }
   ]
 
   const [isModalOpen, setIsModalOpen] = useState(false)
@@ -130,7 +125,7 @@ const Laboratoire = () => {
       console.log('API Response:', responseData)
 
       if (responseData.erreur) {
-        alert(responseData.message)
+        console.log(responseData.message)
       } else {
         setLaboratoires(responseData.data)
         setPaginatorInfo(responseData?.paginatorInfo)
@@ -147,7 +142,7 @@ const Laboratoire = () => {
   async function upValue(e: any, id: any, user: any) {
     try {
       const url = `${window.location.origin}/api/score/ajouter`
-      const requestBody = JSON.stringify({ pr: e * 20, id_el: id, el: 2, user })
+      const requestBody = JSON.stringify({ pr: e * 20, id_el: id, el: 3, user })
 
       const requestOptions = { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: requestBody }
 
@@ -250,6 +245,7 @@ const Laboratoire = () => {
                         size='small'
                         onClick={() => {
                           setSelectedLaboId(laboratoire.id)
+                          console.log('laboratoire:', laboratoire.id)
                           setIsModalOpen(true)
                         }}
                       >
@@ -279,7 +275,7 @@ const Laboratoire = () => {
                         size='sm'
                         onChange={async (e: any) => {
                           console.log(e)
-                          await upValue(e, laboratoire.id, 1)
+                          await upValue(e, laboratoire.id, userData.id)
                         }}
                       />
                     </div>

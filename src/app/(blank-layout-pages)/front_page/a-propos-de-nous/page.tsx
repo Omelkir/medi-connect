@@ -1,5 +1,6 @@
 'use client'
 import React from 'react'
+
 import { useRouter } from 'next/navigation'
 
 import { GrUserExpert } from 'react-icons/gr'
@@ -13,11 +14,14 @@ import {
   FaRobot,
   FaUserMd
 } from 'react-icons/fa'
-import { FadeUp } from '../Hero/Hero'
+
 import { motion } from 'framer-motion'
+
+import { FadeUp } from '../Hero/Hero'
 
 const AproposDeNous = () => {
   const router = useRouter()
+
   return (
     <motion.div
       initial={{ opacity: 0, y: -50 }}

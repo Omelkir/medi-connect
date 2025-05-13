@@ -27,6 +27,7 @@ export default function AnalyseModal({
   const [data, setData] = useState<any>({
     titre: '',
     detail: '',
+    analyseSrc: '',
     analyse: '',
     id_patient: patient,
     id_el: id_el
@@ -34,11 +35,16 @@ export default function AnalyseModal({
 
   useEffect(() => {
     if (analyseData) {
-      setData(analyseData)
+      setData({
+        ...analyseData,
+        analyse: analyseData.analyse,
+        analyseSrc: analyseData.analyse
+      })
     } else {
-      setData({ titre: '', detail: '', analyse: '' })
+      setData({ titre: '', detail: '', analyseSrc: '', analyse: '' })
     }
   }, [analyseData])
+
   useEffect(() => {
     setData((prevData: any) => ({
       ...prevData,
@@ -54,14 +60,27 @@ export default function AnalyseModal({
     analyse: false
   })
 
-  const [file, setFile] = useState<File | null>(null)
-
   const clearForm = () => {
     setData({ titre: '', detail: '', analyse: '' })
     setControls({ titre: false, detail: false, analyse: false })
   }
 
   const isAdd = !analyseData
+
+  const handleFileChange = (e: any) => {
+    const file = e.target.files[0]
+
+    if (file) {
+      setData((prev: any) => ({
+        ...prev,
+        analyseSrc: URL.createObjectURL(file)
+      }))
+
+      const reader = new FileReader()
+
+      reader.readAsDataURL(file)
+    }
+  }
 
   const handleSave = async () => {
     try {
@@ -78,16 +97,29 @@ export default function AnalyseModal({
         return
       }
 
-      setData({ data })
-      const requestBody = JSON.stringify(data)
-      const requestOptions = { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: requestBody }
+      const formData = new FormData()
+
+      clearForm()
+
+      for (const key in data) {
+        if (data.hasOwnProperty(key)) {
+          if (data[key] instanceof File) {
+            formData.append(key, data[key])
+          } else {
+            formData.append(key, data[key])
+          }
+        }
+      }
+
+      const requestOptions = {
+        method: 'POST',
+        body: formData
+      }
 
       await fetch(url, requestOptions).then((responseData: any) => {
-        setUpdate(new Date().getDate().toString())
-        clearForm()
+        setUpdate(Date.now().toString())
 
         if (responseData.erreur) {
-          alert(responseData.message)
           toast.error('Erreur !')
         } else {
           if (isAdd) {
@@ -213,12 +245,23 @@ export default function AnalyseModal({
                                            cursor-pointer bg-gray-100 px-4 py-2 rounded-md border  border-gray-300 hover:bg-gray-200'
             >
               <UploadCloud className='text-blue-500' />
-              <span className='text-gray-700'>{file ? file.name : 'Choisir un fichier PDF'}</span>
+              <span className='text-gray-700'>{data.analyse.name ? data.analyse.name : 'Choisir un fichier PDF'}</span>
               <input
                 type='file'
                 accept='application/pdf'
                 className='hidden'
-                onChange={e => setFile(e.target.files?.[0] || null)}
+                onChange={(e: any) => {
+                  const file: any = e.target.files?.[0]
+
+                  if (file) {
+                    setData((prev: any) => ({
+                      ...prev,
+                      analyse: file,
+                      analyseSrc: URL.createObjectURL(file)
+                    }))
+                    handleFileChange(e)
+                  }
+                }}
               />
             </label>
           </Grid>

@@ -19,7 +19,7 @@ const Specialite = () => {
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [selected, setSelected] = useState<any>(null)
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
-  const [update, setUpdate] = useState<string>(new Date().toDateString())
+  const [update, setUpdate] = useState<string>('')
 
   const handleOpenModal = (spe: any = null) => {
     setSelected(spe)
@@ -49,7 +49,8 @@ const Specialite = () => {
       if (result.erreur) {
         console.error('Erreur:', result.message)
       } else {
-        setUpdate(new Date().toDateString())
+        setUpdate(Date.now().toString())
+
         toast.success('Le ville a été supprimé avec succès')
       }
     } catch (error) {

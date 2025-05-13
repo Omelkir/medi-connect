@@ -3,7 +3,6 @@
 import React, { useEffect, useState } from 'react'
 
 import { Button, Grid, TextField } from '@mui/material'
-import { toast } from 'react-toastify'
 
 import { Modal } from '../ui/modal'
 import { getStorageData as getStorageDataFront } from '@/utils/helpersFront'
@@ -20,6 +19,9 @@ export default function RendezVousModal({
   laboId: any
 }) {
   const userDataFront = getStorageDataFront('user')
+
+  console.log('medecinId:', medecinId)
+  console.log('laboId:', laboId)
 
   const [data, setData] = useState<any>({
     id_patient: userDataFront?.id,
@@ -46,7 +48,7 @@ export default function RendezVousModal({
 
   const handleSave = async () => {
     try {
-      const url = `${window.location.origin}/api/consultation/ajouter`
+      const url = `${window.location.origin}/api/rendez-vous/ajouter`
 
       const requestOptions = {
         method: 'POST',
@@ -54,13 +56,13 @@ export default function RendezVousModal({
         body: JSON.stringify(data)
       }
 
+      console.log('Data to send:', data)
       const response = await fetch(url, requestOptions)
       const responseData = await response.json()
 
       if (responseData.erreur) {
         alert(responseData.message)
       } else {
-        toast.success('Action réussie !')
         clearForm()
         onClose()
       }

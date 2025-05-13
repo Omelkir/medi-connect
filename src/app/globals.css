@@ -220,6 +220,12 @@ code {
   min-height: 60px;
   margin-bottom: 10px;
 }
+.isReqTextearea {
+  border: 1px solid red !important;
+  border-radius: 6px;
+  min-height: 80px;
+  margin-bottom: 10px;
+}
 .errmsg {
   color: red;
   font-size: 13px;

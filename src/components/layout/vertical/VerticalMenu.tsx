@@ -33,13 +33,16 @@ const RenderExpandIcon = ({ open, transitionDuration }: RenderExpandIconProps) =
     <i className='ri-arrow-right-s-line' />
   </StyledVerticalNavExpandIcon>
 )
+
 const typeOfLogger: any = getStorageData('typeOfLogger')
+
 const VerticalMenu = ({ scrollMenu }: { scrollMenu: (container: any, isPerfectScrollbar: boolean) => void }) => {
   // Hooks
   const theme = useTheme()
   const { isBreakpointReached, transitionDuration } = useVerticalNav()
 
   const ScrollWrapper = isBreakpointReached ? 'div' : PerfectScrollbar
+
   const renderMenu = (items: any[]) => {
     return items.map(item => {
       if (item.subMenu) {
@@ -49,6 +52,7 @@ const VerticalMenu = ({ scrollMenu }: { scrollMenu: (container: any, isPerfectSc
           </SubMenu>
         )
       }
+
       return (
         <MenuItem key={item.path} href={item.path} icon={<i className={item.icon} />} style={{ fontSize: '20px' }}>
           {item.label}
@@ -56,6 +60,7 @@ const VerticalMenu = ({ scrollMenu }: { scrollMenu: (container: any, isPerfectSc
       )
     })
   }
+
   return (
     // eslint-disable-next-line lines-around-comment
     /* Custom scrollbar instead of browser scroll, remove if you want browser scroll only */

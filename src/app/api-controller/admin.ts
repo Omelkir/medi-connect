@@ -1,5 +1,11 @@
-import bcrypt from 'bcrypt'
+import { mkdir, writeFile } from 'fs/promises'
+import path from 'path'
+import fs from 'fs'
+
 import nodemailer from 'nodemailer'
+import bcrypt from 'bcrypt'
+
+import { v4 as uuidv4 } from 'uuid'
 
 import pool from '@/utils/connexion'
 
@@ -29,14 +35,41 @@ function genererMotDePasse(): string {
 
 export const ajouter = async (req: any) => {
   try {
-    const json: any = req
+    const formData = await req.formData()
+    const file = formData.get('image') as File
+
+    req.checkUrl = ''
+
+    if (file) {
+      const bytes = await file.arrayBuffer()
+      const buffer = Buffer.from(bytes)
+
+      const uploadDir = path.join(process.cwd(), 'public', 'uploads')
+
+      if (!fs.existsSync(uploadDir)) {
+        await mkdir(uploadDir, { recursive: true })
+      }
+
+      const filename = `${uuidv4()}_${file.name}`
+      const filepath = path.join(uploadDir, filename)
+
+      req.checkUrl = '/uploads/' + filename
+      await writeFile(filepath, buffer)
+    }
+
+    const json: Record<string, any> = {}
+
+    formData.forEach((value: any, key: any) => {
+      json[key] = value
+    })
+
     const { email, nom_ut } = json
 
     const transporter = nodemailer.createTransport({
       service: 'gmail',
       auth: {
         user: 'mediconnect048@gmail.com',
-        pass: 'viau pxiq ietj gmoj'
+        pass: 'gkka ctir ardv fyea'
       }
     })
 
@@ -46,7 +79,7 @@ export const ajouter = async (req: any) => {
     const hashedPassword = await bcrypt.hash(motDePasse, 10)
 
     const sql = `INSERT INTO medi_connect.admin (nom_ut, email, mdp,role,image) 
-                       VALUES ('${json.nom_ut}', '${json.email}', '${hashedPassword}',1, '${json.image}')`
+                       VALUES ('${json.nom_ut}', '${json.email}', '${hashedPassword}',1, '${req.checkUrl}')`
 
     await pool.query(sql)
 
@@ -84,7 +117,6 @@ export const liste = async (req: any) => {
     const json: any = req
     const urlParams = new URLSearchParams(new URL(json.url).search)
 
-    // Convertir les paramètres en un objet JSON
     const paramsObj = Object.fromEntries(urlParams.entries())
     let whereClause = ''
     let currentPage = 1
@@ -92,7 +124,6 @@ export const liste = async (req: any) => {
 
     Object.keys(paramsObj).forEach((key, index) => {
       if (paramsObj[key] && ['page', 'limit'].indexOf(key) === -1) {
-        // Ajoute la condition WHERE
         if (index === 0) {
           whereClause += ` WHERE ${key} = ${paramsObj[key]}`
         } else {
@@ -153,9 +184,36 @@ OFFSET
 
 export const modifier = async (req: any) => {
   try {
-    const json: any = req
+    const formData = await req.formData()
+    const file = formData.get('image') as File
+    let checkUrl = formData.get('currentImage') || ''
+
+    if (file && file.size > 0) {
+      const bytes = await file.arrayBuffer()
+      const buffer = Buffer.from(bytes)
+
+      const uploadDir = path.join(process.cwd(), 'public', 'uploads')
+
+      if (!fs.existsSync(uploadDir)) {
+        await mkdir(uploadDir, { recursive: true })
+      }
+
+      const filename = `${uuidv4()}_${file.name}`
+      const filepath = path.join(uploadDir, filename)
+
+      await writeFile(filepath, buffer)
+      checkUrl = '/uploads/' + filename
+    }
+
+    const json: Record<string, any> = {}
+
+    formData.forEach((value: any, key: any) => {
+      json[key] = value
+    })
+
     const id = json.id
-    const sql = `UPDATE medi_connect.admin SET nom_ut ='${json.nom_ut}',email ='${json.email}',image='${json.image}' where id='${id}'`
+
+    const sql = `UPDATE medi_connect.admin SET nom_ut ='${json.nom_ut}',email ='${json.email}',image='${checkUrl}' where id='${id}'`
 
     await pool.query(sql)
 

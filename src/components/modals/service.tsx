@@ -59,8 +59,9 @@ export default function ServiceModal({
       const requestBody = JSON.stringify(data)
       const requestOptions = { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: requestBody }
 
-      const response = await fetch(url, requestOptions).then((responseData: any) => {
-        setUpdate(new Date().getDate().toString())
+      
+      await fetch(url, requestOptions).then((responseData: any) => {
+        setUpdate(Date.now().toString())
 
         if (responseData.erreur) {
           alert(responseData.message)

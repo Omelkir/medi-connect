@@ -19,8 +19,7 @@ import { FaMoneyBillAlt, FaRegClock } from 'react-icons/fa'
 import Pagination from '@/components/ui/pagination'
 import { SimpleSlideshow } from '@/components/auto-images/images'
 import { StarRating } from '@/components/ui/star-rating'
-import ConsultationModal from '@/components/modals/consultation'
-import { getStorageData } from '@/utils/helpers'
+import { getStorageData } from '@/utils/helpersFront'
 import RendezVousModal from '@/components/modals/rendezVousFormModal'
 
 const Medecin = () => {
@@ -37,7 +36,7 @@ const Medecin = () => {
 
   async function getVilleList() {
     try {
-      const url = `${window.location.origin}/api/ville/liste`
+      const url = `${window.location.origin}/api/ville/liste?getall`
 
       const requestOptions = {
         method: 'GET',
@@ -51,13 +50,13 @@ const Medecin = () => {
       const responseData = await response.json()
 
       if (responseData.erreur) {
-        alert(responseData.message)
+        console.log(responseData.message)
       } else {
         setVilleListe(responseData.data)
       }
     } catch (error) {
       console.error('Erreur:', error)
-      alert('Une erreur est survenue lors de la récupération des données.')
+      console.log('Une erreur est survenue lors de la récupération des données.')
     }
   }
 
@@ -67,7 +66,7 @@ const Medecin = () => {
 
   async function getSpeList() {
     try {
-      const url = `${window.location.origin}/api/specialite/liste`
+      const url = `${window.location.origin}/api/specialite/liste?getall`
 
       const requestOptions = {
         method: 'GET',
@@ -81,13 +80,13 @@ const Medecin = () => {
       const responseData = await response.json()
 
       if (responseData.erreur) {
-        alert(responseData.message)
+        console.log(responseData.message)
       } else {
         setSpeListe(responseData.data)
       }
     } catch (error) {
       console.error('Erreur:', error)
-      alert('Une erreur est survenue lors de la récupération des données.')
+      console.log('Une erreur est survenue lors de la récupération des données.')
     }
   }
 
@@ -115,7 +114,7 @@ const Medecin = () => {
       const responseData = await response.json()
 
       if (responseData.erreur) {
-        alert(responseData.message)
+        console.log(responseData.message)
       } else {
         setMedecins(responseData.data)
         setPaginatorInfo(responseData?.paginatorInfo)
@@ -235,6 +234,8 @@ const Medecin = () => {
                         size='small'
                         onClick={() => {
                           setSelectedMedecinId(medecin.id)
+                          console.log('medecin:', medecin.id)
+
                           setIsModalOpen(true)
                         }}
                       >
@@ -263,7 +264,7 @@ const Medecin = () => {
                       <StarRating
                         size='sm'
                         onChange={async (e: any) => {
-                          await upValue(e, medecin.id, 1)
+                          await upValue(e, medecin.id, userData.id)
                         }}
                       />
                     </div>

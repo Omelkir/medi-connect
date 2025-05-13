@@ -59,7 +59,7 @@ export default function ReclamationModal({
       const responseData = await response.json()
 
       // Mise à jour de l'état après la réponse
-      setUpdate(new Date().getDate().toString())
+      setUpdate(Date.now().toString())
 
       if (responseData.erreur) {
         toast.error('Erreur !')

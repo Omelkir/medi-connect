@@ -4,12 +4,12 @@ import { useState } from 'react'
 
 import { Button, Card, CardContent, Grid } from '@mui/material'
 
-import { Crown, FlaskConical, Stethoscope } from 'lucide-react'
+import { Crown } from 'lucide-react'
 
 import { toast } from 'react-toastify'
 
 import Table from '@/app/(dashboard)/admin/Table'
-import Pagination from '@/components/ui/pagination'
+
 import Arrow from '@/views/dashboard/Arrow'
 
 import DeleteModal from '@/components/modals/deleteModal/deleteModal'
@@ -19,7 +19,7 @@ const Admin = () => {
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [selected, setSelected] = useState<any>(null)
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
-  const [update, setUpdate] = useState<string>(new Date().toDateString())
+  const [update, setUpdate] = useState<string>('')
 
   const handleOpenModal = (admin: any = null) => {
     setSelected(admin)
@@ -49,7 +49,8 @@ const Admin = () => {
       if (result.erreur) {
         console.error('Erreur:', result.message)
       } else {
-        setUpdate(new Date().toDateString())
+        setUpdate(Date.now().toString())
+
         toast.success("L'admin a été supprimé avec succès")
       }
     } catch (error) {

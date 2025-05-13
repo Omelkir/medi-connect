@@ -32,23 +32,8 @@ export default function PatientModal({
     tel: '',
     age: '',
     id_ville: '',
-    id_el: userData.id
+    id_el: userData?.id ?? 0
   })
-
-  const handleImageChange = (e: any) => {
-    const file = e.target.files[0]
-
-    if (file) {
-      setData((prev: any) => ({
-        ...prev,
-        imageSrc: URL.createObjectURL(file)
-      }))
-
-      const reader = new FileReader()
-
-      reader.readAsDataURL(file)
-    }
-  }
 
   const [controls, setControls] = useState<any>({
     nom: false,
@@ -57,33 +42,15 @@ export default function PatientModal({
     email: false,
     tel: false,
     age: false,
-    id_ville: false
+    id_ville: false,
+    emailValid: false
   })
-
-  useEffect(() => {
-    if (patientData) {
-      setData(patientData)
-    } else {
-      setData({
-        imageSrc: '/img/placeholder-image.jpg',
-        image: '',
-        nom: '',
-        prenom: '',
-        mdp: '',
-        email: '',
-        tel: '',
-        age: '',
-        id_ville: '',
-        id_el: userData.id
-      })
-    }
-  }, [patientData, userData.id])
 
   const [villeListe, setVilleListe] = useState<any[]>([])
 
   async function getVilleList() {
     try {
-      const url = `${window.location.origin}/api/ville/liste`
+      const url = `${window.location.origin}/api/ville/liste?getall`
 
       const requestOptions = {
         method: 'GET',
@@ -113,6 +80,44 @@ export default function PatientModal({
     getVilleList()
   }, [])
 
+  const handleImageChange = (e: any) => {
+    const file = e.target.files[0]
+
+    if (file) {
+      setData((prev: any) => ({
+        ...prev,
+        imageSrc: URL.createObjectURL(file)
+      }))
+
+      const reader = new FileReader()
+
+      reader.readAsDataURL(file)
+    }
+  }
+
+  useEffect(() => {
+    if (patientData) {
+      setData({
+        ...patientData,
+        imageSrc: patientData.image ? `${patientData.image}` : '/img/placeholder-image.jpg',
+        id_ville: patientData.id_ville ?? ''
+      })
+    } else {
+      setData({
+        imageSrc: '/img/placeholder-image.jpg',
+        image: '',
+        nom: '',
+        prenom: '',
+        mdp: '',
+        email: '',
+        tel: '',
+        age: '',
+        id_ville: '',
+        id_el: userData?.id
+      })
+    }
+  }, [patientData, userData?.id])
+
   const clearForm = () => {
     setData({
       imageSrc: '/img/placeholder-image.jpg',
@@ -124,9 +129,18 @@ export default function PatientModal({
       tel: '',
       age: '',
       id_ville: '',
-      id_el: userData.id
+      id_el: userData?.id
     })
-    setControls({ nom: false, prenom: false, mdp: false, email: false, tel: false, age: false, id_ville: false })
+    setControls({
+      nom: false,
+      prenom: false,
+      mdp: false,
+      email: false,
+      tel: false,
+      age: false,
+      id_ville: false,
+      emailValid: false
+    })
   }
 
   const isAdd = !patientData
@@ -135,36 +149,39 @@ export default function PatientModal({
     try {
       const url = `${window.location.origin}/api/patient/${isAdd ? 'ajouter' : 'modifier'}`
 
-      // const newControls = {
-      //   nom: data.nom.trim() === '',
-      //   prenom: data.prenom.trim() === '',
-      //   mdp: data.mdp.trim() === '',
-      //   email: data.email.trim() === '',
-      //   tel: data.tel.trim() === '',
-      //   age: data.age.toString().trim() === '',
-      //   id_ville: data.id_ville.toString().trim() === ''
-      // }
+      const newControls = {
+        nom: data.nom.trim() === '',
+        prenom: data.prenom.trim() === '',
+        mdp: data.mdp.trim() === '',
+        email: data.email.trim() === '',
+        tel: data.tel.trim() === '',
+        age: data.age.toString().trim() === '',
+        id_ville: data.id_ville.toString().trim() === '',
+        emailValid: mailCheck(data.email.trim())
+      }
 
-      // setControls(newControls)
+      setControls(newControls)
 
-      // if (Object.values(newControls).some(value => value)) {
-      //   return
-      // }
+      if (Object.values(newControls).some(value => value)) {
+        return
+      }
 
       const formData = new FormData()
 
-      const sendData = { ...data, id_el: userData.id }
-
       clearForm()
 
-      for (const key in sendData) {
-        if (sendData.hasOwnProperty(key)) {
-          if (sendData[key] instanceof File) {
-            formData.append(key, sendData[key])
+      for (const key in data) {
+        if (data.hasOwnProperty(key)) {
+          if (data[key] instanceof File) {
+            formData.append(key, data[key])
           } else {
-            formData.append(key, sendData[key])
+            formData.append(key, data[key])
           }
         }
+      }
+
+      if (!data.image || !(data.image instanceof File)) {
+        formData.append('currentImage', patientData?.image || '')
       }
 
       const requestOptions = {
@@ -173,10 +190,9 @@ export default function PatientModal({
       }
 
       await fetch(url, requestOptions).then((responseData: any) => {
-        setUpdate(new Date().getDate().toString())
+        setUpdate(Date.now().toString())
 
         if (responseData.erreur) {
-          alert(responseData.message)
           toast.error('Erreur !')
         } else {
           if (isAdd) {
@@ -223,29 +239,6 @@ export default function PatientModal({
     >
       <form noValidate autoComplete='off' className='w-full space-y-6'>
         <Grid container spacing={3}>
-          <Grid item xs={10} md={10}>
-            <FormControl fullWidth>
-              <InputLabel>Ville</InputLabel>
-              <Select
-                label='Ville'
-                className='h-12 md:h-[60px]'
-                value={data?.id_ville || null}
-                onChange={(e: any) => {
-                  if (e === null) {
-                    setData({ ...data, id_ville: e.target.value })
-                  } else {
-                    setData({ ...data, id_ville: e.target.value })
-                  }
-                }}
-              >
-                {villeListe.map(item => (
-                  <MenuItem value={item.id} key={item.id}>
-                    {item.ville}
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-          </Grid>
           <Grid item xs={2} md={2}>
             <Input
               type='file'
@@ -275,6 +268,30 @@ export default function PatientModal({
               />
             </InputLabel>
           </Grid>
+          <Grid item xs={10} md={10}>
+            <FormControl fullWidth>
+              <InputLabel>Ville</InputLabel>
+              <Select
+                label='Ville'
+                className='h-12 md:h-[60px]'
+                value={data?.id_ville ?? ''}
+                onChange={(e: any) => {
+                  if (e === null) {
+                    setData({ ...data, id_ville: e.target.value })
+                  } else {
+                    setData({ ...data, id_ville: e.target.value })
+                  }
+                }}
+              >
+                {villeListe.map(item => (
+                  <MenuItem value={item.id} key={item.id}>
+                    {item.ville}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </Grid>
+
           <Grid item xs={6} md={6}>
             <TextField
               fullWidth
@@ -416,22 +433,8 @@ export default function PatientModal({
             <TextField
               fullWidth
               label='Email'
-              value={data?.email ?? ''}
-              className={`${controls?.email === true ? 'isReq' : ''}`}
-              onChange={(e: any) => {
-                if (e.target?.value.trim() === '') {
-                  setControls({ ...controls, email: true })
-                  setData((prev: any) => ({
-                    ...prev,
-                    email: e.target.value
-                  }))
-                } else {
-                  setControls({ ...controls, email: false })
-                  setData((prev: any) => ({
-                    ...prev,
-                    email: e.target.value
-                  }))
-                }
+              InputLabelProps={{
+                sx: { fontSize: '1rem' }
               }}
               InputProps={{
                 sx: {
@@ -443,8 +446,32 @@ export default function PatientModal({
                   }
                 }
               }}
+              value={data?.email ?? ''}
+              className={`${controls?.email === true || controls.emailValid === true ? 'isReq' : ''}`}
+              onChange={(e: any) => {
+                if (e.target?.value.trim() === '') {
+                  setControls({ ...controls, email: true })
+                  setData((prev: any) => ({
+                    ...prev,
+                    email: e.target.value
+                  }))
+                } else {
+                  setControls({ ...controls, email: false })
+                  setControls({ ...controls, emailValid: mailCheck(e.target.value.trim()) })
+                  setData((prev: any) => ({
+                    ...prev,
+                    email: e.target.value
+                  }))
+                }
+              }}
             />
-            {controls?.email === true ? <span className='errmsg'>Veuillez saisir l'email !</span> : null}
+            {controls?.email === true ? (
+              <span className='errmsg'>Veuillez saisir l'email !</span>
+            ) : controls.emailValid === true ? (
+              <span className='errmsg'>
+                Email invalide : il doit contenir "@" et se terminer par un domaine valide (ex: .com, .net)
+              </span>
+            ) : null}
           </Grid>
         </Grid>
       </form>

@@ -5,7 +5,7 @@ import { ajouter } from '@/app/api-controller/analyse'
 
 export async function POST(req: NextRequest) {
   try {
-    const body = await req.json()
+    const body = await req
     const data = await ajouter(body)
 
     return NextResponse.json(data)
