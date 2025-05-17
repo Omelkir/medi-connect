@@ -74,10 +74,23 @@ export const updateApprovalPatient = async (body: any) => {
 
 export const updateApprovalConsultation = async (body: any) => {
   try {
-    const { id } = body
+    const { id_el, el, id, id_patient } = body
 
     if (!id) {
       return { erreur: true, message: 'Paramètres invalides' }
+    }
+
+    const sqlVerif = `
+      Select * from  medi_connect.relation_patient
+      WHERE id_el = '${id_el}' and el = '${el}' and id_patient = '${id_patient}'
+    `
+
+    const [rows]: any = await pool.query(sqlVerif)
+
+    if (rows?.length === 0) {
+      await pool.query(
+        `INSERT INTO medi_connect.relation_patient ( el, id_el, id_patient) VALUES ('${el}','${id_el}','${id_patient}')`
+      )
     }
 
     const sql = `

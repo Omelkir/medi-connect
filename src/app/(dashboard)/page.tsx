@@ -1,6 +1,8 @@
 'use client'
 
 // MUI Imports
+import { useRouter } from 'next/navigation'
+
 import Grid from '@mui/material/Grid'
 
 import Award from '@views/dashboard/Award'
@@ -15,6 +17,11 @@ import { getStorageData } from '@/utils/helpers'
 const DashboardAnalytics = () => {
   const typeOfLogger: any = getStorageData('typeOfLogger')
   const userData = getStorageData('user')
+  const router = useRouter()
+
+  if (userData === undefined) {
+    router.push('/login')
+  }
 
   return typeOfLogger === 3 ? (
     <Grid container spacing={6}>

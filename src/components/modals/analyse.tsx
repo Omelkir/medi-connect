@@ -8,6 +8,7 @@ import { toast } from 'react-toastify'
 import { UploadCloud } from 'lucide-react'
 
 import { Modal } from '../ui/modal'
+import { getStorageData } from '@/utils/helpers'
 
 export default function AnalyseModal({
   isOpen,
@@ -24,13 +25,16 @@ export default function AnalyseModal({
   patient: any
   id_el: any
 }) {
+  const userData = getStorageData('user')
+
   const [data, setData] = useState<any>({
     titre: '',
     detail: '',
     analyseSrc: '',
     analyse: '',
     id_patient: patient,
-    id_el: id_el
+    id_el: id_el,
+    el: userData?.role
   })
 
   useEffect(() => {
@@ -49,7 +53,8 @@ export default function AnalyseModal({
     setData((prevData: any) => ({
       ...prevData,
       id_patient: patient?.id || null,
-      id_el: id_el || null
+      id_el: id_el || null,
+      el: userData?.role || null
     }))
   }, [patient, id_el])
   console.log('idpatient', patient?.id)
@@ -65,8 +70,6 @@ export default function AnalyseModal({
     setControls({ titre: false, detail: false, analyse: false })
   }
 
-  const isAdd = !analyseData
-
   const handleFileChange = (e: any) => {
     const file = e.target.files[0]
 
@@ -81,6 +84,8 @@ export default function AnalyseModal({
       reader.readAsDataURL(file)
     }
   }
+
+  const isAdd = !analyseData
 
   const handleSave = async () => {
     try {
@@ -99,8 +104,6 @@ export default function AnalyseModal({
 
       const formData = new FormData()
 
-      clearForm()
-
       for (const key in data) {
         if (data.hasOwnProperty(key)) {
           if (data[key] instanceof File) {
@@ -109,6 +112,10 @@ export default function AnalyseModal({
             formData.append(key, data[key])
           }
         }
+      }
+
+      if (!data.analyse || !(data.analyse instanceof File)) {
+        formData.append('currentAnalyse', analyseData?.analyse || '')
       }
 
       const requestOptions = {
@@ -129,6 +136,7 @@ export default function AnalyseModal({
           }
 
           onClose()
+          clearForm()
         }
       })
     } catch (error) {
@@ -245,7 +253,7 @@ export default function AnalyseModal({
                                            cursor-pointer bg-gray-100 px-4 py-2 rounded-md border  border-gray-300 hover:bg-gray-200'
             >
               <UploadCloud className='text-blue-500' />
-              <span className='text-gray-700'>{data.analyse.name ? data.analyse.name : 'Choisir un fichier PDF'}</span>
+              <span className='text-gray-700'>{'Choisir un fichier PDF'}</span>
               <input
                 type='file'
                 accept='application/pdf'

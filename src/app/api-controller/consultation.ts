@@ -13,22 +13,17 @@ export const liste = async (req: any) => {
 
     console.log('urlParams:', urlParams)
 
-    // Convertir les paramètres en un objet JSON
     const paramsObj = Object.fromEntries(urlParams.entries())
 
     console.log('paramsObj:', paramsObj)
-    let whereClause = ''
+    const today = new Date().toISOString().split('T')[0] // format YYYY-MM-DD
+    let whereClause = `WHERE date >= '${today}' `
     let currentPage = 1
     let itemsPerPage = 6
 
     Object.keys(paramsObj).forEach((key, index) => {
       if (paramsObj[key] && ['getall', 'page', 'limit'].indexOf(key) === -1) {
-        // Ajoute la condition WHERE
-        if (index === 0) {
-          whereClause += ` WHERE ${key} = ${paramsObj[key]}`
-        } else {
-          whereClause += ` AND ${key} = ${paramsObj[key]}`
-        }
+        whereClause += ` AND ${key} = ${paramsObj[key]}`
       }
 
       if (key === 'page') {
@@ -99,7 +94,8 @@ export const ajouter = async (req: any) => {
   try {
     const json: any = req
 
-    await pool.query(`INSERT INTO medi_connect.consultation (id_el,el,date,id_patient, isApproved, duree) 
+    const res: any =
+      await pool.query(`INSERT INTO medi_connect.consultation (id_el,el,date,id_patient, isApproved, duree) 
                        VALUES ('${json.id_el}','${json.el}','${json.date}', '${json.id_patient}', 1, '${json.duree}')`)
 
     return { erreur: false, data: true }
@@ -123,5 +119,30 @@ export const modifier = async (req: any) => {
     console.error('Erreur lors de l’enregistrement', error)
 
     return { erreur: true, message: 'Erreur lors de l’enregistrement' }
+  }
+}
+
+export const supprimer = async (req: any) => {
+  try {
+    const id = req.params.id
+
+    if (!id) {
+      return { erreur: true, message: 'ID is required' }
+    }
+
+    const sql = `DELETE FROM medi_connect.consultation WHERE id='${id}'`
+    const result: any = await pool.query(sql, [id])
+
+    console.log(sql)
+
+    if (result.affectedRows === 0) {
+      return { erreur: true, message: 'consultation non trouvé' }
+    }
+
+    return { erreur: false, data: true }
+  } catch (error) {
+    console.error('Error deleting:', error)
+
+    return { erreur: true, message: 'Erreur lors de la suppression' }
   }
 }

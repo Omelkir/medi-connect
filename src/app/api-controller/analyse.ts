@@ -52,14 +52,36 @@ export const ajouter = async (req: any) => {
 export const modifier = async (req: any) => {
   try {
     const formData = await req.formData()
+    const file = formData.get('analyse') as File
+    let checkUrl = formData.get('currentAnalyse') || ''
+    let ann = ''
+
+    if (file && file.size > 0) {
+      const bytes = await file.arrayBuffer()
+      const buffer = Buffer.from(bytes)
+
+      const uploadDir = path.join(process.cwd(), 'public', 'uploads')
+
+      if (!fs.existsSync(uploadDir)) {
+        await mkdir(uploadDir, { recursive: true })
+      }
+
+      const filename = `${uuidv4()}_${file.name}`
+      const filepath = path.join(uploadDir, filename)
+
+      await writeFile(filepath, buffer)
+      checkUrl = '/uploads/' + filename
+      ann = ` ,analyse='${checkUrl}' `
+    }
 
     const json: Record<string, any> = {}
 
     formData.forEach((value: any, key: any) => {
       json[key] = value
     })
+
     const id = json.id
-    const sql = `UPDATE medi_connect.analyse SET titre ='${json.titre}',detail ='${json.detail}',analyse='${json.req.checkUrl}' where id='${id}'`
+    const sql = `UPDATE medi_connect.analyse SET titre ='${json.titre}',detail ='${json.detail}' ${ann} where id='${id}'`
 
     await pool.query(sql)
 
@@ -76,7 +98,6 @@ export const liste = async (req: any) => {
     const json: any = req
     const urlParams = new URLSearchParams(new URL(json.url).search)
 
-    // Convertir les paramètres en un objet JSON
     const paramsObj = Object.fromEntries(urlParams.entries())
     let whereClause = ''
     let currentPage = 1
@@ -84,7 +105,6 @@ export const liste = async (req: any) => {
 
     Object.keys(paramsObj).forEach((key, index) => {
       if (paramsObj[key] && ['getall', 'page', 'limit'].indexOf(key) === -1) {
-        // Ajoute la condition WHERE
         if (index === 0) {
           whereClause += ` WHERE ${key} = ${paramsObj[key]}`
         } else {

@@ -1,5 +1,21 @@
 import pool from '@/utils/connexion'
 
+export const ajouter = async (req: any) => {
+  try {
+    const json: any = req
+
+    const sql = `INSERT INTO medi_connect.ordonnance ( id_patient,id_el,el,medi,duree,dosage,id_cons) VALUES ('${json.id_patient}','${json.id_el}','${json.el}','${json.medi}','${json.duree}','${json.dosage}','${json.id_cons}')`
+
+    await pool.query(sql)
+
+    return { erreur: false, data: true }
+  } catch (error) {
+    console.error('Erreur lors de l’enregistrement', error)
+
+    return { erreur: true, message: 'Erreur lors de l’enregistrement' }
+  }
+}
+
 export const liste = async (req: any) => {
   try {
     const json: any = req
@@ -38,16 +54,27 @@ export const liste = async (req: any) => {
 
     const offset = (currentPage - 1) * itemsPerPage
 
-    const sql = `SELECT o.*,c.date as date FROM ordonnance o  LEFT JOIN medi_connect.consultation c
-   ON c.id = o.id_cons ${whereClause} LIMIT
-    ${itemsPerPage}
-OFFSET
-    ${offset}`
+    const sql = `
+  SELECT 
+    o.id AS id,
+    o.medi AS medi, 
+    o.duree AS duree, 
+    o.dosage AS dosage, 
+    c.date AS consultation_date,
+    c.id AS consultation_id
+  FROM consultation c
+  LEFT JOIN ordonnance o ON o.id_cons = c.id
+  ${whereClause}
+  LIMIT ${itemsPerPage}
+  OFFSET ${offset}
+`
+
+    console.log(sql)
 
     const [rows] = await pool.query(sql)
     const data: any = rows
 
-    console.log(data)
+    console.log('dataOrd:', data)
 
     const pi: any = {
       total: totalCount,
@@ -71,5 +98,46 @@ OFFSET
     console.error('Erreur lors de la récupération des ordonnances:', error)
 
     return { erreur: true, message: 'Erreur lors de l’enregistrement' }
+  }
+}
+
+export const modifier = async (req: any) => {
+  try {
+    const json: any = req
+    const id = json.id
+    const sql = `UPDATE medi_connect.ordonnance SET medi ='${json.medi}',duree ='${json.duree}',dosage ='${json.dosage}' where id='${id}'`
+
+    await pool.query(sql)
+
+    return { erreur: false, data: true }
+  } catch (error) {
+    console.error('Erreur lors de l’enregistrement', error)
+
+    return { erreur: true, message: 'Erreur lors de l’enregistrement' }
+  }
+}
+
+export const supprimer = async (req: any) => {
+  try {
+    const id = req.params.id
+
+    if (!id) {
+      return { erreur: true, message: 'ID is required' }
+    }
+
+    const sql = `DELETE FROM medi_connect.ordonnance WHERE id='${id}'`
+    const result: any = await pool.query(sql, [id])
+
+    console.log(sql)
+
+    if (result.affectedRows === 0) {
+      return { erreur: true, message: 'ordonnance non trouvé' }
+    }
+
+    return { erreur: false, data: true }
+  } catch (error) {
+    console.error('Error deleting:', error)
+
+    return { erreur: true, message: 'Erreur lors de la suppression' }
   }
 }

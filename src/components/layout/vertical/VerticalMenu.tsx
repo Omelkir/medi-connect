@@ -1,4 +1,6 @@
 // MUI Imports
+import { useEffect, useState } from 'react'
+
 import Chip from '@mui/material/Chip'
 import { useTheme } from '@mui/material/styles'
 
@@ -34,12 +36,20 @@ const RenderExpandIcon = ({ open, transitionDuration }: RenderExpandIconProps) =
   </StyledVerticalNavExpandIcon>
 )
 
-const typeOfLogger: any = getStorageData('typeOfLogger')
-
 const VerticalMenu = ({ scrollMenu }: { scrollMenu: (container: any, isPerfectScrollbar: boolean) => void }) => {
+  const typeOfLogger: any = getStorageData('typeOfLogger')
+
   // Hooks
   const theme = useTheme()
   const { isBreakpointReached, transitionDuration } = useVerticalNav()
+
+  const [mmenu, setMmenu] = useState<any>(
+    typeOfLogger === 1 ? menuAdmin : typeOfLogger === 2 ? menuMed : typeOfLogger === 3 ? menulabo : []
+  )
+
+  useEffect(() => {
+    setMmenu(typeOfLogger === 1 ? menuAdmin : typeOfLogger === 2 ? menuMed : typeOfLogger === 3 ? menulabo : [])
+  }, [typeOfLogger])
 
   const ScrollWrapper = isBreakpointReached ? 'div' : PerfectScrollbar
 
@@ -83,11 +93,7 @@ const VerticalMenu = ({ scrollMenu }: { scrollMenu: (container: any, isPerfectSc
         renderExpandedMenuItemIcon={{ icon: <i className='ri-circle-line' /> }}
         menuSectionStyles={menuSectionStyles(theme)}
       >
-        <MenuSection label={null}>
-          {renderMenu(
-            typeOfLogger === 1 ? menuAdmin : typeOfLogger === 2 ? menuMed : typeOfLogger === 3 ? menulabo : []
-          )}
-        </MenuSection>
+        <MenuSection label={null}>{renderMenu(mmenu)}</MenuSection>
       </Menu>
     </ScrollWrapper>
   )

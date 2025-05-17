@@ -518,7 +518,7 @@ const Register = () => {
               <Grid item xs={6} md={6}>
                 <TextField
                   fullWidth
-                  label='Âge '
+                  label='Âge'
                   value={data?.age ?? ''}
                   className={`${controls?.age === true ? 'isReq' : ''}`}
                   onChange={(e: any) => {

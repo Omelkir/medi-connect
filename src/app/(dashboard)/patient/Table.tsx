@@ -29,37 +29,38 @@ const Table = ({
   }
 
   async function getPatientList(page = 1) {
-    try {
-      let url = `${window.location.origin}/api/patient/liste`
+    // try {
+    let url = `${window.location.origin}/api/patient/liste`
 
-      if (userData.role === 2 || userData.role === 3) {
-        url += `?id_el=${userData.id}&page=${page}`
-      } else {
-        url += `?page=${page}`
-      }
-
-      const requestOptions = {
-        method: 'GET',
-        headers: { 'Content-Type': 'application/json' }
-      }
-
-      const response = await fetch(url, requestOptions)
-
-      if (!response.ok) throw new Error('Erreur lors de la requête')
-
-      const responseData = await response.json()
-
-      console.log('API Response:', responseData)
-
-      if (responseData.erreur) {
-        console.error('Erreur')
-      } else {
-        setRowsData(responseData.data)
-        setPaginatorInfo(responseData?.paginatorInfo)
-      }
-    } catch (error) {
-      console.error('Erreur:', error)
+    if (userData.role === 2 || userData.role === 3) {
+      url += `?id_el=${userData.id}&el=${userData.role}&page=${page}`
+    } else {
+      url += `?page=${page}&el=${userData.role}`
     }
+
+    const requestOptions = {
+      method: 'GET',
+      headers: { 'Content-Type': 'application/json' }
+    }
+
+    const response = await fetch(url, requestOptions)
+
+    if (!response.ok) throw new Error('Erreur lors de la requête')
+
+    const responseData = await response.json()
+
+    console.log('API Response:', responseData)
+
+    if (responseData.erreur) {
+      console.error('Erreur')
+    } else {
+      setRowsData(responseData.data)
+      setPaginatorInfo(responseData?.paginatorInfo)
+    }
+
+    // } catch (error) {
+    //   console.error('Erreur:', error)
+    // }
   }
 
   useEffect(() => {

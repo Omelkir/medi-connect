@@ -31,21 +31,32 @@ const Patient = () => {
   const [ordonnances, setOrdonnances] = useState<any[]>([])
   const [selectedPatient, setSelectedPatient] = useState<any>(idFiche ? patientListe.find(p => p.id === idFiche) : null)
   const userData = getStorageData('user')
-  const [isModalOpen, setIsModalOpen] = useState(false)
   const [selected, setSelected] = useState<any>(null)
   const [update, setUpdate] = useState<string>(new Date().toDateString())
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
+  const [isAnalyseModalOpen, setIsAnalyseModalOpen] = useState(false)
+  const [isOrdonnanceModalOpen, setIsOrdonnanceModalOpen] = useState(false)
+  const [selectedDate, setSelectedDate] = useState<string>('')
+  const [selectedConst, setselectedConst] = useState<string>('')
+  const [paginatorInfo, setPaginatorInfo] = useState<any>({ total: 6 })
 
-  const DropdownLogin = ({
-    // onEdit,
+  const [data, setData] = useState<any>({
+    patient: idFiche ?? '',
+    id_med: userData.id
+  })
+
+  const Dropdown = ({
+    onEdit,
     onDelete,
-    update,
-    date
+    id_consultation,
+    date,
+    ordonnances
   }: {
-    // onEdit: (med: any) => void
+    onEdit: (med: any) => void
     onDelete: (med: any) => void
-    update: string
+    id_consultation: any
     date: string
+    ordonnances: any[]
   }) => {
     const [open, setOpen] = useState(false)
     const toggleDropdown = () => setOpen(prev => !prev)
@@ -53,7 +64,9 @@ const Patient = () => {
     return (
       <div className='relative'>
         <div
-          onClick={toggleDropdown}
+          onClick={() => {
+            toggleDropdown()
+          }}
           className='inline-flex items-center py-2 px-3 cursor-pointer navigation select-none'
         >
           {date}
@@ -61,7 +74,7 @@ const Patient = () => {
         </div>
 
         {open &&
-          (ordonnances.length > 0 ? (
+          (ordonnances ? (
             <div className='overflow-x-auto'>
               <table className='min-w-full bg-white border border-gray-200 rounded-lg shadow-md'>
                 <thead>
@@ -70,32 +83,50 @@ const Patient = () => {
                     <th className='px-4 py-2 text-left text-sm font-medium text-gray-600 border-b'>Dosage</th>
                     <th className='px-4 py-2 text-left text-sm font-medium text-gray-600 border-b'>Durée/jour(s)</th>
                     <th className='px-4 py-2 text-left text-sm font-medium text-gray-600 border-b'>
-                      Action <Plus className='text-blue-500 float-right' onClick={() => handleOpenOrdModal()} />
+                      Action
+                      <Plus
+                        className='text-blue-500 float-right'
+                        onClick={() => {
+                          handleOpenOrdModal()
+                          setSelectedDate(date)
+                          setselectedConst(id_consultation)
+                        }}
+                      />
                     </th>
                   </tr>
                 </thead>
-                <tbody>
-                  {ordonnances.map((ordonnance, index) => (
-                    <tr key={index} className='bg-gray-100 hover:bg-gray-200'>
-                      <td className='px-4 py-2 text-sm text-gray-700'>{ordonnance.medi}</td>
-                      <td className='px-4 py-2 text-sm text-gray-700'>{ordonnance.dosage}</td>
-                      <td className='px-4 py-2 text-sm text-gray-700'>{ordonnance.duree}</td>
-                      <td className='px-4 py-2 text-sm text-gray-700  gap-2'>
-                        <button
-                          className='ri-edit-box-line text-yellow-500 text-xl hover:text-2xl mr-3'
-
-                          // onClick={() => onEdit(ordonnance)}
-                        ></button>
-                        <button
-                          onClick={() => {
-                            onDelete(ordonnance)
-                          }}
-                          className='ri-delete-bin-line text-red-500 text-xl hover:text-2xl'
-                        ></button>
-                      </td>
+                {ordonnances?.length > 0 ? (
+                  <tbody>
+                    {ordonnances.map((ordonnance: any, index: any) => (
+                      <tr key={index} className='bg-gray-100 hover:bg-gray-200'>
+                        <td className='px-4 py-2 text-sm text-gray-700'>{ordonnance.medi}</td>
+                        <td className='px-4 py-2 text-sm text-gray-700'>{ordonnance.dosage}</td>
+                        <td className='px-4 py-2 text-sm text-gray-700'>{ordonnance.duree}</td>
+                        <td className='px-4 py-2 text-sm text-gray-700  gap-2'>
+                          <button
+                            className='ri-edit-box-line text-yellow-500 text-xl hover:text-2xl mr-3'
+                            onClick={() => {
+                              onEdit(ordonnance)
+                              setSelectedDate(date)
+                            }}
+                          ></button>
+                          <button
+                            onClick={() => {
+                              onDelete(selectedDate)
+                            }}
+                            className='ri-delete-bin-line text-red-500 text-xl hover:text-2xl'
+                          ></button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                ) : (
+                  <tbody>
+                    <tr key={'n'} className='bg-gray-100 hover:bg-gray-200'>
+                      <td colSpan={5}>vide</td>
                     </tr>
-                  ))}
-                </tbody>
+                  </tbody>
+                )}
               </table>
             </div>
           ) : (
@@ -105,12 +136,175 @@ const Patient = () => {
     )
   }
 
-  const [data, setData] = useState<any>({
-    patient: idFiche ?? '',
-    id_med: userData.id
+  async function getConsultations() {
+    if (!selectedPatient) return
+    const url = `${window.location.origin}/api/consultation/liste?id_patient=${selectedPatient.id}&consultation.id_el=${userData.id}&consultation.el=${userData.role}`
+
+    try {
+      const response = await fetch(url, { method: 'GET', headers: { 'Content-Type': 'application/json' } })
+
+      if (!response.ok) throw new Error('Erreur lors de la requête')
+      const responseData = await response.json()
+
+      setConsultations(responseData.data || [])
+    } catch (error) {
+      console.error(error)
+    }
+  }
+
+  React.useEffect(() => {
+    getConsultations()
+  }, [selectedPatient])
+
+  const onPagination = (e: any) => {
+    getAnalyse(e)
+  }
+
+  async function getAnalyse(page = 1) {
+    try {
+      if (!selectedPatient) return
+      const url = `${window.location.origin}/api/analyse/liste?id_patient=${selectedPatient.id}&id_el=${userData.id}&el=${userData.role}&page=${page}`
+
+      const requestOptions = {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' }
+      }
+
+      const response = await fetch(url, requestOptions)
+
+      if (!response.ok) throw new Error('Erreur lors de la requête')
+
+      const responseData = await response.json()
+
+      console.log('API Response:', responseData)
+
+      if (responseData.erreur) {
+        toast.error(responseData.message)
+      } else {
+        setAnalyses(responseData.data)
+        setPaginatorInfo(responseData?.paginatorInfo)
+      }
+    } catch (error) {
+      console.error('Erreur:', error)
+      toast.error('Une erreur est survenue lors de la récupération des données.')
+    }
+  }
+
+  // async function getAnalyse(page = 1) {
+  //   if (!selectedPatient) return
+  //   const url = `${window.location.origin}/api/analyse/liste?id_patient=${selectedPatient.id}&id_el=${userData.id}&el=${userData.role}&page=${page}`
+
+  //   try {
+  //     const response = await fetch(url, { method: 'GET', headers: { 'Content-Type': 'application/json' } })
+
+  //     if (!response.ok) throw new Error('Erreur lors de la requête')
+  //     const responseData = await response.json()
+
+  //     setAnalyses(responseData.data || [])
+  //     setPaginatorInfo(responseData?.paginatorInfo)
+  //   } catch (error) {
+  //     console.error(error)
+  //   }
+  // }
+
+  React.useEffect(() => {
+    getAnalyse()
+  }, [selectedPatient, update])
+
+  const handleOpenModal = (analyse: any = null) => {
+    setSelected(analyse)
+    setIsAnalyseModalOpen(true)
+  }
+
+  const ordonnancesByDate: Record<string, any[]> = {}
+
+  consultations.forEach(cons => {
+    const date = new Date(cons.start).toISOString().split('T')[0]
+
+    if (!ordonnancesByDate[date]) {
+      ordonnancesByDate[date] = []
+    }
+
+    ordonnances.forEach(ord => {
+      const ordDate = new Date(ord.consultation_date).toISOString().split('T')[0]
+
+      if (ordDate === date) {
+        ordonnancesByDate[date].push(ord)
+      }
+    })
   })
 
-  const DocteurData = getStorageData('user')
+  const sortedOrdonnancesByDate = Object.keys(ordonnancesByDate)
+    .sort((a, b) => new Date(a).getTime() - new Date(b).getTime())
+    .reduce(
+      (acc, date) => {
+        acc[date] = ordonnancesByDate[date]
+
+        return acc
+      },
+      {} as Record<string, any[]>
+    )
+
+  const dates = Object.keys(sortedOrdonnancesByDate)
+
+  console.log('ordonnancesByDate', ordonnancesByDate)
+
+  async function getPatientListe() {
+    const url = `${window.location.origin}/api/patient/liste?id_el=${userData.id}`
+
+    const requestOptions = {
+      method: 'GET',
+      headers: { 'Content-Type': 'application/json' }
+    }
+
+    const response = await fetch(url, requestOptions)
+
+    if (!response.ok) throw new Error('Erreur lors de la requête')
+
+    const responseData = await response.json()
+
+    if (idFiche !== null) {
+      setSelectedPatient(responseData?.data?.find((p: any) => p.id == idFiche))
+    }
+
+    console.log('API Response:', responseData)
+
+    if (responseData.erreur) {
+      alert(responseData.message)
+    } else {
+      setPatientListe(responseData.data)
+    }
+  }
+
+  React.useEffect(() => {
+    getPatientListe()
+  }, [])
+
+  async function getOrdonnance(page = 1) {
+    if (!selectedPatient) return
+    const url = `${window.location.origin}/api/ordonnance/liste?id_patient=${selectedPatient.id}&id_el=${userData?.id}&el=${userData?.role}&page=${page}`
+
+    try {
+      const response = await fetch(url, { method: 'GET', headers: { 'Content-Type': 'application/json' } })
+
+      if (!response.ok) throw new Error('Erreur lors de la requête')
+      const responseData = await response.json()
+
+      setOrdonnances(responseData.data || [])
+      setPaginatorInfo(responseData?.paginatorInfo)
+    } catch (error) {
+      console.error(error)
+    }
+  }
+
+  React.useEffect(() => {
+    getOrdonnance()
+  }, [selectedPatient, update])
+
+  const handleOpenOrdModal = (ord: any = null) => {
+    setSelected(ord)
+    setIsOrdonnanceModalOpen(true)
+  }
 
   const handleOpenDeleteModal = (analyse: any = null) => {
     setSelected(analyse)
@@ -148,115 +342,6 @@ const Patient = () => {
     await handleDelete(selected)
     setIsDeleteModalOpen(false)
   }
-
-  async function getPatientListe() {
-    const url = `${window.location.origin}/api/patient/liste?id_el=${DocteurData.id}`
-
-    const requestOptions = {
-      method: 'GET',
-      headers: { 'Content-Type': 'application/json' }
-    }
-
-    const response = await fetch(url, requestOptions)
-
-    if (!response.ok) throw new Error('Erreur lors de la requête')
-
-    const responseData = await response.json()
-
-    if (idFiche !== null) {
-      setSelectedPatient(responseData?.data?.find((p: any) => p.id == idFiche))
-    }
-
-    console.log('API Response:', responseData)
-
-    if (responseData.erreur) {
-      alert(responseData.message)
-    } else {
-      setPatientListe(responseData.data)
-    }
-  }
-
-  const handleOpenModal = (analyse: any = null) => {
-    setSelected(analyse)
-    setIsModalOpen(true)
-  }
-
-  const handleOpenOrdModal = (ord: any = null) => {
-    setSelected(ord)
-    setIsModalOpen(true)
-  }
-
-  React.useEffect(() => {
-    getPatientListe()
-  }, [])
-
-  async function getConsultations() {
-    if (!selectedPatient) return
-    const url = `${window.location.origin}/api/consultation/liste?id_patient=${selectedPatient.id}`
-
-    try {
-      const response = await fetch(url, { method: 'GET', headers: { 'Content-Type': 'application/json' } })
-
-      if (!response.ok) throw new Error('Erreur lors de la requête')
-      const responseData = await response.json()
-
-      setConsultations(responseData.data || [])
-    } catch (error) {
-      console.error(error)
-    }
-  }
-
-  React.useEffect(() => {
-    getConsultations()
-  }, [selectedPatient])
-  const [paginatorInfo, setPaginatorInfo] = useState<any>({ total: 6 })
-
-  const onPagination = (e: any) => {
-    getAnalyse(e)
-  }
-
-  async function getAnalyse(page = 1) {
-    if (!selectedPatient) return
-    const url = `${window.location.origin}/api/analyse/liste?id_patient=${selectedPatient.id}&page=${page}`
-
-    try {
-      const response = await fetch(url, { method: 'GET', headers: { 'Content-Type': 'application/json' } })
-
-      if (!response.ok) throw new Error('Erreur lors de la requête')
-      const responseData = await response.json()
-
-      setAnalyses(responseData.data || [])
-      setPaginatorInfo(responseData?.paginatorInfo)
-    } catch (error) {
-      console.error(error)
-    }
-  }
-
-  React.useEffect(() => {
-    getAnalyse()
-  }, [selectedPatient])
-
-  async function getOrdonnance(page = 1) {
-    if (!selectedPatient) return
-    const url = `${window.location.origin}/api/ordonnance/liste?id_patient=${selectedPatient.id}&id_el=${userData?.id}&page=${page}`
-
-    try {
-      const response = await fetch(url, { method: 'GET', headers: { 'Content-Type': 'application/json' } })
-
-      if (!response.ok) throw new Error('Erreur lors de la requête')
-      const responseData = await response.json()
-
-      setOrdonnances(responseData.data || [])
-      setPaginatorInfo(responseData?.paginatorInfo)
-    } catch (error) {
-      console.error(error)
-    }
-  }
-
-  React.useEffect(() => {
-    getOrdonnance()
-  }, [selectedPatient])
-  console.log('patient', selectedPatient)
 
   return (
     <div>
@@ -337,32 +422,30 @@ const Patient = () => {
                   Ordonnances
                 </Tabs.Trigger>
               </Tabs.List>
-
-              {/* Contenu des onglets */}
               <Tabs.Content value='informations-generales' className='mt-4'>
                 {selectedPatient ? (
-                  <div className='p-6 max-w-3xl'>
-                    <p className='text-sm font-semibold text-gray-700 mb-3'>
-                      <strong>Nom:</strong> <span className='text-gray-500'>{selectedPatient.nom}</span>
-                    </p>
-                    <p className='text-sm font-semibold text-gray-700 mb-3'>
-                      <strong>Prénom:</strong> <span className='text-gray-500'>{selectedPatient.prenom}</span>
-                    </p>
-                    <p className='text-sm font-semibold text-gray-700 mb-3'>
-                      <strong>Âge:</strong> <span className='text-gray-500'>{selectedPatient.age}</span>
-                    </p>
-                    <p className='text-sm font-semibold text-gray-700 mb-3'>
-                      <strong>Ville:</strong> <span className='text-gray-500'>{selectedPatient.ville}</span>
-                    </p>
-                    <p className='text-sm font-semibold text-gray-700 mb-3'>
-                      <strong>Email:</strong> <span className='text-gray-500'>{selectedPatient.email}</span>
-                    </p>
-                    <p className='text-sm font-semibold text-gray-700 mb-3'>
-                      <strong>Téléphone:</strong> <span className='text-gray-500'>{selectedPatient.tel}</span>
-                    </p>
+                  <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 px-6'>
+                    {[
+                      { label: 'Nom', value: selectedPatient.nom, icon: 'user' },
+                      { label: 'Prénom', value: selectedPatient.prenom, icon: 'user-circle' },
+                      { label: 'Âge', value: selectedPatient.age, icon: 'calendar' },
+                      { label: 'Ville', value: selectedPatient.ville, icon: 'map-pin' },
+                      { label: 'Email', value: selectedPatient.email, icon: 'mail' },
+                      { label: 'Téléphone', value: selectedPatient.tel, icon: 'phone' }
+                    ].map((item, index) => (
+                      <div key={index} className='flex items-center bg-white border rounded-xl p-6 shadow-sm space-x-4'>
+                        <div className='text-blue-500'>
+                          <i className={`ri-${item.icon}-line text-2xl`} />
+                        </div>
+                        <div>
+                          <p className='text-sm text-gray-500'>{item.label}</p>
+                          <p className='text-lg font-semibold text-gray-700'>{item.value}</p>
+                        </div>
+                      </div>
+                    ))}
                   </div>
                 ) : (
-                  <p className='text-gray-500'>Sélectionnez un patient pour afficher les informations.</p>
+                  <p className='text-gray-500 text-center'>Sélectionnez un patient pour afficher les informations.</p>
                 )}
               </Tabs.Content>
 
@@ -403,10 +486,9 @@ const Patient = () => {
                   <p className='text-gray-500 text-center'>Sélectionnez un patient pour afficher les consultations.</p>
                 )}
               </Tabs.Content>
-
               <Tabs.Content value='analyse' className='mt-4'>
                 {selectedPatient ? (
-                  analyses.length > 0 ? (
+                  <>
                     <div className='overflow-x-auto'>
                       <table className='min-w-full bg-white border border-gray-200 rounded-lg shadow-md'>
                         <colgroup>
@@ -426,57 +508,76 @@ const Patient = () => {
                           </tr>
                         </thead>
                         <tbody>
-                          {analyses.map((analyse, index) => (
-                            <tr key={index} className='bg-gray-100 hover:bg-gray-200'>
-                              <td className='px-4 py-2 text-sm text-gray-700'>{analyse.titre}</td>
-                              <td className='px-4 py-2 text-sm text-gray-700'>{analyse.detail}</td>
-                              <td className='px-4 py-2 text-sm text-gray-700'>
-                                <a href={analyse.analyse} target='_blank' rel='noopener noreferrer'>
-                                  <FileText size={14} />
-                                  Voir le PDF
-                                </a>
-                              </td>
-                              <td className='px-4 py-2 text-sm text-gray-700  gap-2'>
-                                <button
-                                  className='ri-edit-box-line text-yellow-500 text-xl hover:text-2xl mr-3'
-                                  onClick={() => handleOpenModal(analyse)}
-                                ></button>
-                                <button
-                                  onClick={() => {
-                                    handleOpenDeleteModal(analyse)
-                                  }}
-                                  className='ri-delete-bin-line text-red-500 text-xl hover:text-2xl'
-                                ></button>
+                          {analyses.length > 0 ? (
+                            analyses.map((analyse, index) => (
+                              <tr key={index} className='bg-gray-100 hover:bg-gray-200'>
+                                <td className='px-4 py-2 text-sm text-gray-700'>{analyse.titre}</td>
+                                <td className='px-4 py-2 text-sm text-gray-700'>{analyse.detail}</td>
+                                <td className='px-4 py-2 text-sm text-gray-700'>
+                                  <a href={analyse.analyse} target='_blank' rel='noopener noreferrer'>
+                                    <FileText size={14} /> Voir le PDF
+                                  </a>
+                                </td>
+                                <td className='px-4 py-2 text-sm text-gray-700 gap-2'>
+                                  <button
+                                    className='ri-edit-box-line text-yellow-500 text-xl hover:text-2xl mr-3'
+                                    onClick={() => handleOpenModal(analyse)}
+                                  ></button>
+                                  <button
+                                    onClick={() => handleOpenDeleteModal(analyse)}
+                                    className='ri-delete-bin-line text-red-500 text-xl hover:text-2xl'
+                                  ></button>
+                                </td>
+                              </tr>
+                            ))
+                          ) : (
+                            <tr>
+                              <td colSpan={4} className='px-4 py-4 text-center text-gray-500'>
+                                Aucune analyse trouvée.
                               </td>
                             </tr>
-                          ))}
+                          )}
                         </tbody>
                       </table>
                     </div>
-                  ) : (
-                    <p className='text-gray-500 text-center'>Aucune analyse trouvée.</p>
-                  )
-                ) : (
-                  <p className='text-gray-500 text-center'>Sélectionnez un patient pour afficher les analyses.</p>
-                )}
-                <Grid item xs={12} className='mt-6 justify-items-end'>
-                  <Pagination
-                    total={paginatorInfo.total}
-                    current={paginatorInfo.currentPage}
-                    pageSize={paginatorInfo.perPage}
-                    onChange={onPagination}
-                  />
-                </Grid>
-              </Tabs.Content>
 
+                    <Grid item xs={12} className='mt-6 justify-items-end'>
+                      <Pagination
+                        total={paginatorInfo.total}
+                        current={paginatorInfo.currentPage}
+                        pageSize={paginatorInfo.perPage}
+                        onChange={onPagination}
+                      />
+                    </Grid>
+                  </>
+                ) : (
+                  <p className='text-gray-500'>Sélectionnez un patient pour afficher les analyses.</p>
+                )}
+              </Tabs.Content>
               <Tabs.Content value='ordonnance' className='mt-4'>
                 {selectedPatient ? (
-                  <DropdownLogin
-                    date='02/05/2025'
-                    // onEdit={handleOpenOrdModal}
-                    onDelete={handleOpenDeleteModal}
-                    update={update}
-                  />
+                  dates.map((date: any) => {
+                    const ords = ordonnancesByDate[date]
+
+                    const matchedConsultation = consultations.find(cons => {
+                      const consDate = new Date(cons.start).toISOString().split('T')[0]
+
+                      return consDate === date
+                    })
+
+                    const consultationId = matchedConsultation ? matchedConsultation.id : null
+
+                    return (
+                      <Dropdown
+                        key={date}
+                        date={date}
+                        id_consultation={consultationId}
+                        ordonnances={ords}
+                        onEdit={handleOpenOrdModal}
+                        onDelete={handleOpenDeleteModal}
+                      />
+                    )
+                  })
                 ) : (
                   <p className='text-gray-500 text-center'>Sélectionnez un patient pour afficher les ordonnances.</p>
                 )}
@@ -485,21 +586,23 @@ const Patient = () => {
           </div>
         </CardContent>
         <AnalyseModal
-          isOpen={isModalOpen}
+          isOpen={isAnalyseModalOpen}
           analyseData={selected}
           patient={selectedPatient}
           id_el={userData.id}
-          onClose={() => setIsModalOpen(false)}
+          onClose={() => setIsAnalyseModalOpen(false)}
           setUpdate={setUpdate}
         />
         <OrdonnancesModal
-          isOpen={isModalOpen}
+          isOpen={isOrdonnanceModalOpen}
           ordananceData={selected}
+          id_cons={selectedConst}
           patient={selectedPatient}
           id_el={userData.id}
-          onClose={() => setIsModalOpen(false)}
+          onClose={() => setIsOrdonnanceModalOpen(false)}
           setUpdate={setUpdate}
         />
+
         <DeleteModal
           isOpen={isDeleteModalOpen}
           onClose={() => setIsDeleteModalOpen(false)}

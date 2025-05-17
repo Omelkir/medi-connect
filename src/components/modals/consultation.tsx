@@ -5,20 +5,21 @@ import React, { useEffect, useState } from 'react'
 import { Button, FormControl, Grid, InputLabel, MenuItem, Select, TextField } from '@mui/material'
 import { toast } from 'react-toastify'
 
+import dayjs from 'dayjs'
+
 import { Modal } from '../ui/modal'
 import { getStorageData } from '@/utils/helpers'
-import { getStorageData as getStorageDataFront } from '@/utils/helpersFront'
 
 export default function ConsultationModal({
   isOpen,
   onClose,
-  patientData,
+
   setUpdate,
   dataUp
 }: {
   isOpen: boolean
   onClose: () => void
-  patientData?: any
+
   setUpdate: any
   dataUp?: any
 }) {
@@ -35,29 +36,28 @@ export default function ConsultationModal({
   }
 
   const userData = getStorageData('user')
-  const userDataFront = getStorageDataFront('user')
 
   const [patientListe, setPatientListe] = useState<any[]>([])
 
   const [data, setData] = useState<any>({
-    id_patient: '',
+    id_patient: 0,
     date: '',
     id_el: userData?.id,
     el: userData?.role,
-    duree: 30,
-    isApproved: 0
+    duree: 30
   })
 
   const [controls, setControls] = useState<any>({ id_patient: false, date: false, duree: false })
 
   const clearForm = () => {
-    setData({ id_patient: 0, date: '', id_el: userData?.id, el: userData?.role, duree: 30, isApproved: 0 })
+    setData({ id_patient: 0, date: '', id_el: userData?.id, el: userData?.role, duree: 30 })
     setControls({ id_patient: false, date: false, duree: false })
   }
 
   async function getPatientListe() {
     try {
       const url = `${window.location.origin}/api/patient/liste?id_el=${userData?.id}`
+
       const response = await fetch(url, { method: 'GET', headers: { 'Content-Type': 'application/json' } })
 
       if (!response.ok) throw new Error('Erreur lors de la requête')
@@ -85,11 +85,8 @@ export default function ConsultationModal({
       const payload = {
         ...data,
         id_el: userData?.id,
-        el: userData?.role,
-        isApproved: userDataFront !== undefined ? 0 : 1
+        el: userData?.role
       }
-
-      console.log('id_el:', userData?.id)
 
       const url = `${window.location.origin}/api/consultation/${isAdd ? 'ajouter' : 'modifier'}`
 
@@ -116,35 +113,6 @@ export default function ConsultationModal({
     }
   }
 
-  // useEffect(() => {
-  //   if (patientData) {
-  //     setData((prev: any) => (JSON.stringify(prev) === JSON.stringify(patientData) ? prev : patientData))
-  //   } else {
-  //     setData((prev: any) =>
-  //       JSON.stringify(prev) === JSON.stringify({ id_patient: 0, date: '', id_el: userData.id, el: userData.nom})
-  //         ? prev
-  //         : { id_patient: 0, date: '', id_el: userData.id, el: userData.nom}
-  //     )
-  //   }
-  // }, [patientData, userData.id])
-  // document.addEventListener('focusin', event => {
-  //   if (event.target instanceof HTMLElement && event.target.closest('.modal-selector')) {
-  //     event.stopPropagation()
-  //   }
-  // })
-  // const myModalRef = useRef<HTMLDivElement | null>(null)
-
-  // useEffect(() => {
-  //   if (isOpen) {
-  //     // Gérer le focus sur le modal au moment où il devient visible
-  //     setTimeout(() => {
-  //       if (myModalRef.current) {
-  //         myModalRef.current.focus() // Met le focus sur le modal
-  //       }
-  //     }, 100)
-  //   }
-  // }, [isOpen])
-
   useEffect(() => {
     if (dataUp) {
       setData({
@@ -157,6 +125,9 @@ export default function ConsultationModal({
       })
     }
   }, [dataUp])
+
+  const now = new Date()
+  const maxDateTime = now.toISOString().slice(0, 16) // format 'YYYY-MM-DDTHH:mm'
 
   return (
     <Modal
@@ -175,7 +146,14 @@ export default function ConsultationModal({
           >
             Annuler
           </Button>
-          <Button variant='contained' color='primary' size='small' onClick={handleSave}>
+          <Button
+            variant='contained'
+            color='primary'
+            size='small'
+            onClick={() => {
+              handleSave()
+            }}
+          >
             {isAdd ? 'Ajouter' : 'Modifier'}
           </Button>
         </div>
@@ -190,7 +168,7 @@ export default function ConsultationModal({
                 label='patient'
                 key={'test21'}
                 className={`${controls?.id_patient === true ? 'isReq' : ''}`}
-                value={data?.id_patient || ''}
+                value={data?.id_patient ?? ''}
                 onChange={(e: any) => {
                   if (e === null) {
                     setControls({ ...controls, id_patient: true })
@@ -225,6 +203,9 @@ export default function ConsultationModal({
               InputLabelProps={{ sx: { fontSize: '1rem' } }}
               className={controls.date ? 'isReq' : ''}
               value={data?.date || ''}
+              inputProps={{
+                min: maxDateTime
+              }}
               onChange={e => {
                 setControls({ ...controls, date: !e.target.value.trim() })
                 setData((prev: any) => ({ ...prev, date: e.target.value }))

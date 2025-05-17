@@ -1,6 +1,5 @@
 // MUI Imports
-import { useEffect, useState } from 'react'
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 
 import Typography from '@mui/material/Typography'
 import Card from '@mui/material/Card'
@@ -13,7 +12,15 @@ import tableStyles from '@core/styles/table.module.css'
 import Pagination from '@/components/ui/pagination'
 import { getStorageData } from '@/utils/helpers'
 
-const Table = ({ update }: { update: string }) => {
+const Table = ({
+  update,
+  onDelete,
+  setUpdate
+}: {
+  update: string
+  onDelete: (laboratoire: any) => void
+  setUpdate: any
+}) => {
   const [rowsData, setRowsData] = useState<any[]>([])
   const [paginatorInfo, setPaginatorInfo] = useState<any>({ total: 6 })
   const userData = getStorageData('user')
@@ -53,14 +60,12 @@ const Table = ({ update }: { update: string }) => {
     getConsultationList()
   }, [update])
 
-  const handleChange = async (id: number) => {
+  const handleChange = async (row: any) => {
     try {
       const response = await fetch(`${window.location.origin}/api/approuve-consultation/modifier`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          id: id
-        })
+        body: JSON.stringify(row)
       })
 
       const result = await response.json()
@@ -68,7 +73,8 @@ const Table = ({ update }: { update: string }) => {
       if (!response.ok || result.erreur) {
         toast.error('Erreur !')
       } else {
-        toast.success('Le consultation a été approuvé avec succès')
+        toast.success('Le rendez-vous a été approuvé avec succès')
+        setUpdate(Date.now().toString())
       }
     } catch (err) {
       toast.error('Erreur !')
@@ -110,14 +116,18 @@ const Table = ({ update }: { update: string }) => {
                   </td>
 
                   <td className='flex justify-center gap-2'>
-                    <button
+                    <Check
+                      className='text-green-600 text-xl font-bold cursor-pointer hover:text-2xl'
+                      strokeWidth={3}
                       onClick={async () => {
-                        await handleChange(row.id)
+                        await handleChange(row)
                       }}
-                      className='flex justify-center items-center bg-green-600 text-white rounded-xl w-6 h-6 hover:bg-green-800 cursor-pointer'
-                    >
-                      <Check className='text-white w-5 h-5 font-bold' strokeWidth={3} />
-                    </button>
+                    />
+
+                    <i
+                      className='ri-delete-bin-line text-red-500 text-xl hover:text-2xl cursor-pointer'
+                      onClick={() => onDelete(row)}
+                    ></i>
                   </td>
                 </tr>
               ))}

@@ -28,6 +28,8 @@ import tableStyles from '@core/styles/table.module.css'
 import CustomAvatar from '@/@core/components/mui/Avatar'
 import { getStorageData } from '@/utils/helpers'
 
+import DeleteModal from '@/components/modals/deleteModal/deleteModal'
+
 interface Evenement {
   title: string
   start: Date
@@ -46,10 +48,49 @@ const CalendrierRendezvous = () => {
   const userData = getStorageData('user')
   const [dataUp, setDataUp] = useState<any>({})
   const [isLoading, setIsLoading] = useState(false)
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
+  const [selected, setSelected] = useState<any>(null)
 
-  const handleOpenModal = () => {
-    setDataUp({})
+  const handleOpenModal = (data: any = {}) => {
+    setDataUp(data)
     setIsModalOpen(true)
+  }
+
+  const handleOpenDeleteModal = (rendezVous: any = null) => {
+    setSelected(rendezVous)
+    setIsDeleteModalOpen(true)
+  }
+
+  const handleDelete = async (rendezVous: any) => {
+    const id = rendezVous?.id
+
+    if (!id) return console.error('ID manquant pour la suppression')
+
+    try {
+      const url = `${window.location.origin}/api/consultation/supprimer?id=${id}`
+
+      const response = await fetch(url, {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' }
+      })
+
+      const result = await response.json()
+
+      if (result.erreur) {
+        console.error('Erreur:', result.message)
+      } else {
+        setUpdate(Date.now().toString())
+
+        toast.success('Le rendez-vous a été supprimé avec succès')
+      }
+    } catch (error) {
+      console.error('Erreur lors de la suppression:', error)
+    }
+  }
+
+  const handleConfirmDelete = async () => {
+    await handleDelete(selected)
+    setIsDeleteModalOpen(false)
   }
 
   async function refrech_envent() {
@@ -82,7 +123,7 @@ const CalendrierRendezvous = () => {
       }
     } catch (error) {
       console.error('Erreur:', error)
-      alert('Une erreur est survenue lors de la récupération des données.')
+      console.log('Une erreur est survenue lors de la récupération des données.')
     }
   }
 
@@ -108,10 +149,19 @@ const CalendrierRendezvous = () => {
     }))
   }
 
-  const MessageAlertEvent = (data: any) => {
+  const MessageAlertEvent = ({
+    data,
+    onEdit,
+    onDelete,
+    onClose
+  }: {
+    data: any
+    onEdit: (rend: any) => void
+    onDelete: (rend: any) => void
+    onClose?: () => void
+  }) => {
     return (
       <div>
-        {' '}
         <div className='overflow-x-auto'>
           <table className={tableStyles.table}>
             <thead>
@@ -125,7 +175,7 @@ const CalendrierRendezvous = () => {
               </tr>
             </thead>
             <tbody>
-              {data.data?.map((row: any, index: any) => (
+              {data?.map((row: any, index: any) => (
                 <tr key={index}>
                   <td className='!plb-1'>
                     <div className='flex items-center gap-3'>
@@ -157,11 +207,21 @@ const CalendrierRendezvous = () => {
                       {row.duree + ' (s)'}
                     </Typography>
                   </td>
-                  <td className='flex justify-center gap-2'>
-                    {/* <button
-                      className='ri-edit-box-line text-yellow-500 text-xl hover:text-2xl'
-                      onClick={() => onEdit(row)}
-                    ></button> */}
+                  <td className='px-4 py-2 text-sm text-gray-700  gap-2'>
+                    <button
+                      className='ri-edit-box-line text-yellow-500 text-xl hover:text-2xl mr-3'
+                      onClick={() => {
+                        onEdit(row)
+                        onClose?.()
+                      }}
+                    ></button>
+                    <button
+                      onClick={() => {
+                        onDelete(row)
+                        onClose?.()
+                      }}
+                      className='ri-delete-bin-line text-red-500 text-xl hover:text-2xl'
+                    ></button>
                   </td>
                 </tr>
               ))}
@@ -171,6 +231,8 @@ const CalendrierRendezvous = () => {
       </div>
     )
   }
+
+  const now = new Date()
 
   return (
     <Card>
@@ -200,23 +262,15 @@ const CalendrierRendezvous = () => {
                 center: 'title',
                 right: 'dayGridMonth,timeGridWeek,timeGridDay,listWeek'
               }}
+              validRange={{
+                start: now.toISOString() // ne permet pas de sélectionner après maintenant
+              }}
               locale={frLocale}
-              // events={evenements}
-              // eventClick={info => {
-              //   setIsModalOpen(true)
-              //   setDataUp({
-              //     el: 2,
-              //     end: info.event.end?.toISOString(),
-              //     start: info.event.start?.toISOString(),
-              //     ...info.event._def.extendedProps
-              //   })
-              // }}
               eventClick={info => {
                 const isSummary = info.event.extendedProps.isSummary
 
                 if (isSummary) {
-                  // 👉 Clic sur ligne groupée (ex: "(3) événements")
-                  const date = info.event.startStr // ex: "2025-04-22"
+                  const date = info.event.startStr
 
                   const eventsOfDay = evenements.filter(ev => new Date(ev.start).toISOString().startsWith(date))
 
@@ -225,7 +279,14 @@ const CalendrierRendezvous = () => {
                   // setShowEventListModal(true)
 
                   MySwal.fire({
-                    html: <MessageAlertEvent data={eventsOfDay} />,
+                    html: (
+                      <MessageAlertEvent
+                        data={eventsOfDay}
+                        onEdit={handleOpenModal}
+                        onClose={MySwal.close}
+                        onDelete={handleOpenDeleteModal}
+                      />
+                    ),
 
                     showConfirmButton: false,
                     customClass: {
@@ -234,7 +295,6 @@ const CalendrierRendezvous = () => {
                     },
                     didOpen: () => {}
                   })
-                  console.log(eventsOfDay)
                 } else {
                   setIsModalOpen(true)
                   setDataUp({
@@ -274,6 +334,12 @@ const CalendrierRendezvous = () => {
           isOpen={isModalOpen}
           onClose={() => setIsModalOpen(false)}
           setUpdate={setUpdate}
+        />
+        <DeleteModal
+          isOpen={isDeleteModalOpen}
+          onClose={() => setIsDeleteModalOpen(false)}
+          onConfirm={handleConfirmDelete}
+          label={`ce rendez-vous`}
         />
       </CardContent>
     </Card>

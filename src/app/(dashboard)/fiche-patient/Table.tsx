@@ -4,93 +4,65 @@ import { useEffect, useState } from 'react'
 import Typography from '@mui/material/Typography'
 import Card from '@mui/material/Card'
 
+import { FileText, Plus } from 'lucide-react'
+
 import tableStyles from '@core/styles/table.module.css'
 
 const Table = ({
   onEditPatient,
-  onDeletePatient
+  onAddPatient,
+  onDeletePatient,
+  analyseData
 }: {
   onEditPatient: (patient: any) => void
   onDeletePatient: (patient: any) => void
+  onAddPatient: () => void
+  analyseData: any
 }) => {
-  const [rowsData, setRowsData] = useState<any[]>([])
-
-  async function handleSave() {
-    try {
-      const url = `${window.location.origin}/api/patient/liste`
-
-      const requestOptions = {
-        method: 'GET',
-        headers: { 'Content-Type': 'application/json' }
-      }
-
-      const response = await fetch(url, requestOptions)
-
-      if (!response.ok) throw new Error('Erreur lors de la requête')
-
-      const responseData = await response.json()
-
-      console.log('API Response:', responseData)
-
-      if (responseData.erreur) {
-        alert(responseData.message)
-      } else {
-        setRowsData(responseData.data)
-      }
-    } catch (error) {
-      console.error('Erreur:', error)
-      alert('Une erreur est survenue lors de la récupération des données.')
-    }
-  }
-
-  useEffect(() => {
-    handleSave()
-  }, [])
-
   return (
     <Card>
       <div className='overflow-x-auto'>
         <table className={tableStyles.table}>
           <thead>
             <tr>
-              <th>N°</th>
-              <th>Nom</th>
-              <th>Prenom</th>
-              <th>Ordonnance</th>
-              <th>Analyse</th>
-              <th className='text-center'>Action</th>
+              <th className='px-4 py-2 text-left text-sm font-medium text-gray-600 border-b'>Titre</th>
+              <th className='px-4 py-2 text-left text-sm font-medium text-gray-600 border-b'>Détail</th>
+              <th className='px-4 py-2 text-left text-sm font-medium text-gray-600 border-b'>Analyse</th>
+              <th className='px-4 py-2 text-left text-sm font-medium text-gray-600 border-b'>
+                Action <Plus className='text-blue-500 float-right' onClick={() => onAddPatient()} />
+              </th>
             </tr>
           </thead>
           <tbody>
-            {rowsData.map((row, index) => (
-              <tr key={index}>
-                <td className='!plb-1'>
-                  <Typography>{row.n}</Typography>
-                </td>
-                <td className='!plb-1'>
-                  <Typography>{row.nom}</Typography>
-                </td>
-                <td className='!plb-1'>
-                  <Typography>{row.prenom}</Typography>
-                </td>
-                <td className='!plb-1'>
-                  <Typography>{row.Ordonnance}</Typography>
-                </td>
-                <td className='!plb-1'>
-                  <Typography>{row.Analyse}</Typography>
-                </td>
-                <td className='flex justify-center gap-2'>
-                  <button
-                    className='ri-edit-box-line text-yellow-500 text-xl hover:text-2xl'
-                    onClick={() => onEditPatient(row)}
-                  ></button>
-                  <button
-                    onClick={() => onDeletePatient(row)}
-                    className='ri-delete-bin-line text-red-500 text-xl hover:text-2xl'
-                  ></button>
+            {analyseData.length > 0 ? (
+              analyseData.map((analyse: any, index: any) => (
+                <tr key={index} className='bg-gray-100 hover:bg-gray-200'>
+                  <td className='px-4 py-2 text-sm text-gray-700'>{analyse.titre}</td>
+                  <td className='px-4 py-2 text-sm text-gray-700'>{analyse.detail}</td>
+                  <td className='px-4 py-2 text-sm text-gray-700'>
+                    <a href={analyse.analyse} target='_blank' rel='noopener noreferrer'>
+                      <FileText size={14} /> Voir le PDF
+                    </a>
+                  </td>
+                  <td className='px-4 py-2 text-sm text-gray-700 gap-2'>
+                    <button
+                      className='ri-edit-box-line text-yellow-500 text-xl hover:text-2xl mr-3'
+                      onClick={() => onEditPatient(analyse)}
+                    ></button>
+                    <button
+                      onClick={() => onDeletePatient(analyse)}
+                      className='ri-delete-bin-line text-red-500 text-xl hover:text-2xl'
+                    ></button>
+                  </td>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td colSpan={4} className='px-4 py-4 text-center text-gray-500'>
+                  Aucune analyse trouvée.
                 </td>
               </tr>
-            ))}
+            )}
           </tbody>
         </table>
       </div>
