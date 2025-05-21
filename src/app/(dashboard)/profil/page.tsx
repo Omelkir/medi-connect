@@ -41,23 +41,65 @@ const AccountDetails = () => {
     spe: 0
   })
 
+  const [compte, setCompte] = useState<any[]>([])
+
+  async function getCompte() {
+    try {
+      let url = ''
+
+      if (userData?.role == 1) {
+        url = `${window.location.origin}/api/admin/liste?id=${userData?.id}`
+      } else if (userData?.role == 2) {
+        url = `${window.location.origin}/api/medecin/liste?id=${userData?.id}`
+      } else if (userData?.role == 3) {
+        url = `${window.location.origin}/api/laboratoire/liste?l.id=${userData?.id}`
+      }
+
+      const requestOptions = {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' }
+      }
+
+      const response = await fetch(url, requestOptions)
+
+      if (!response.ok) throw new Error('Erreur lors de la requête')
+
+      const responseData = await response.json()
+
+      if (responseData.erreur) {
+        toast.error('Erreur !')
+      } else {
+        setCompte(responseData.data)
+      }
+    } catch (error) {
+      console.error('Erreur:', error)
+      alert('Une erreur est survenue lors de la récupération des données.')
+    }
+  }
+
   useEffect(() => {
-    if (userData) {
+    getCompte()
+  }, [])
+  useEffect(() => {
+    if (compte.length > 0) {
+      const c = compte[0]
+
       setData((prev: any) => ({
         ...prev,
-        nom_ut: userData.nom,
-        email: userData.email,
-        tarif: userData.tarif,
-        adresse: userData.adresse,
-        id_ville: userData.id_ville,
-        heurD: userData.heurD,
-        heurF: userData.heurF,
-        info: userData.info,
-        spe: parseInt(userData.id_spe) || 0,
-        imageSrc: userData.image ? `${window.location.origin}/${userData.image}` : '/img/placeholder-image.jpg'
+        nom_ut: c.nom,
+        email: c.email,
+        tarif: c.tarif,
+        adresse: c.adresse,
+        id_ville: c.id_ville,
+        heurD: c.heurD,
+        heurF: c.heurF,
+        info: c.info,
+        spe: parseInt(c.id_spe) || 0,
+        imageSrc: c.image ? `${window.location.origin}/${c.image}` : '/img/placeholder-image.jpg'
       }))
     }
-  }, [])
+  }, [compte])
+  console.log('compte', compte)
 
   const handleImageChange = (e: any) => {
     const file = e.target.files[0]
@@ -194,40 +236,57 @@ const AccountDetails = () => {
   }
 
   return (
-    <Card className='w-3/4 m-auto'>
+    <Card className='w-full m-auto'>
       <CardContent className='mbe-5'>
         <div className='flex max-sm:flex-col items-center gap-6'>
+          <div className='flex flex-col sm:flex-row gap-4'>
+            <Input
+              type='file'
+              id='image'
+              onChange={(e: any) => {
+                const file: any = e.target.files?.[0]
+
+                if (file) {
+                  setData((prev: any) => ({
+                    ...prev,
+                    image: file,
+                    imageSrc: URL.createObjectURL(file)
+                  }))
+                  handleImageChange(e)
+                }
+              }}
+              style={{ zoom: 0.8, display: 'none' }}
+            />
+
+            <InputLabel htmlFor='image'>
+              <img
+                src={data.imageSrc ? data.imageSrc : '/img/placeholder-image.jpg'}
+                style={{ cursor: 'pointer', borderRadius: '8px' }}
+                alt='Preview'
+                width={100}
+                height={100}
+              />
+            </InputLabel>
+          </div>
           <div className='flex flex-grow flex-col gap-4'>
             <div className='flex flex-col sm:flex-row gap-4'>
-              <Input
-                type='file'
-                id='image'
-                onChange={(e: any) => {
-                  const file: any = e.target.files?.[0]
+              <Button
+                component='label'
+                size='small'
+                variant='contained'
+                onClick={() => {
+                  console.log('bonjour')
 
-                  if (file) {
-                    setData((prev: any) => ({
-                      ...prev,
-                      image: file,
-                      imageSrc: URL.createObjectURL(file)
-                    }))
-                    handleImageChange(e)
-                  }
+                  handleSave()
                 }}
-                style={{ zoom: 0.8, display: 'none' }}
-              />
-
-              <InputLabel htmlFor='image'>
-                <img
-                  src={data.imageSrc ? data.imageSrc : '/img/placeholder-image.jpg'}
-                  style={{ cursor: 'pointer', borderRadius: '8px' }}
-                  alt='Preview'
-                  width={100}
-                  height={100}
-                />
-              </InputLabel>
-              <Typography className='mt-8'>Allowed JPG, GIF or PNG. Max size of 800K</Typography>
+              >
+                Enregistrer les modifications
+              </Button>
+              <Button size='small' variant='outlined' color='error'>
+                Réinitialiser
+              </Button>
             </div>
+            <Typography>JPG, GIF ou PNG autorisés. Taille maximale de 800 Ko</Typography>
           </div>
         </div>
       </CardContent>
@@ -491,14 +550,6 @@ const AccountDetails = () => {
                   sx: { fontSize: '1rem' }
                 }}
               />
-            </Grid>
-            <Grid item xs={12} className='flex gap-4 flex-wrap'>
-              <Button variant='contained' type='submit' onClick={handleSave}>
-                Enregistrer les modifications
-              </Button>
-              <Button variant='outlined' type='reset' color='secondary'>
-                Réinitialiser
-              </Button>
             </Grid>
           </Grid>
         </form>

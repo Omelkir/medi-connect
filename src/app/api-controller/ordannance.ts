@@ -69,12 +69,8 @@ export const liste = async (req: any) => {
   OFFSET ${offset}
 `
 
-    console.log(sql)
-
     const [rows] = await pool.query(sql)
     const data: any = rows
-
-    console.log('dataOrd:', data)
 
     const pi: any = {
       total: totalCount,
@@ -127,8 +123,6 @@ export const supprimer = async (req: any) => {
 
     const sql = `DELETE FROM medi_connect.ordonnance WHERE id='${id}'`
     const result: any = await pool.query(sql, [id])
-
-    console.log(sql)
 
     if (result.affectedRows === 0) {
       return { erreur: true, message: 'ordonnance non trouvé' }

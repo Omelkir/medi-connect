@@ -26,6 +26,7 @@ export default function AnalyseModal({
   id_el: any
 }) {
   const userData = getStorageData('user')
+  const [fileName, setFileName] = useState('Choisir un fichier PDF')
 
   const [data, setData] = useState<any>({
     titre: '',
@@ -44,8 +45,15 @@ export default function AnalyseModal({
         analyse: analyseData.analyse,
         analyseSrc: analyseData.analyse
       })
+      const fullFileName = analyseData.analyse?.split('/')?.pop() || ''
+      const nomFichier = fullFileName.split('_').slice(1).join('_') || 'Fichier PDF existant'
+
+      setFileName(nomFichier)
+
+      setFileName(nomFichier)
     } else {
       setData({ titre: '', detail: '', analyseSrc: '', analyse: '' })
+      setFileName('Choisir un fichier PDF')
     }
   }, [analyseData])
 
@@ -74,6 +82,7 @@ export default function AnalyseModal({
     const file = e.target.files[0]
 
     if (file) {
+      setFileName(file.name)
       setData((prev: any) => ({
         ...prev,
         analyseSrc: URL.createObjectURL(file)
@@ -253,7 +262,8 @@ export default function AnalyseModal({
                                            cursor-pointer bg-gray-100 px-4 py-2 rounded-md border  border-gray-300 hover:bg-gray-200'
             >
               <UploadCloud className='text-blue-500' />
-              <span className='text-gray-700'>{'Choisir un fichier PDF'}</span>
+              <span className='text-gray-700 truncate max-w-[200px]'>{fileName}</span>
+
               <input
                 type='file'
                 accept='application/pdf'

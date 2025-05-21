@@ -74,7 +74,6 @@ export const ajouter = async (req: any) => {
 
     const motDePasse = genererMotDePasse()
 
-    console.log('mdp:', motDePasse)
     const hashedPassword = await bcrypt.hash(motDePasse, 10)
 
     const sql = `INSERT INTO medi_connect.laboratoire (nom_ut, email, mdp,role,image,id_ville,heurD,heurF,id_ser,info,isApproved) 
@@ -138,7 +137,7 @@ export const liste = async (req: any) => {
         itemsPerPage = parseInt(paramsObj[key] as string)
       }
     })
-    const totalCountQuery = `SELECT COUNT(*) as count FROM medi_connect.laboratoire ${whereClause}`
+    const totalCountQuery = `SELECT COUNT(*) as count FROM medi_connect.laboratoire l ${whereClause}`
 
     const totalCountResult: any = await pool.query(totalCountQuery)
     const totalCount = totalCountResult[0][0].count
@@ -235,8 +234,6 @@ export const supprimer = async (req: any) => {
 
     const sql = `DELETE FROM medi_connect.laboratoire WHERE id='${id}'`
     const result: any = await pool.query(sql, [id])
-
-    console.log(sql)
 
     if (result.affectedRows === 0) {
       return { erreur: true, message: 'laboratoire non trouvé' }

@@ -34,15 +34,11 @@ export const verifierUtilisateur = async (req: any) => {
 
     const [rows]: any = await pool.query(sql, [email])
 
-    //console.log(rows)
-
     if (rows.length === 0) {
       return { erreur: true, message: 'Identifiants incorrects' }
     }
 
     const user = rows[0]
-
-    console.log('user:', user)
 
     if (user.role === 1) {
       // Ne pas utiliser bcrypt pour les admins

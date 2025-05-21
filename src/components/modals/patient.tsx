@@ -32,7 +32,8 @@ export default function PatientModal({
     tel: '',
     age: '',
     id_ville: '',
-    id_el: userData?.id ?? 0
+    id_el: userData?.id ?? 0,
+    el: userData?.role ?? 0
   })
 
   const [controls, setControls] = useState<any>({
@@ -113,7 +114,8 @@ export default function PatientModal({
         tel: '',
         age: '',
         id_ville: '',
-        id_el: userData?.id
+        id_el: userData?.id,
+        el: userData?.role
       })
     }
   }, [patientData, userData?.id])
@@ -129,7 +131,8 @@ export default function PatientModal({
       tel: '',
       age: '',
       id_ville: '',
-      id_el: userData?.id
+      id_el: userData?.id,
+      el: userData?.role
     })
     setControls({
       nom: false,
@@ -150,14 +153,14 @@ export default function PatientModal({
       const url = `${window.location.origin}/api/patient/${isAdd ? 'ajouter' : 'modifier'}`
 
       const newControls = {
-        nom: data.nom.trim() === '',
-        prenom: data.prenom.trim() === '',
-        mdp: data.mdp.trim() === '',
-        email: data.email.trim() === '',
-        tel: data.tel.trim() === '',
-        age: data.age.toString().trim() === '',
-        id_ville: data.id_ville.toString().trim() === '',
-        emailValid: mailCheck(data.email.trim())
+        // nom: data.nom.trim() === '',
+        // prenom: data.prenom.trim() === '',
+        // mdp: data.mdp.trim() === '',
+        // email: data.email.trim() === '',
+        // tel: data.tel.trim() === '',
+        // age: data.age.toString().trim() === '',
+        // id_ville: data.id_ville.toString().trim() === '',
+        // emailValid: mailCheck(data.email.trim())
       }
 
       setControls(newControls)
@@ -239,36 +242,43 @@ export default function PatientModal({
     >
       <form noValidate autoComplete='off' className='w-full space-y-6'>
         <Grid container spacing={3}>
-          <Grid item xs={2} md={2}>
-            <Input
-              type='file'
-              id='image'
-              onChange={(e: any) => {
-                const file: any = e.target.files?.[0]
+          {userData?.role === 1 ? (
+            <Grid item xs={2} md={2}>
+              <Input
+                type='file'
+                id='image'
+                onChange={(e: any) => {
+                  const file: any = e.target.files?.[0]
 
-                if (file) {
-                  setData((prev: any) => ({
-                    ...prev,
-                    image: file,
-                    imageSrc: URL.createObjectURL(file)
-                  }))
-                  handleImageChange(e)
-                }
-              }}
-              style={{ zoom: 0.8, display: 'none' }}
-            />
-
-            <InputLabel htmlFor='image'>
-              <img
-                src={data.imageSrc ? data.imageSrc : '/img/placeholder-image.jpg'}
-                style={{ cursor: 'pointer', borderRadius: '8px' }}
-                alt='Preview'
-                width={60}
-                height={60}
+                  if (file) {
+                    setData((prev: any) => ({
+                      ...prev,
+                      image: file,
+                      imageSrc: URL.createObjectURL(file)
+                    }))
+                    handleImageChange(e)
+                  }
+                }}
+                style={{ zoom: 0.8, display: 'none' }}
               />
-            </InputLabel>
-          </Grid>
-          <Grid item xs={10} md={10}>
+
+              <InputLabel htmlFor='image'>
+                <img
+                  src={data.imageSrc ? data.imageSrc : '/img/placeholder-image.jpg'}
+                  style={{ cursor: 'pointer', borderRadius: '8px' }}
+                  alt='Preview'
+                  width={60}
+                  height={60}
+                />
+              </InputLabel>
+            </Grid>
+          ) : null}
+
+          <Grid
+            item
+            xs={userData?.role === 2 || userData?.role === 3 ? 12 : 10}
+            md={userData?.role === 2 || userData?.role === 3 ? 12 : 10}
+          >
             <FormControl fullWidth>
               <InputLabel>Ville</InputLabel>
               <Select

@@ -238,7 +238,7 @@ const PatientProfil = () => {
                 Réinitialiser
               </Button>
             </div>
-            <Typography>Allowed JPG, GIF or PNG. Max size of 800K</Typography>
+            <Typography>JPG, GIF ou PNG autorisés. Taille maximale de 800 Ko</Typography>
           </div>
         </div>
       </CardContent>

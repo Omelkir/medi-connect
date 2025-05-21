@@ -32,8 +32,8 @@ export const menulabo = [
     icon: 'ri-user-fill'
   },
   {
-    label: 'Bilan',
-    path: '/bilan',
+    label: 'Analyse',
+    path: '/analyse-laboratoire',
     icon: 'ri-file-fill'
   },
   { label: 'Rendez-vous', path: '/rendez-vous', icon: 'ri-calendar-fill' },

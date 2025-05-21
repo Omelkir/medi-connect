@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 
 import { useSearchParams } from 'next/navigation'
 
@@ -33,7 +33,8 @@ const Patient = () => {
   const userData = getStorageData('user')
   const [selected, setSelected] = useState<any>(null)
   const [update, setUpdate] = useState<string>(new Date().toDateString())
-  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
+  const [isDeleteModalOpenAnalyse, setIsDeleteModalOpenAnalyse] = useState(false)
+  const [isDeleteModalOpenOrd, setIsDeleteModalOpenOrd] = useState(false)
   const [isAnalyseModalOpen, setIsAnalyseModalOpen] = useState(false)
   const [isOrdonnanceModalOpen, setIsOrdonnanceModalOpen] = useState(false)
   const [selectedDate, setSelectedDate] = useState<string>('')
@@ -112,7 +113,7 @@ const Patient = () => {
                           ></button>
                           <button
                             onClick={() => {
-                              onDelete(selectedDate)
+                              onDelete(ordonnance)
                             }}
                             className='ri-delete-bin-line text-red-500 text-xl hover:text-2xl'
                           ></button>
@@ -136,9 +137,9 @@ const Patient = () => {
     )
   }
 
-  async function getConsultations() {
+  async function getConsultations(page = 1) {
     if (!selectedPatient) return
-    const url = `${window.location.origin}/api/consultation/liste?id_patient=${selectedPatient.id}&consultation.id_el=${userData.id}&consultation.el=${userData.role}`
+    const url = `${window.location.origin}/api/consultation/liste?id_patient=${selectedPatient.id}&consultation.id_el=${userData.id}&consultation.el=${userData.role}&page=${page}`
 
     try {
       const response = await fetch(url, { method: 'GET', headers: { 'Content-Type': 'application/json' } })
@@ -147,14 +148,15 @@ const Patient = () => {
       const responseData = await response.json()
 
       setConsultations(responseData.data || [])
+      setPaginatorInfo(responseData?.paginatorInfo)
     } catch (error) {
       console.error(error)
     }
   }
 
-  React.useEffect(() => {
+  useEffect(() => {
     getConsultations()
-  }, [selectedPatient])
+  }, [selectedPatient, update])
 
   const onPagination = (e: any) => {
     getAnalyse(e)
@@ -181,7 +183,7 @@ const Patient = () => {
       if (responseData.erreur) {
         toast.error(responseData.message)
       } else {
-        setAnalyses(responseData.data)
+        setAnalyses(responseData.data || [])
         setPaginatorInfo(responseData?.paginatorInfo)
       }
     } catch (error) {
@@ -190,24 +192,7 @@ const Patient = () => {
     }
   }
 
-  // async function getAnalyse(page = 1) {
-  //   if (!selectedPatient) return
-  //   const url = `${window.location.origin}/api/analyse/liste?id_patient=${selectedPatient.id}&id_el=${userData.id}&el=${userData.role}&page=${page}`
-
-  //   try {
-  //     const response = await fetch(url, { method: 'GET', headers: { 'Content-Type': 'application/json' } })
-
-  //     if (!response.ok) throw new Error('Erreur lors de la requête')
-  //     const responseData = await response.json()
-
-  //     setAnalyses(responseData.data || [])
-  //     setPaginatorInfo(responseData?.paginatorInfo)
-  //   } catch (error) {
-  //     console.error(error)
-  //   }
-  // }
-
-  React.useEffect(() => {
+  useEffect(() => {
     getAnalyse()
   }, [selectedPatient, update])
 
@@ -306,12 +291,12 @@ const Patient = () => {
     setIsOrdonnanceModalOpen(true)
   }
 
-  const handleOpenDeleteModal = (analyse: any = null) => {
+  const handleOpenDeleteModalAnalyse = (analyse: any = null) => {
     setSelected(analyse)
-    setIsDeleteModalOpen(true)
+    setIsDeleteModalOpenAnalyse(true)
   }
 
-  const handleDelete = async (analyse: any) => {
+  const handleDeleteAnalyse = async (analyse: any) => {
     const id = analyse?.id
 
     if (!id) return console.error('ID manquant pour la suppression')
@@ -338,9 +323,46 @@ const Patient = () => {
     }
   }
 
-  const handleConfirmDelete = async () => {
-    await handleDelete(selected)
-    setIsDeleteModalOpen(false)
+  const handleConfirmDeleteAnalyse = async () => {
+    await handleDeleteAnalyse(selected)
+    setIsDeleteModalOpenAnalyse(false)
+  }
+
+  const handleOpenDeleteModalOrd = (analyse: any = null) => {
+    setSelected(analyse)
+    setIsDeleteModalOpenOrd(true)
+  }
+
+  const handleDeleteOrdonnance = async (ordonnance: any) => {
+    const id = ordonnance?.id
+
+    if (!id) return console.error('ID manquant pour la suppression')
+
+    try {
+      const url = `${window.location.origin}/api/ordonnance/supprimer?id=${id}`
+
+      const response = await fetch(url, {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' }
+      })
+
+      const result = await response.json()
+
+      if (result.erreur) {
+        console.error('Erreur:', result.message)
+      } else {
+        setUpdate(Date.now().toString())
+
+        toast.success("L'ordonnance a été supprimé avec succès")
+      }
+    } catch (error) {
+      console.error('Erreur lors de la suppression:', error)
+    }
+  }
+
+  const handleConfirmDeleteOrdonnance = async () => {
+    await handleDeleteOrdonnance(selected)
+    setIsDeleteModalOpenOrd(false)
   }
 
   return (
@@ -478,6 +500,14 @@ const Patient = () => {
                           })}
                         </tbody>
                       </table>
+                      <Grid item xs={12} className='mt-6 justify-items-end'>
+                        <Pagination
+                          total={paginatorInfo.total}
+                          current={paginatorInfo.currentPage}
+                          pageSize={paginatorInfo.perPage}
+                          onChange={onPagination}
+                        />
+                      </Grid>
                     </div>
                   ) : (
                     <p className='text-gray-500 text-center'>Aucune consultation trouvée.</p>
@@ -524,7 +554,7 @@ const Patient = () => {
                                     onClick={() => handleOpenModal(analyse)}
                                   ></button>
                                   <button
-                                    onClick={() => handleOpenDeleteModal(analyse)}
+                                    onClick={() => handleOpenDeleteModalAnalyse(analyse)}
                                     className='ri-delete-bin-line text-red-500 text-xl hover:text-2xl'
                                   ></button>
                                 </td>
@@ -574,7 +604,7 @@ const Patient = () => {
                         id_consultation={consultationId}
                         ordonnances={ords}
                         onEdit={handleOpenOrdModal}
-                        onDelete={handleOpenDeleteModal}
+                        onDelete={handleOpenDeleteModalOrd}
                       />
                     )
                   })
@@ -604,10 +634,16 @@ const Patient = () => {
         />
 
         <DeleteModal
-          isOpen={isDeleteModalOpen}
-          onClose={() => setIsDeleteModalOpen(false)}
-          onConfirm={handleConfirmDelete}
+          isOpen={isDeleteModalOpenAnalyse}
+          onClose={() => setIsDeleteModalOpenAnalyse(false)}
+          onConfirm={handleConfirmDeleteAnalyse}
           label={`cette analyse`}
+        />
+        <DeleteModal
+          isOpen={isDeleteModalOpenOrd}
+          onClose={() => setIsDeleteModalOpenOrd(false)}
+          onConfirm={handleConfirmDeleteOrdonnance}
+          label={`cette ordonnance`}
         />
       </Card>
     </div>

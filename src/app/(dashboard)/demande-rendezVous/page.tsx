@@ -57,7 +57,7 @@ const DemandeRendezVous = () => {
     <div>
       <Card>
         <CardContent>
-          <Arrow title='Dashboard' subTitle='Réclamation' />
+          <Arrow title='Dashboard' subTitle='Demandes de rendez-vous' />
 
           <Grid item xs={12}>
             <Table onDelete={handleOpenDeleteModal} update={update} setUpdate={setUpdate} />

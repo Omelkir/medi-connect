@@ -118,8 +118,6 @@ export const supprimer = async (req: any) => {
     const sql = `DELETE FROM medi_connect.service WHERE id='${id}'`
     const result: any = await pool.query(sql, [id])
 
-    console.log(sql)
-
     if (result.affectedRows === 0) {
       return { erreur: true, message: 'service non trouvé' }
     }

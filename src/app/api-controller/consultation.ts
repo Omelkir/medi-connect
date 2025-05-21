@@ -11,11 +11,8 @@ export const liste = async (req: any) => {
     const json: any = req
     const urlParams = new URLSearchParams(new URL(json.url).search)
 
-    console.log('urlParams:', urlParams)
-
     const paramsObj = Object.fromEntries(urlParams.entries())
 
-    console.log('paramsObj:', paramsObj)
     const today = new Date().toISOString().split('T')[0] // format YYYY-MM-DD
     let whereClause = `WHERE date >= '${today}' `
     let currentPage = 1
@@ -48,7 +45,7 @@ export const liste = async (req: any) => {
 
     const sql = `SELECT consultation.*,consultation.id as idd,p.nom as nom ,p.prenom as prenom, p.email as email,p.tel as tel,p.image as image FROM consultation  LEFT JOIN patient p ON consultation.id_patient = p.id ${whereClause} LIMIT ${itemsPerPage} OFFSET ${offset}`
 
-    const [rows] = await pool.query(sql)
+    const [rows]: any = await pool.query(sql)
 
     const data = rows?.map((row: any) => {
       const appointmentDate = new Date(row.date)
@@ -62,8 +59,6 @@ export const liste = async (req: any) => {
         end: toLocalISOString(new Date(appointmentDate.getTime() + row.duree * 60000))
       }
     })
-
-    console.log(data)
 
     const pi: any = {
       total: totalCount,
@@ -132,8 +127,6 @@ export const supprimer = async (req: any) => {
 
     const sql = `DELETE FROM medi_connect.consultation WHERE id='${id}'`
     const result: any = await pool.query(sql, [id])
-
-    console.log(sql)
 
     if (result.affectedRows === 0) {
       return { erreur: true, message: 'consultation non trouvé' }

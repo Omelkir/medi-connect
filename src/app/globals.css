@@ -112,21 +112,21 @@ code {
   border: 0;
 }
 .bg {
-  background-image: url('/images/pages/banner.svg');
+  background-image: url('/images/pages/banner.svg') !important;
   background-size: cover;
   background-position: right;
   background-position-x: right;
   background-position-y: center;
 }
 .bgg {
-  background-image: url('/images/pages/baner.png');
+  background-image: url('/images/pages/baner.png') !important;
   background-size: cover;
   background-position: right;
   background-position-x: right;
   background-position-y: center;
 }
 .bgAdmin {
-  background-image: url('/images/pages/design.png');
+  background-image: url('/images/pages/design.png') !important;
   background-size: cover;
   background-position: right;
   background-position-x: right;

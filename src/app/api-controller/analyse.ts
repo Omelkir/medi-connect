@@ -98,6 +98,7 @@ export const liste = async (req: any) => {
     const json: any = req
     const urlParams = new URLSearchParams(new URL(json.url).search)
 
+    // Convertir les paramètres en un objet JSON
     const paramsObj = Object.fromEntries(urlParams.entries())
     let whereClause = ''
     let currentPage = 1
@@ -105,6 +106,7 @@ export const liste = async (req: any) => {
 
     Object.keys(paramsObj).forEach((key, index) => {
       if (paramsObj[key] && ['getall', 'page', 'limit'].indexOf(key) === -1) {
+        // Ajoute la condition WHERE
         if (index === 0) {
           whereClause += ` WHERE ${key} = ${paramsObj[key]}`
         } else {
@@ -135,8 +137,6 @@ export const liste = async (req: any) => {
     ${itemsPerPage}
 OFFSET
     ${offset}`
-
-    console.log(sql)
 
     const [rows] = await pool.query(sql)
     const data: any = rows
@@ -176,8 +176,6 @@ export const supprimer = async (req: any) => {
 
     const sql = `DELETE FROM medi_connect.analyse WHERE id='${id}'`
     const result: any = await pool.query(sql, [id])
-
-    console.log(sql)
 
     if (result.affectedRows === 0) {
       return { erreur: true, message: 'analyse non trouvé' }

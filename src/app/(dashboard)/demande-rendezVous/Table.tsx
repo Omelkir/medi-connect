@@ -31,7 +31,7 @@ const Table = ({
 
   async function getConsultationList(page = 1) {
     try {
-      const url = `${window.location.origin}/api/consultation/liste?consultation.isApproved=0&consultation.id_el=${userData.id}&page=${page}`
+      const url = `${window.location.origin}/api/consultation/liste?consultation.isApproved=0&consultation.id_el=${userData.id}&consultation.el=${userData.role}&page=${page}`
 
       const requestOptions = {
         method: 'GET',

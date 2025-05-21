@@ -56,7 +56,7 @@ export default function ConsultationModal({
 
   async function getPatientListe() {
     try {
-      const url = `${window.location.origin}/api/patient/liste?id_el=${userData?.id}`
+      const url = `${window.location.origin}/api/patient/liste?id_el=${userData.id}&el=${userData.role}`
 
       const response = await fetch(url, { method: 'GET', headers: { 'Content-Type': 'application/json' } })
 

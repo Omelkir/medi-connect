@@ -75,7 +75,6 @@ export const ajouter = async (req: any) => {
 
     const motDePasse = genererMotDePasse()
 
-    console.log('mdp:', motDePasse)
     const hashedPassword = await bcrypt.hash(motDePasse, 10)
 
     const sql = `INSERT INTO medi_connect.admin (nom_ut, email, mdp,role,image) 
@@ -235,8 +234,6 @@ export const supprimer = async (req: any) => {
 
     const sql = `DELETE FROM medi_connect.admin WHERE id='${id}'`
     const result: any = await pool.query(sql, [id])
-
-    console.log(sql)
 
     if (result.affectedRows === 0) {
       return { erreur: true, message: 'admin non trouvé' }

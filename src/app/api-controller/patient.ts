@@ -70,14 +70,16 @@ export const ajouter = async (req: any) => {
       service: 'gmail',
       auth: {
         user: 'mediconnect048@gmail.com',
-        pass: 'gkka ctir ardv fyea'
+        pass: '***************'
       }
     })
 
     let motDePasse
     let hashedPassword
 
-    if (json.id_el == 1) {
+    console.log('el', json.el)
+
+    if (json.el == 1) {
       motDePasse = genererMotDePasse()
       hashedPassword = await bcrypt.hash(motDePasse, 10)
     } else {
@@ -87,7 +89,7 @@ export const ajouter = async (req: any) => {
 
     const sql = `
     INSERT INTO medi_connect.patient (
-      nom, prenom, email, mdp, role, image, id_ville, isApproved, id_el, age, tel
+      nom, prenom, email, mdp, role, image, id_ville, isApproved, age, tel
     ) VALUES (
       '${json.nom}',
       '${json.prenom}',
@@ -97,15 +99,23 @@ export const ajouter = async (req: any) => {
       '${req.checkUrl}',
       '${json.id_ville}',
       '${json.isApproved}',
-      '${json.id_el}',
+      
       '${json.age}',
       '${json.tel}'
     )
   `
 
-    await pool.query(sql)
+    const [insertResult]: any = await pool.query(sql)
 
-    if (json.id_el == 1) {
+    const newPatientId = insertResult.insertId
+
+    if (json.el != 1) {
+      await pool.query(
+        `INSERT INTO medi_connect.relation_patient ( el, id_el, id_patient) VALUES ('${json.el}','${json.id_el}','${newPatientId}')`
+      )
+    }
+
+    if (json.el == 1) {
       const mailOptions = {
         from: '"MediConnect" <mediconnect048@gmail.com>',
         to: email,
@@ -143,7 +153,6 @@ export const liste = async (req: any) => {
 
   const paramsObj = Object.fromEntries(urlParams.entries())
 
-  console.log('paramsObj:', paramsObj)
   let whereClause = 'Where 1 '
   let currentPage = 1
   let itemsPerPage = 6
@@ -183,8 +192,6 @@ export const liste = async (req: any) => {
         ${itemsPerPage}
     OFFSET
         ${offset}`
-
-  console.log(sql)
 
   const [rows] = await pool.query(sql)
   const data: any = rows
@@ -269,8 +276,6 @@ export const supprimer = async (req: any) => {
 
     const sql = `DELETE FROM medi_connect.patient WHERE id='${id}'`
     const result: any = await pool.query(sql, [id])
-
-    console.log(sql)
 
     if (result.affectedRows === 0) {
       return { erreur: true, message: 'Patient non trouvé' }

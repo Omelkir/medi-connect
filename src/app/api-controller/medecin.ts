@@ -178,7 +178,6 @@ export const liste = async (req: any) => {
         itemsPerPage = parseInt(paramsObj[key] as string)
       }
     })
-    console.log(whereClause)
 
     const totalCountQuery = `SELECT COUNT(*) as count FROM medi_connect.medecin ${whereClause} `
 
@@ -235,8 +234,6 @@ export const supprimer = async (req: any) => {
 
     const sql = `DELETE FROM medi_connect.medecin WHERE id='${id}'`
     const result: any = await pool.query(sql, [id])
-
-    console.log(sql)
 
     if (result.affectedRows === 0) {
       return { erreur: true, message: 'medecin non trouvé' }
