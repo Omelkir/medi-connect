@@ -1,39 +1,34 @@
 'use client'
 
 // Next Imports
+import { useState } from 'react'
+
 import Link from 'next/link'
 
 // MUI Imports
-import Card from '@mui/material/Card'
-import CardContent from '@mui/material/CardContent'
+import { useSearchParams } from 'next/navigation'
+
 import Typography from '@mui/material/Typography'
 import TextField from '@mui/material/TextField'
 import Button from '@mui/material/Button'
 
 // Type Imports
-import type { Mode } from '@core/types'
-
-// Component Imports
-import Form from '@components/Form'
-import DirectionalIcon from '@components/DirectionalIcon'
-import Illustrations from '@components/Illustrations'
-import Logo from '@components/layout/shared/Logo'
-
-// Hook Imports
-import { useImageVariant } from '@core/hooks/useImageVariant'
-import { useState } from 'react'
 import { IconButton, InputAdornment } from '@mui/material'
 
-import { useSearchParams } from 'next/navigation'
+import DirectionalIcon from '@components/DirectionalIcon'
+
+import Logo from '@components/layout/shared/Logo'
 
 const ResetPassword = () => {
   const [data, setData] = useState<any>({
     email: '',
     mdp: ''
   })
+
   const searchParams = useSearchParams()
   const token = searchParams.get('token')
   const to = searchParams.get('to')
+  const role = searchParams.get('role')
 
   const handleClickShowPassword = () => setIsPasswordShown(show => !show)
 
@@ -42,15 +37,17 @@ const ResetPassword = () => {
   const [controls, setControls] = useState<any>({
     email: false
   })
+
   const clearForm = () => {
     setData({ email: '', mdp: '' })
     setControls(false)
   }
+
   async function handleSave() {
     try {
       const url = `${window.location.origin}/api/forgot-password/reset`
 
-      const requestBody = JSON.stringify({ to, token, mdp: data.mdp })
+      const requestBody = JSON.stringify({ to, token, mdp: data.mdp, role })
 
       const requestOptions = {
         method: 'POST',

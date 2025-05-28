@@ -15,15 +15,13 @@ export default function AnalyseModal({
   onClose,
   analyseData,
   setUpdate,
-  patient,
-  id_el
+  patient
 }: {
   isOpen: boolean
   onClose: () => void
   analyseData?: any
   setUpdate: any
   patient: any
-  id_el: any
 }) {
   const userData = getStorageData('user')
   const [fileName, setFileName] = useState('Choisir un fichier PDF')
@@ -34,7 +32,7 @@ export default function AnalyseModal({
     analyseSrc: '',
     analyse: '',
     id_patient: patient,
-    id_el: id_el,
+    id_el: userData?.id,
     el: userData?.role
   })
 
@@ -60,11 +58,11 @@ export default function AnalyseModal({
   useEffect(() => {
     setData((prevData: any) => ({
       ...prevData,
-      id_patient: patient?.id || null,
-      id_el: id_el || null,
+      id_patient: patient || null,
+      id_el: userData?.id || null,
       el: userData?.role || null
     }))
-  }, [patient, id_el])
+  }, [patient, userData?.id])
   console.log('idpatient', patient?.id)
 
   const [controls, setControls] = useState<any>({
@@ -98,11 +96,19 @@ export default function AnalyseModal({
 
   const handleSave = async () => {
     try {
+      // if (id_el === 0) {
+      //   toast.info('Veuillez sélectionner un patient !')
+
+      //   return
+      // }
+
       const url = `${window.location.origin}/api/analyse/${isAdd ? 'ajouter' : 'modifier'}`
 
       const newControls = {
         titre: data.titre.trim() === '',
         detail: data.detail.trim() === ''
+
+        // analyse: data.analyse.trim() === ''
       }
 
       setControls(newControls)
@@ -219,7 +225,7 @@ export default function AnalyseModal({
                 }
               }}
             />
-            {controls?.nom_ut === true ? <span className='errmsg'>Veuillez saisir le titre !</span> : null}
+            {controls?.titre === true ? <span className='errmsg'>Veuillez saisir le titre !</span> : null}
           </Grid>
           <Grid item xs={12} md={12}>
             <TextField
@@ -227,7 +233,7 @@ export default function AnalyseModal({
               label='Détail'
               multiline
               value={data?.detail ?? ''}
-              className={`${controls?.detail === true}`}
+              className={`${controls?.titre === true ? 'isReqTextearea' : ''}`}
               onChange={(e: any) => {
                 if (e.target?.value.trim() === '') {
                   setControls({ ...controls, detail: true })

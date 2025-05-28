@@ -5,63 +5,73 @@ import { useState } from 'react'
 
 import Link from 'next/link'
 
-// MUI Imports
-import Card from '@mui/material/Card'
-import CardContent from '@mui/material/CardContent'
 import Typography from '@mui/material/Typography'
 import TextField from '@mui/material/TextField'
 import Button from '@mui/material/Button'
 
 // Type Imports
-import type { Mode } from '@core/types'
+import { FormControl, Grid, InputLabel, MenuItem, Select } from '@mui/material'
 
-// Component Imports
-import Form from '@components/Form'
 import DirectionalIcon from '@components/DirectionalIcon'
-import Illustrations from '@components/Illustrations'
-import Logo from '@components/layout/shared/Logo'
 
-// Hook Imports
-import { useImageVariant } from '@core/hooks/useImageVariant'
+import Logo from '@components/layout/shared/Logo'
 
 const ForgotPassword = () => {
   const [data, setData] = useState<any>({
     email: '',
-    message: ''
+    message: '',
+    role: 0
   })
 
   const [controls, setControls] = useState<any>({
-    email: false
+    email: false,
+    role: false
   })
 
   const clearForm = () => {
-    setData({ email: '' })
-    setControls(false)
+    setData({ email: '', role: 0 })
+    setControls({ email: false, role: false })
   }
+
+  const options = [
+    { label: 'Administrateur', value: 1 },
+    { label: 'Médecin', value: 2 },
+    { label: 'Laboratoire', value: 3 },
+    { label: 'Patient', value: 4 }
+  ]
 
   async function handleSave() {
     try {
       const url = `${window.location.origin}/api/forgot-password/send-mail`
 
-      const canGo: boolean = true
+      const newControls = {
+        email: data.email.trim() === '',
+        role: data.role === 0
+      }
 
-      if (canGo) {
-        const requestBody = JSON.stringify({ to: data.email })
+      setControls(newControls)
 
-        const requestOptions = {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: requestBody
-        }
+      if (Object.values(newControls).some(value => value)) {
+        return
+      }
 
-        // Send the request
-        const response = await fetch(url, requestOptions)
-        const responseData = await response.json()
+      const requestBody = JSON.stringify({ to: data.email, role: data.role })
 
-        // Clear the form after successful submission
-        // clearForm()
+      const requestOptions = {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: requestBody
+      }
+
+      const response = await fetch(url, requestOptions)
+      const responseData = await response.json()
+
+      if (responseData.erreur) {
+        alert(responseData.message)
       } else {
-        console.log('Validation failed: Some fields are empty.')
+        setData(responseData)
+
+        clearForm()
       }
     } catch (error) {
       console.log('Erreur:', error)
@@ -86,6 +96,39 @@ const ForgotPassword = () => {
           </Typography>
         </div>
         <form noValidate autoComplete='off' className='w-full space-y-6 mt-8'>
+          <Grid item xs={10} md={10}>
+            {' '}
+            <FormControl fullWidth>
+              <InputLabel>Type</InputLabel>
+              <Select
+                label='Type'
+                className={`h-12 md:h-[60px] ${controls?.role === true ? 'isReq' : ''}`}
+                value={data?.role || null}
+                onChange={(e: any) => {
+                  if (e === null) {
+                    setControls({ ...controls, role: true })
+                    setData((prev: any) => ({
+                      ...prev,
+                      role: e.target.value
+                    }))
+                  } else {
+                    setControls({ ...controls, role: false })
+                    setData((prev: any) => ({
+                      ...prev,
+                      role: e.target.value
+                    }))
+                  }
+                }}
+              >
+                {options.map(item => (
+                  <MenuItem value={item.value} key={item.value}>
+                    {item.label}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+            {controls?.role === true ? <span className='errmsg'>Veuillez saisir le type !</span> : null}
+          </Grid>
           <TextField
             value={data?.email || null}
             fullWidth

@@ -1,12 +1,14 @@
 import type { NextRequest } from 'next/server'
 import { NextResponse } from 'next/server'
 
-import { ajouter } from '@/app/api-controller/register'
+import { pdfText, config } from '@/app/api-controller/pdf-text'
+
+export { config }
 
 export async function POST(req: NextRequest) {
   try {
-    const { idEl, pr, action } = await req.json()
-    const data = await ajouter({ idEl, pr, action })
+    const body = await req.json()
+    const data = await pdfText(body)
 
     return NextResponse.json(data)
   } catch (error) {

@@ -1,18 +1,51 @@
-import pool from '@/utils/connexion'
-import { NextRequest, NextResponse } from 'next/server'
+import type { NextRequest } from 'next/server'
+import { NextResponse } from 'next/server'
+
 import nodemailer from 'nodemailer'
 import { MdToken } from 'react-icons/md'
 
+import pool from '@/utils/connexion'
+
 export async function POST(req: NextRequest) {
   const body = await req.json()
-  const { to, subject, text } = body
-  let token: any = crypto.randomUUID()
-  const slq = await pool.query(`UPDATE medi_connect.compte SET token = '${token}' where email='${to}'`)
+  const { to, role, text } = body
+
+  console.log('role', role)
+
+  let table = ''
+
+  switch (role) {
+    case 1:
+      table = 'admin'
+
+      break
+    case 2:
+      table = 'medecin'
+
+      break
+    case 3:
+      table = 'laboratoire'
+
+      break
+    case 4:
+      table = 'patient'
+
+      break
+
+    default:
+      table = ''
+      break
+  }
+
+  const token: any = crypto.randomUUID()
+
+  await pool.query(`UPDATE medi_connect.${table} SET token = '${token}' where email='${to}'`)
+
   const transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
       user: 'mediconnect048@gmail.com',
-      pass: 'gteb fgrx puyt isrd'
+      pass: 'gkka ctir ardv fyea'
     }
   })
 
@@ -25,7 +58,7 @@ export async function POST(req: NextRequest) {
       <p>Bonjour <strong>${to}</strong>,</p>
       <p>Veuillez cliquer sur le lien ci-dessous pour réinitialiser votre mot de passe :</p>
       <p>
-        <a href="http://localhost:3000/reset-password?token=${token}&to=${to}" style="color: #007bff; text-decoration: none; font-weight: bold;">
+        <a href="http://localhost:3000/reset-password?token=${token}&to=${to}&role=${role}" style="color: #007bff; text-decoration: none; font-weight: bold;">
           Réinitialiser mon mot de passe
         </a>
       </p>
@@ -38,6 +71,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ erreur: false, message: 'Mail sent successfully' })
   } catch (error) {
     console.error('Error sending email:', error)
+
     return NextResponse.json({ erreur: true, message: 'Failed to send mail' }, { status: 500 })
   }
 }

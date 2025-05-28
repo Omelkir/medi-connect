@@ -179,7 +179,7 @@ export const liste = async (req: any) => {
       }
     })
 
-    const totalCountQuery = `SELECT COUNT(*) as count FROM medi_connect.medecin ${whereClause} `
+    const totalCountQuery = `SELECT COUNT(*) as count FROM medi_connect.medecin m ${whereClause} `
 
     const totalCountResult: any = await pool.query(totalCountQuery)
     const totalCount = totalCountResult[0][0].count

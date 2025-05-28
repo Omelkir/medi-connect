@@ -6,6 +6,7 @@ import { Button, Grid, TextField } from '@mui/material'
 import { toast } from 'react-toastify'
 
 import { Modal } from '../ui/modal'
+import { getStorageData } from '@/utils/helpers'
 
 export default function OrdonnancesModal({
   isOpen,
@@ -13,7 +14,6 @@ export default function OrdonnancesModal({
   ordananceData,
   setUpdate,
   patient,
-  id_el,
   id_cons
 }: {
   isOpen: boolean
@@ -21,16 +21,17 @@ export default function OrdonnancesModal({
   ordananceData?: any
   setUpdate: any
   patient: any
-  id_el: any
   id_cons: any
 }) {
+  const userData = getStorageData('user')
+
   const [data, setData] = useState<any>({
     medi: '',
     duree: '',
     dosage: '',
     id_cons: id_cons,
     id_patient: patient,
-    id_el: id_el,
+    id_el: userData?.id,
     el: 2
   })
 
@@ -49,11 +50,11 @@ export default function OrdonnancesModal({
     setData((prevData: any) => ({
       ...prevData,
       id_cons: id_cons || null,
-      id_patient: patient?.id || null,
-      id_el: id_el || null,
+      id_patient: patient || null,
+      id_el: userData?.id || null,
       el: 2
     }))
-  }, [patient, id_el, id_cons])
+  }, [patient, userData?.id, id_cons])
   const isAdd = !ordananceData
 
   const handleSave = async () => {

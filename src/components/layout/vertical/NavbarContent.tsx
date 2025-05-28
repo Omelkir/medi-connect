@@ -7,35 +7,69 @@ import Link from 'next/link'
 import IconButton from '@mui/material/IconButton'
 import classnames from 'classnames'
 
-import { Badge } from '@mui/material'
+import { Badge, Divider, Paper, Table, TableBody, TableCell, TableRow, Typography } from '@mui/material'
 
 import { toast } from 'react-toastify'
+
+import { AnimatePresence, motion } from 'framer-motion'
 
 import NavToggle from './NavToggle'
 import NavSearch from '@components/layout/shared/search'
 import ModeDropdown from '@components/layout/shared/ModeDropdown'
 import UserDropdown from '@components/layout/shared/UserDropdown'
 import { verticalLayoutClasses } from '@layouts/utils/layoutClasses'
-import { useNotification } from '@/context/NotificationContext'
+
 import { getStorageData } from '@/utils/helpers'
 
+import CustomAvatar from '@/@core/components/mui/Avatar'
+
+const NotificationDropdown = ({ notifications = [] }: { notifications: any[] }) => {
+  return (
+    <Paper elevation={4} className='absolute top-12 right-0 w-[22rem] z-50 rounded-lg'>
+      <Typography variant='h6' className='text-center p-3 border-b font-semibold'>
+        Notifications
+      </Typography>
+      <Divider />
+      <Table size='small'>
+        <TableBody>
+          {notifications.length > 0 ? (
+            notifications.map(notification => (
+              <TableRow key={notification.id} hover>
+                <TableCell>
+                  <div className='flex gap-3 items-start'>
+                    <CustomAvatar src={notification.image} size={34} />
+                    <div>
+                      <Typography variant='subtitle2' color='text.primary' className='font-bold'>
+                        {notification.prenom} {notification.nom}
+                      </Typography>
+                      <Typography variant='body2' color='text.secondary'>
+                        {notification.message}
+                      </Typography>
+                    </div>
+                  </div>
+                </TableCell>
+              </TableRow>
+            ))
+          ) : (
+            <TableRow>
+              <TableCell>
+                <Typography variant='body2' className='text-center'>
+                  Aucune notification pour le moment.
+                </Typography>
+              </TableCell>
+            </TableRow>
+          )}
+        </TableBody>
+      </Table>
+    </Paper>
+  )
+}
+
 const NavbarContent = () => {
-  const { show, trigger } = useNotification()
-  const [isMessageVisible, setMessageVisible] = useState(false)
+  const [isDropdownOpen, setDropdownOpen] = useState(false)
   const [notification, setNotification] = useState<any>({})
   const userData = getStorageData('user')
-
-  useEffect(() => {
-    trigger()
-  }, [])
-
-  const handleIconClick = () => {
-    setMessageVisible(true)
-  }
-
-  const handleCloseMessage = () => {
-    setMessageVisible(false)
-  }
+  const toggleDropdown = () => setDropdownOpen(prev => !prev)
 
   async function getNotification(id: any) {
     try {
@@ -80,13 +114,13 @@ const NavbarContent = () => {
     }
   }
 
-  useEffect(() => {
-    const interval = setInterval(async () => {
-      await getNotification(userData?.id)
-    }, 1000)
+  // useEffect(() => {
+  //   const interval = setInterval(async () => {
+  //     await getNotification(userData?.id)
+  //   }, 1000)
 
-    return () => clearInterval(interval)
-  }, [])
+  //   return () => clearInterval(interval)
+  // }, [])
 
   return (
     <div
@@ -100,26 +134,23 @@ const NavbarContent = () => {
       <div className='flex items-center'>
         <ModeDropdown />
 
-        <IconButton className='text-textPrimary' onClick={handleIconClick}>
-          <Badge badgeContent={`${notification?.vuno > 0 ? notification?.vuno : ''}`} color='error'>
+        <IconButton
+          onClick={() => {
+            toggleDropdown()
+            notificationVu(userData?.id)
+          }}
+        >
+          <Badge badgeContent={`${notification?.vuno > 0 ? notification?.vuno : '0'}`} color='error'>
             <i className='ri-notification-2-line' style={{ color: 'white', fontSize: '25px' }} />
-            {isMessageVisible && (
-              <div className='absolute top-10 right-0 w-60 bg-white p-2 rounded-md shadow-md'>
-                {notification?.data?.map((x: any) => {
-                  return (
-                    <div key={x.id}>
-                      <h5>{x.titre}</h5>
-                      <p>{x.message}</p>
-                      <button onClick={handleCloseMessage} className='text-sm text-blue-500'>
-                        X
-                      </button>
-                    </div>
-                  )
-                })}
-              </div>
-            )}{' '}
           </Badge>
         </IconButton>
+        <AnimatePresence>
+          {isDropdownOpen && (
+            <motion.div className='absolute top-10 right-20'>
+              <NotificationDropdown notifications={notification?.data || []} />
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         <UserDropdown />
       </div>

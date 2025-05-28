@@ -26,7 +26,7 @@ const DashboardAnalytics = () => {
   return typeOfLogger === 3 ? (
     <Grid container spacing={6}>
       <Grid item xs={12} md={10} lg={8} sx={{ height: '300px' }}>
-        <Transactions title='Good Morning' nom={`Laboratoire ${userData.nom}`} image='bgg' />
+        <Transactions title='Good Morning' nom={`Laboratoire ${userData.nom}`} image='bg' />
       </Grid>
       <Grid item xs={12} md={2}>
         <Award icons='ri-user-line' number='3809' title='Patients' color='#0573b8' bg='#e3eefd' />

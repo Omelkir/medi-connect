@@ -50,7 +50,7 @@ const AccountDetails = () => {
       if (userData?.role == 1) {
         url = `${window.location.origin}/api/admin/liste?id=${userData?.id}`
       } else if (userData?.role == 2) {
-        url = `${window.location.origin}/api/medecin/liste?id=${userData?.id}`
+        url = `${window.location.origin}/api/medecin/liste?m.id=${userData?.id}`
       } else if (userData?.role == 3) {
         url = `${window.location.origin}/api/laboratoire/liste?l.id=${userData?.id}`
       }
@@ -86,7 +86,7 @@ const AccountDetails = () => {
 
       setData((prev: any) => ({
         ...prev,
-        nom_ut: c.nom,
+        nom_ut: c.nom_ut,
         email: c.email,
         tarif: c.tarif,
         adresse: c.adresse,
@@ -94,7 +94,7 @@ const AccountDetails = () => {
         heurD: c.heurD,
         heurF: c.heurF,
         info: c.info,
-        spe: parseInt(c.id_spe) || 0,
+        id_spe: c.id_spe,
         imageSrc: c.image ? `${window.location.origin}/${c.image}` : '/img/placeholder-image.jpg'
       }))
     }
@@ -127,7 +127,7 @@ const AccountDetails = () => {
 
   async function getVilleList() {
     try {
-      const url = `${window.location.origin}/api/ville/liste`
+      const url = `${window.location.origin}/api/ville/liste?getall`
 
       const requestOptions = {
         method: 'GET',
@@ -159,7 +159,7 @@ const AccountDetails = () => {
 
   async function getSpeList() {
     try {
-      const url = `${window.location.origin}/api/specialite/liste`
+      const url = `${window.location.origin}/api/specialite/liste?getall`
 
       const requestOptions = {
         method: 'GET',
@@ -406,7 +406,7 @@ const AccountDetails = () => {
                 <InputLabel>Ville</InputLabel>
                 <Select
                   label='Ville'
-                  value={data?.id_ville || null}
+                  value={data?.id_ville ?? ''}
                   onChange={(e: any) => {
                     if (e === null) {
                       setData({ ...data, id_ville: e.target.value })

@@ -24,6 +24,7 @@ const Table = ({
   const [rowsData, setRowsData] = useState<any[]>([])
   const [paginatorInfo, setPaginatorInfo] = useState<any>({ total: 6 })
   const userData = getStorageData('user')
+  const [isLoading, setIsLoading] = useState(false)
 
   const onPagination = (e: any) => {
     getConsultationList(e)
@@ -31,6 +32,7 @@ const Table = ({
 
   async function getConsultationList(page = 1) {
     try {
+      setIsLoading(true)
       const url = `${window.location.origin}/api/consultation/liste?consultation.isApproved=0&consultation.id_el=${userData.id}&consultation.el=${userData.role}&page=${page}`
 
       const requestOptions = {
@@ -53,6 +55,8 @@ const Table = ({
     } catch (error) {
       console.error('Erreur:', error)
       alert('Une erreur est survenue lors de la récupération des données.')
+    } finally {
+      setIsLoading(false)
     }
   }
 

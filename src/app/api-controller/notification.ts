@@ -17,7 +17,7 @@ export const getNotification = async (req: any) => {
         }
       }
     })
-    const sql = `SELECT * FROM notification ${whereClause}`
+    const sql = `SELECT n.*,p.nom as nom,p.prenom as prenom,p.image as image FROM notification n LEFT JOIN patient p ON n.id_patient = p.id ${whereClause}`
 
     const [rows]: any = await pool.query(sql)
 

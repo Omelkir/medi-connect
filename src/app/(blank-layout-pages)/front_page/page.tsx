@@ -4,6 +4,7 @@ import Services from './Services/Services'
 import Banner from './Banner/Banner'
 import Subscribe from './Subscribe/Subscribe'
 import Banner2 from './Banner/Banner2'
+
 const FrontPage = () => {
   return (
     <div>
@@ -11,7 +12,6 @@ const FrontPage = () => {
       {/* <Services /> */}
       <Banner />
       {/* <Subscribe /> */}
-      <Banner2 />
     </div>
   )
 }

@@ -4,48 +4,41 @@ import { useEffect, useState } from 'react'
 import Typography from '@mui/material/Typography'
 import Card from '@mui/material/Card'
 
-// Components Imports
 import { Grid } from '@mui/material'
 
 import { toast } from 'react-toastify'
 
-import { FileText } from 'lucide-react'
+import { FileText, Plus } from 'lucide-react'
 
-import CustomAvatar from '@core/components/mui/Avatar'
-
-// Styles Imports
 import tableStyles from '@core/styles/table.module.css'
 import Pagination from '@/components/ui/pagination'
 import { getStorageData } from '@/utils/helpers'
 
-const Table = ({
+const TableAnalyse = ({
   onEdit,
   onDelete,
+  onAdd,
   update,
-  patient
+  selectedPatient
 }: {
   onEdit: (analyse: any) => void
   onDelete: (analyse: any) => void
+  onAdd: () => void
   update: string
-  patient: any
+  selectedPatient: any
 }) => {
   const [rowsData, setRowsData] = useState<any[]>([])
   const [paginatorInfo, setPaginatorInfo] = useState<any>({ total: 6 })
-  const [isLoading, setIsLoading] = useState(false)
-
   const userData = getStorageData('user')
 
   const onPagination = (e: any) => {
-    getAnalysesList(e)
+    getAnalyse(e)
   }
 
-  async function getAnalysesList(page = 1) {
-    if (!patient) return
-
+  async function getAnalyse(page = 1) {
     try {
-      setIsLoading(true)
-
-      const url = `${window.location.origin}/api/analyse/liste?id_patient=${patient.id}&id_el=${userData.id}&el=${userData.role}&page=${page}`
+      if (!selectedPatient) return
+      const url = `${window.location.origin}/api/analyse/liste?id_patient=${selectedPatient}&id_el=${userData.id}&el=${userData.role}&page=${page}`
 
       const requestOptions = {
         method: 'GET',
@@ -63,20 +56,18 @@ const Table = ({
       if (responseData.erreur) {
         toast.error(responseData.message)
       } else {
-        setRowsData(responseData.data)
+        setRowsData(responseData.data || [])
         setPaginatorInfo(responseData?.paginatorInfo)
       }
     } catch (error) {
       console.error('Erreur:', error)
       toast.error('Une erreur est survenue lors de la récupération des données.')
-    } finally {
-      setIsLoading(false)
     }
   }
 
   useEffect(() => {
-    getAnalysesList()
-  }, [update, patient])
+    getAnalyse()
+  }, [selectedPatient, update])
 
   return (
     <>
@@ -88,18 +79,14 @@ const Table = ({
                 <th>Titre</th>
                 <th>Détail</th>
                 <th>Analyse</th>
-
-                <th className='text-center'>Action</th>
+                <th className='text-center'>
+                  Action
+                  <Plus className='text-blue-500 float-right' onClick={() => onAdd()} />
+                </th>
               </tr>
             </thead>
             <tbody>
-              {isLoading ? (
-                <tr>
-                  <td colSpan={4}>
-                    <div className='text-center p-4'>Chargement...</div>
-                  </td>
-                </tr>
-              ) : (
+              {rowsData.length > 0 ? (
                 rowsData.map((row, index) => (
                   <tr key={index}>
                     <td className='!plb-1'>
@@ -113,6 +100,7 @@ const Table = ({
                         <FileText size={14} /> Voir le PDF
                       </a>
                     </td>
+
                     <td className='flex justify-center gap-2'>
                       <button
                         className='ri-edit-box-line text-yellow-500 text-xl hover:text-2xl'
@@ -125,6 +113,12 @@ const Table = ({
                     </td>
                   </tr>
                 ))
+              ) : (
+                <tr>
+                  <td colSpan={4} className='px-4 py-4 text-center text-gray-500'>
+                    Aucune analyse trouvée.
+                  </td>
+                </tr>
               )}
             </tbody>
           </table>
@@ -142,4 +136,4 @@ const Table = ({
   )
 }
 
-export default Table
+export default TableAnalyse
