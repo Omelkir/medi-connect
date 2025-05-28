@@ -45,8 +45,8 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 script {
-                    sh 'cp /home/.config/MediConnect/.env .'
-                    sh 'docker build -t frequencesantec/MediConnect:latest .'
+                    sh 'cp /home/.config/mediconnect/.env .'
+                    sh 'docker build -t frequencesantec/mediconnect:latest .'
                 }
             }
         }
@@ -56,7 +56,7 @@ pipeline {
                 echo '🔧 Building the Docker image...'
                 script {
                     sh 'docker login'
-                    sh 'docker push frequencesantec/MediConnect:${Version}'
+                    sh 'docker push frequencesantec/mediconnect:latest'
                 }
             }
         }
@@ -65,7 +65,7 @@ pipeline {
             steps {
                 echo '🚀 Running the Docker container...'
                 script {     
-                    sh 'docker stack deploy -c docker-compose.yml DEV-MediConnect'
+                    sh 'docker stack deploy -c docker-compose.yml DEV-mediconnect'
                 }
             }
         }
