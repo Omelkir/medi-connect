@@ -45,7 +45,7 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 script {
-                    sh 'cp /home/.config/mediconnect/.env .'
+                    sh 'cp /home/.config/MediConnect/.env .'
                     sh 'docker build -t frequencesantec/mediconnect:latest .'
                 }
             }
