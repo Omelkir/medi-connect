@@ -46,7 +46,7 @@ pipeline {
             steps {
                 script {
                     sh 'cp /home/.config/MediConnect/.env .'
-                    sh 'docker build -t frequencesantec/MediConnect:${Version} .'
+                    sh 'docker build -t frequencesantec/MediConnect:latest .'
                 }
             }
         }
