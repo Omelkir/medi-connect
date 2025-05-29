@@ -1,29 +1,30 @@
-# Use the official Node.js image as the base image
+# Utilise l'image officielle Node.js comme base
 FROM node:20.11.1-bullseye
 
-
-# Set the working directory inside the container
+# Définir le répertoire de travail dans le conteneur
 WORKDIR /app
 
-# Copy package.json and package-lock.json into the container
+# Copier package.json et package-lock.json
 COPY package*.json ./
 
-# Install dependencies
+# Installer les dépendances
 RUN npm install -g npm@10.8.1
+RUN npm install
 
-# Copy the rest of the application code into the container
+# Copier le reste de l'application
 COPY . .
 
-# Ensure old Next.js build is removed before building
+# Copier le fichier .env
+COPY .env .env
+
+# Supprimer l'ancien build
 RUN rm -rf .next
 
-# Build the Next.js application
-RUN npx prisma generate
-#RUN npx prisma db push
+# Construire l'application Next.js
 RUN npm run build
 
-# Expose the port the app runs on
+# Exposer le port utilisé par l'application
 EXPOSE 3001
 
-# Define the command to run the app
+# Lancer l'application
 CMD ["npm", "start"]
