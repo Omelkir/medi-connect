@@ -7,8 +7,11 @@ WORKDIR /app
 # Copier package.json et package-lock.json
 COPY package*.json ./
 
-# Installer les dépendances
+# Mettre à jour npm si besoin
 RUN npm install -g npm@10.8.1
+
+# ✅ Installer les dépendances du projet (manquait !)
+RUN npm install --legacy-peer-deps
 
 # Copier le reste de l'application
 COPY . .
