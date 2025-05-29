@@ -216,7 +216,6 @@ const Analysa = () => {
         ))}
       </div>
 
-      
       <div className='bg-white px-6 pb-2 rounded-4xl pt-6 shadow-md w-3/5 mx-auto'>
         <div className='max-w-4xl mx-auto flex items-center space-x-2'>
           <TextField

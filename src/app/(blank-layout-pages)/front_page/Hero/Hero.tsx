@@ -8,6 +8,8 @@ import { IoIosArrowRoundForward } from 'react-icons/io'
 import { animate, motion } from 'framer-motion'
 import { FaRobot } from 'react-icons/fa'
 
+import Chatbot from '../analyza/chatbot'
+
 export const FadeUp = (delay: any) => {
   return {
     initial: {
@@ -77,6 +79,7 @@ const Hero = () => {
             </motion.div>
           </div>
         </div>
+        <Chatbot />
       </div>
     </motion.div>
   )
