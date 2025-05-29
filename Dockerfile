@@ -9,7 +9,7 @@ COPY package*.json ./
 
 # Installer les dépendances
 RUN npm install -g npm@10.8.1
-RUN npm install
+RUN npm install --legacy-peer-deps
 
 # Copier le reste de l'application
 COPY . .
