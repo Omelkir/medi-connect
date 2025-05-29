@@ -4,17 +4,11 @@ FROM node:20.11.1-bullseye
 # Définir le répertoire de travail dans le conteneur
 WORKDIR /app
 
-# Copier les fichiers nécessaires à l'installation
-COPY package.json yarn.lock ./
-
-# Installer les dépendances avec yarn
-RUN yarn install --frozen-lockfile
-
-# Copier le reste de l'application
+# Copier tous les fichiers du projet dans l'image Docker
 COPY . .
 
-# Copier le fichier .env
-COPY .env .env
+# Installer les dépendances
+RUN yarn install --frozen-lockfile
 
 # Supprimer l'ancien build
 RUN rm -rf .next
