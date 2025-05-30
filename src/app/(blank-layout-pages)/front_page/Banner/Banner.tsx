@@ -3,7 +3,7 @@ import React from 'react'
 
 import { GrUserExpert } from 'react-icons/gr'
 import { MdOutlineAccessTime } from 'react-icons/md'
-import { FaBookReader } from 'react-icons/fa'
+import { FaBookReader, FaRobot } from 'react-icons/fa'
 
 import { motion } from 'framer-motion'
 
@@ -45,8 +45,7 @@ const Banner = () => {
                 viewport={{ once: true }}
                 className='flex md:justify-normal justify-center items-center gap-4 p-6 bg-[#f4f4f4] rounded-2xl hover:bg-white duration-300 hover:shadow-2xl'
               >
-                <FaBookReader className='text-2xl' />
-                <p className='text-lg text-center'>10,000+ Courses</p>
+                <p className='text-lg text-center'>👩‍⚕️ Avis et notations des patients réels</p>
               </motion.div>
               <motion.div
                 variants={FadeUp(0.4)}
@@ -55,8 +54,7 @@ const Banner = () => {
                 viewport={{ once: true }}
                 className='flex md:justify-normal justify-center items-center gap-4 p-6 bg-[#f4f4f4] rounded-2xl hover:bg-white duration-300 hover:shadow-2xl'
               >
-                <GrUserExpert className='text-2xl' />
-                <p className='text-lg'>Expert Instruction</p>
+                <p className='text-lg'>🧠 Analyse intelligente de vos résultats médicaux</p>
               </motion.div>
               <motion.div
                 variants={FadeUp(0.6)}
@@ -65,8 +63,7 @@ const Banner = () => {
                 viewport={{ once: true }}
                 className='flex md:justify-normal justify-center items-center gap-4 p-6 bg-[#f4f4f4] rounded-2xl hover:bg-white duration-300 hover:shadow-2xl'
               >
-                <MdOutlineAccessTime className='text-2xl' />
-                <p className='text-lg'>Lifetime Access</p>
+                <p className='text-lg'>🕐 Réservation rapide et en ligne</p>
               </motion.div>
             </div>
           </div>
