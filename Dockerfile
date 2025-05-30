@@ -5,7 +5,8 @@ WORKDIR /app
 # Copier fichiers nécessaires au yarn install
 COPY package.json yarn.lock ./
 
-RUN yarn install --frozen-lockfile
+# Étape 2 : Installer sans postinstall
+RUN yarn install --frozen-lockfile --ignore-scripts
 
 # Copier le reste (y compris le fichier manquant)
 COPY . .
