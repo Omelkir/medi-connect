@@ -10,7 +10,6 @@ import { toast } from 'react-toastify'
 
 import Arrow from '@/views/dashboard/Arrow'
 import Table from './Table'
-import PatientDelete from '@/components/modals/deleteModal/patient'
 
 import VilleModal from '@/components/modals/ville'
 import DeleteModal from '@/components/modals/deleteModal/deleteModal'

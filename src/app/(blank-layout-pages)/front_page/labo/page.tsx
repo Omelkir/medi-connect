@@ -230,7 +230,19 @@ const Laboratoire = () => {
                       <div>
                         <h2 className='text-lg font-semibold text-gray-800'>{laboratoire.nom_ut}</h2>
                         <p className='text-sm text-gray-500'>
-                          <span>{laboratoire.ser?.trim() ? laboratoire.ser : 'Service non définie'}</span>
+                          <span
+                            className={
+                              laboratoire.mode_pre === undefined || laboratoire.mode_pre === null ? 'text-red-500' : ''
+                            }
+                          >
+                            {laboratoire.mode_pre === 1
+                              ? 'Prélèvement sur place au laboratoire'
+                              : laboratoire.mode_pre === 0
+                                ? 'Prélèvement à domicile'
+                                : laboratoire.mode_pre === 2
+                                  ? 'Prélèvement sur place au laboratoire et à domicile'
+                                  : 'Prélèvement non défini'}
+                          </span>
                         </p>
                         <div className='mt-2'>
                           <StarRating size='sm' initialRating={laboratoire?.sc ?? 0} readOnly />

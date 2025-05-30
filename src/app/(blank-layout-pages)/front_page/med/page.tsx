@@ -14,7 +14,7 @@ import {
   TextField
 } from '@mui/material'
 import { Mail, MapPin } from 'lucide-react'
-import { FaMoneyBillAlt, FaRegClock } from 'react-icons/fa'
+import { FaLocationArrow, FaMap, FaMapMarkerAlt, FaMoneyBillAlt, FaRegClock } from 'react-icons/fa'
 
 import Pagination from '@/components/ui/pagination'
 import { SimpleSlideshow } from '@/components/auto-images/images'
@@ -208,7 +208,7 @@ const Medecin = () => {
         {medecins?.length > 0
           ? medecins.map((medecin, index) => (
               <Grid item xs={12} md={4} key={index}>
-                <Card className='shadow-lg rounded-2xl border border-gray-200 bg-white h-[350px]'>
+                <Card className='shadow-lg rounded-2xl border border-gray-200 bg-white h-[370px]'>
                   <div className='flex items-center justify-between p-4'>
                     <div className='flex items-center space-x-4'>
                       <img
@@ -219,7 +219,9 @@ const Medecin = () => {
                       <div>
                         <h2 className='text-lg font-semibold text-gray-800'>{medecin.nom_ut}</h2>
                         <p className='text-sm text-gray-500'>
-                          <span>{medecin.spe?.trim() ? medecin.spe : 'Spécialité non définie'}</span>
+                          <span className={medecin.spe?.trim() ? '' : 'text-red-500'}>
+                            {medecin.spe?.trim() ? medecin.spe?.trim() : 'Spécialité non définie'}
+                          </span>
                         </p>
                         <div className='mt-2'>
                           <StarRating size='sm' initialRating={medecin?.sc ?? 0} readOnly />
@@ -247,18 +249,37 @@ const Medecin = () => {
                   <CardContent>
                     <p className='mb-4'>{medecin.info}</p>
                     <div className='flex items-center text-gray-600 text-sm mt-4'>
-                      <MapPin className='w-4 h-4 mr-2 text-blue-500' />
-                      <span>{medecin.ville?.trim() ? medecin.ville : 'Ville non définie'}</span>
+                      <FaMap className='w-4 h-4 mr-2 text-blue-500' />
+
+                      <span className={medecin.ville?.trim() ? '' : 'text-red-500'}>
+                        {medecin.ville?.trim() ? medecin.ville?.trim() : 'Ville non définie'}
+                      </span>
 
                       <Mail className='w-4 h-4 mr-2 text-blue-500 ml-12' />
-                      <span>{medecin.email}</span>
+
+                      <span className={medecin.email?.trim() ? '' : 'text-red-500'}>
+                        {medecin.email?.trim() ? medecin.email?.trim() : 'Email non définie'}
+                      </span>
                     </div>
                     <div className='flex items-center text-gray-600 text-sm mt-4'>
                       <FaRegClock className='w-4 h-4 mr-2 text-blue-500' />
-                      <span>{`${medecin.heurD?.slice(0, 5)} - ${medecin.heurF?.slice(0, 5)}`}</span>
+
+                      <span className={medecin.heurD && medecin.heurF ? '' : 'text-red-500'}>
+                        {medecin.heurD && medecin.heurF
+                          ? `${medecin.heurD.slice(0, 5)} - ${medecin.heurF.slice(0, 5)}`
+                          : 'Horaires non définis'}
+                      </span>
 
                       <FaMoneyBillAlt className='w-4 h-4 mr-2 text-blue-500 ml-12' />
-                      <span>{medecin.tarif} dt</span>
+                      <span className={medecin.tarif ? '' : 'text-red-500'}>
+                        {medecin.tarif ? medecin.tarif : 'Tarif non défini'}
+                      </span>
+                    </div>
+                    <div className='flex text-gray-600 text-sm mt-4'>
+                      <MapPin className='w-5 h-5 mr-2 text-blue-500' />
+                      <span className={medecin.adresse?.trim() ? '' : 'text-red-500'}>
+                        {medecin.adresse?.trim() ? medecin.adresse?.trim() : 'Adresse non définie'}
+                      </span>
                     </div>
                     <div className='flex justify-end mt-4'>
                       <StarRating
