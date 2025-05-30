@@ -8,21 +8,6 @@ import { Avatar, Badge, TextField } from '@mui/material'
 import { getStorageData } from '@/utils/helpersFront'
 import Logo from '@/components/layout/shared/Logo'
 
-export const FadeUp = (delay: any) => ({
-  initial: { opacity: 0, y: 50 },
-  animate: {
-    opacity: 1,
-    y: 0,
-    transition: {
-      type: 'spring',
-      stiffness: 100,
-      duration: 0.5,
-      delay,
-      ease: 'easeInOut'
-    }
-  }
-})
-
 const Analysa = () => {
   const [data, setData] = useState<any>({
     analyse: '',
@@ -173,12 +158,7 @@ const Analysa = () => {
   }
 
   return (
-    <motion.div
-      variants={FadeUp(0.8)}
-      initial='initial'
-      animate='animate'
-      className='h-screen flex flex-col bg-gray-100'
-    >
+    <motion.div initial='initial' animate='animate' className='h-screen flex flex-col bg-gray-100'>
       <span className='absolute block-start-5 sm:block-start-[33px] inline-start-6 sm:inline-start-[38px] mt-8'>
         <img src='/Chatbot.svg' width={64} height={64} alt='Logo' />
         <h2 className='text-2xl font-bold text-gray-800'>Analysa</h2>
