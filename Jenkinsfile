@@ -1,7 +1,5 @@
 pipeline {
     agent { label 'agentjenkins' }
-    
-    // Ajout d'un paramètre pour contrôler l'exécution de l'analyse SonarQube +
     parameters {
         booleanParam(
             name: 'RUN_SONAR_SCAN', 
@@ -13,21 +11,21 @@ pipeline {
     environment {
         SONAR_SCANNER_HOME = tool 'SonarQubeScanner' // Outil défini dans Jenkins
         SONAR_HOST_URL = 'http://jenkins.frequencem.com:9000/' // URL du serveur SonarQube
-        //SONAR_TOKEN = credentials('sonar-token') // Jeton stocké dans Jenkins
         SONAR_TOKEN = 'sqa_3810b08a587e0497010293bbafa7729395aa7f3a'
     }
-    
     options {
         skipDefaultCheckout(true)
     }
-    
+
     stages {
         stage('Checkout SCM') {
             steps {
                 checkout scm
+                sh 'git branch' // Debug: Check the current branch
+                sh 'git log -1' // Debug: Check the latest commit
             }
         }
-        
+
         // Le stage SonarQube Analysis s'exécute uniquement si le paramètre RUN_SONAR_SCAN est à true.
         stage('SonarQube Analysis') {
             when {
@@ -41,42 +39,27 @@ pipeline {
                 }
             }
         }
-        
-        stage('Build Docker Image') {
+
+        stage('Build Docker Images') {
             steps {
                 script {
+                    echo '🔨 Copying environment files...'
                     sh 'cp /home/.config/MediConnect/.env .'
-                    sh 'docker build -t frequencesantec/mediconnect:latest .'
+                    echo '🐳 Building image...'
+                    sh 'docker compose down'
+                    sh 'docker compose build --no-cache' // Force a fresh build
+                    sh 'docker compose up -d'
                 }
             }
         }
-        
-        stage('PUSH DOCKER IMAGE') {
-            steps {
-                echo '🔧 Building the Docker image...'
-                script {
-                    sh 'docker login'
-                    sh 'docker push frequencesantec/mediconnect:latest'
-                }
-            }
-        }
-        
-        stage('Run Docker Container') {
-            steps {
-                echo '🚀 Running the Docker container...'
-                script {     
-                    sh 'docker stack deploy -c docker-compose.yml DEV-mediconnect'
-                }
-            }
-        }
-    }
-    
+    } // Closing brace for the `stages` block
+
     post {
         success {
-            echo '✅ Pipeline succeeded!'
+            echo '✅ Pipeline succeeded! Backend and frontend are running.'
         }
         failure {
-            echo '❌ Pipeline failed.'
+            echo '❌ Pipeline failed. Check the logs for errors.'
         }
     }
 }
