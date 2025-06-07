@@ -14,7 +14,7 @@ import {
   TextField
 } from '@mui/material'
 import { Mail, MapPin } from 'lucide-react'
-import { FaLocationArrow, FaMap, FaMapMarkerAlt, FaMoneyBillAlt, FaRegClock } from 'react-icons/fa'
+import { FaCheckCircle, FaLocationArrow, FaMap, FaMapMarkerAlt, FaMoneyBillAlt, FaRegClock } from 'react-icons/fa'
 
 import Pagination from '@/components/ui/pagination'
 import { SimpleSlideshow } from '@/components/auto-images/images'
@@ -129,6 +129,18 @@ const Medecin = () => {
   useEffect(() => {
     getMedecinList()
   }, [update])
+
+  const [isRatingModalOpen, setIsRatingModalOpen] = useState(false)
+
+  const handleRating = () => {
+    setIsRatingModalOpen(true)
+
+    const timer = setTimeout(() => {
+      setIsRatingModalOpen(false)
+    }, 4000)
+
+    return () => clearTimeout(timer)
+  }
 
   async function upValue(e: any, id: any, user: any) {
     try {
@@ -284,11 +296,23 @@ const Medecin = () => {
                     <div className='flex justify-end mt-4'>
                       <StarRating
                         size='sm'
+                        readOnly={!userData?.id}
                         onChange={async (e: any) => {
                           await upValue(e, medecin.id, userData.id)
+                          handleRating()
                         }}
                       />
                     </div>
+                    {isRatingModalOpen && (
+                      <div className='fixed inset-0 z-50 flex items-center justify-center'>
+                        <div className='absolute inset-0 bg-black/10 backdrop-blur-sm' />
+                        <div className='relative bg-white rounded-lg shadow-lg p-6 w-[90%] max-w-md z-10 text-center'>
+                          <FaCheckCircle className='text-green-500 text-6xl mb-4 mx-auto' />
+                          <h3 className='text-xl font-semibold text-green-700 mb-2'>Merci pour votre avis !</h3>
+                          <p className='text-gray-600'>Votre évaluation a été prise en compte avec succès.</p>
+                        </div>
+                      </div>
+                    )}
                   </CardContent>
                 </Card>
               </Grid>

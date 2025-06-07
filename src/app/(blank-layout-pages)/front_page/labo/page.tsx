@@ -14,7 +14,7 @@ import {
   TextField
 } from '@mui/material'
 import { Mail, MapPin } from 'lucide-react'
-import { FaMoneyBillAlt, FaRegClock } from 'react-icons/fa'
+import { FaMap, FaMoneyBillAlt, FaRegClock } from 'react-icons/fa'
 
 import Pagination from '@/components/ui/pagination'
 import { SimpleSlideshow } from '@/components/auto-images/images'
@@ -32,7 +32,6 @@ const Laboratoire = () => {
   }
 
   const [villeListe, setVilleListe] = useState<any[]>([])
-  const [serListe, setSerListe] = useState<any[]>([])
 
   async function getVilleList() {
     try {
@@ -66,38 +65,6 @@ const Laboratoire = () => {
     getVilleList()
   }, [])
 
-  async function getSerList() {
-    try {
-      const url = `${window.location.origin}/api/service/liste?getall`
-
-      const requestOptions = {
-        method: 'GET',
-        headers: { 'Content-Type': 'application/json' }
-      }
-
-      const response = await fetch(url, requestOptions)
-
-      if (!response.ok) throw new Error('Erreur lors de la requête')
-
-      const responseData = await response.json()
-
-      console.log('API Response:', responseData)
-
-      if (responseData.erreur) {
-        console.log(responseData.message)
-      } else {
-        setSerListe(responseData.data)
-      }
-    } catch (error) {
-      console.error('Erreur:', error)
-      console.log('Une erreur est survenue lors de la récupération des données.')
-    }
-  }
-
-  useEffect(() => {
-    getSerList()
-  }, [])
-
   const images = [
     {
       src: 'https://img.freepik.com/premium-photo/low-angle-view-cross-against-clear-blue-sky_1048944-10728740.jpg?w=1380',
@@ -107,12 +74,12 @@ const Laboratoire = () => {
 
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [selectedLaboId, setSelectedLaboId] = useState<any>(null)
-  const [data, setData] = useState<any>({ nom_ut: '', id_ser: '', id_ville: '' })
+  const [data, setData] = useState<any>({ nom_ut: '', mode_pre: '', id_ville: '' })
   const [laboratoires, setLaboratoires] = useState<any[]>([])
 
   async function getLaboratoireList(page = 1) {
     try {
-      const url = `${window.location.origin}/api/liste-labo-ser/liste?nom_ut=${data.nom_ut}&id_ser=${data.id_ser}&id_ville=${data.id_ville}&page=${page}`
+      const url = `${window.location.origin}/api/liste-labo-ser/liste?nom_ut=${data.nom_ut}&mode_pre=${data.mode_pre}&id_ville=${data.id_ville}&page=${page}`
 
       const requestOptions = { method: 'GET' }
 
@@ -152,6 +119,12 @@ const Laboratoire = () => {
 
   console.log(laboratoires)
 
+  const options = [
+    { label: 'Prélèvement à domicile', value: 0 },
+    { label: 'Prélèvement sur place au laboratoire', value: 1 },
+    { label: 'Prélèvement sur place au laboratoire et à domicile', value: 2 }
+  ]
+
   return (
     <div className='bg-white pl-3 pr-3'>
       <SimpleSlideshow interval={5000} images={images} />
@@ -176,15 +149,15 @@ const Laboratoire = () => {
         />
 
         <FormControl className='w-1/5'>
-          <InputLabel>Service</InputLabel>
+          <InputLabel>Mode de prélèvement</InputLabel>
           <Select
-            label='Service'
-            value={data?.id_ser || ''}
-            onChange={e => setData((prev: any) => ({ ...prev, id_ser: Number(e.target.value) }))}
+            label='Mode de prélèvement'
+            value={data?.mode_pre ?? ''}
+            onChange={e => setData((prev: any) => ({ ...prev, mode_pre: Number(e.target.value) }))}
           >
-            {serListe.map((item: any) => (
-              <MenuItem value={item.id} key={item.id}>
-                {item.ser}
+            {options.map((item: any) => (
+              <MenuItem value={item.value} key={item.value}>
+                {item.label}
               </MenuItem>
             ))}
           </Select>
@@ -194,7 +167,7 @@ const Laboratoire = () => {
           <InputLabel>Ville</InputLabel>
           <Select
             label='Ville'
-            value={data?.id_ville || ''}
+            value={data?.id_ville ?? ''}
             onChange={e => setData((prev: any) => ({ ...prev, id_ville: Number(e.target.value) }))}
           >
             {villeListe.map((item: any) => (
@@ -219,7 +192,7 @@ const Laboratoire = () => {
         {laboratoires?.length > 0
           ? laboratoires.map((laboratoire, index) => (
               <Grid item xs={12} md={4} key={index}>
-                <Card className='shadow-lg rounded-2xl border border-gray-200 bg-white h-[350px]'>
+                <Card className='shadow-lg rounded-2xl border border-gray-200 bg-white h-[330px]'>
                   <div className='flex items-center justify-between p-4'>
                     <div className='flex items-center space-x-4'>
                       <img
@@ -265,23 +238,35 @@ const Laboratoire = () => {
                       </Button>
                     </div>
                   </div>
-                  <hr className='my-4 border-t border-gray-300' />
+                  <hr className='border-t border-gray-300' />
                   <CardContent>
                     <p className='mb-4'>{laboratoire.info}</p>
                     <div className='flex items-center text-gray-600 text-sm mt-4'>
-                      <MapPin className='w-4 h-4 mr-2 text-blue-500' />
-                      <span>{laboratoire.ville?.trim() ? laboratoire.ville : 'Ville non définie'}</span>
+                      <FaMap className='w-4 h-4 mr-2 text-blue-500' />
+
+                      <span className={laboratoire.ville?.trim() ? '' : 'text-red-500'}>
+                        {laboratoire.ville?.trim() ? laboratoire.ville?.trim() : 'Ville non définie'}
+                      </span>
 
                       <Mail className='w-4 h-4 mr-2 text-blue-500 ml-12' />
+
                       <span>{laboratoire.email}</span>
                     </div>
                     <div className='flex items-center text-gray-600 text-sm mt-4'>
                       <FaRegClock className='w-4 h-4 mr-2 text-blue-500' />
-                      <span>{`${laboratoire.heurD?.slice(0, 5)} - ${laboratoire.heurF?.slice(0, 5)}`}</span>
 
-                      <FaMoneyBillAlt className='w-4 h-4 mr-2 text-blue-500 ml-12' />
-                      <span>{laboratoire.tarif} dt</span>
+                      <span className={laboratoire.heurD && laboratoire.heurF ? '' : 'text-red-500'}>
+                        {laboratoire.heurD && laboratoire.heurF
+                          ? `${laboratoire.heurD.slice(0, 5)} - ${laboratoire.heurF.slice(0, 5)}`
+                          : 'Horaires non définis'}
+                      </span>
+
+                      <MapPin className='w-5 h-5 mr-2 text-blue-500' />
+                      <span className={laboratoire.adresse?.trim() ? '' : 'text-red-500'}>
+                        {laboratoire.adresse?.trim() ? laboratoire.adresse?.trim() : 'Adresse non définie'}
+                      </span>
                     </div>
+
                     <div className='flex justify-end mt-4'>
                       <StarRating
                         size='sm'
@@ -304,7 +289,7 @@ const Laboratoire = () => {
           medecinId={null}
         />
       </Grid>
-      <Grid item xs={12} className='mt-6 justify-items-end'>
+      <Grid item xs={12} className='mt-6 pb-6 justify-items-end'>
         <Pagination
           total={paginatorInfo.total}
           current={paginatorInfo.currentPage}
