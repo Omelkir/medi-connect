@@ -20,6 +20,6 @@ RUN rm -rf .next
 # Compiler le projet Next.js
 RUN yarn build || true
 
-EXPOSE 3100
+EXPOSE 3001
 
 CMD ["yarn", "start"]
