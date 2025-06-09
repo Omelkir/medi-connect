@@ -205,7 +205,7 @@ const CalendrierRendezvous = () => {
                   </td>
                   <td className='!plb-1'>
                     <Typography color='text.primary' className='font-medium'>
-                      {row.duree + ' (s)'}
+                      {row.duree + ' (m)'}
                     </Typography>
                   </td>
                   <td className='px-4 py-2 text-sm text-gray-700  gap-2'>
@@ -264,7 +264,7 @@ const CalendrierRendezvous = () => {
                 right: 'dayGridMonth,timeGridWeek,timeGridDay,listWeek'
               }}
               validRange={{
-                start: now.toISOString() // ne permet pas de sélectionner après maintenant
+                start: now.toISOString()
               }}
               locale={frLocale}
               eventClick={info => {

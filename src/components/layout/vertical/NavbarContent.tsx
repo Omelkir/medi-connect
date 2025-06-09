@@ -42,9 +42,11 @@ const NotificationDropdown = ({ notifications = [] }: { notifications: any[] }) 
                       <Typography variant='subtitle2' color='text.primary' className='font-bold'>
                         {notification.prenom} {notification.nom}
                       </Typography>
-                      <Typography variant='body2' color='text.secondary'>
-                        {notification.message}
-                      </Typography>
+                      <Typography
+                        variant='body2'
+                        color='text.secondary'
+                        dangerouslySetInnerHTML={{ __html: notification.message }}
+                      />
                     </div>
                   </div>
                 </TableCell>
@@ -114,13 +116,13 @@ const NavbarContent = () => {
     }
   }
 
-  // useEffect(() => {
-  //   const interval = setInterval(async () => {
-  //     await getNotification(userData?.id)
-  //   }, 1000)
+  useEffect(() => {
+    const interval = setInterval(async () => {
+      await getNotification(userData?.id)
+    }, 1000)
 
-  //   return () => clearInterval(interval)
-  // }, [])
+    return () => clearInterval(interval)
+  }, [])
 
   return (
     <div

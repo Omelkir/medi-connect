@@ -55,7 +55,7 @@ const DemandeRendezVous = () => {
 
   return (
     <div>
-      <Card>
+      <Card className='h-screen'>
         <CardContent>
           <Arrow title='Dashboard' subTitle='Demandes de rendez-vous' />
 

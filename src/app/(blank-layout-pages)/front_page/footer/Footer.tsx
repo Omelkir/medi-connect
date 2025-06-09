@@ -86,16 +86,16 @@ const Footer = ({ color }: { color?: CSSProperties['color'] }) => {
             </p>
           </div>
           <div className='flex justify-center md:justify-start space-x-6 py-3'>
-            <a href='https://chat.whatsapp.com/FQSKgJ5f1eIAhlyF5sVym0'>
+            <a href=''>
               <FaWhatsapp className='text-white cursor-pointer hover:text-primary hover:scale-105 duration-200 text-xl' />
             </a>
-            <a href='https://www.instagram.com/the.coding.journey/'>
+            <a href=''>
               <FaInstagram className='text-white cursor-pointer hover:text-primary hover:scale-105 duration-200 text-xl' />
             </a>
-            <a href='https://thecodingjourney.com/'>
+            <a href=''>
               <TbWorldWww className='text-white cursor-pointer hover:text-primary hover:scale-105 duration-200 text-xl' />
             </a>
-            <a href='https://www.youtube.com/@TheCodingJourney'>
+            <a href=''>
               <FaYoutube className='text-white cursor-pointer hover:text-primary hover:scale-105 duration-200 text-xl' />
             </a>
           </div>
