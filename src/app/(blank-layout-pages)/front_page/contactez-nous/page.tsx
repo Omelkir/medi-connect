@@ -1,8 +1,6 @@
 'use client'
 import React, { useState } from 'react'
 
-import { useRouter } from 'next/navigation'
-
 import { motion } from 'framer-motion'
 import {
   Button,
@@ -21,7 +19,7 @@ import { getStorageData } from '@/utils/helpersFront'
 import ConnModal from '@/components/modals/conOblig'
 
 const ConnectezNous = () => {
-  const [authError, setAuthError] = useState(false)
+  const [authError] = useState(false)
 
   const userDataFront = getStorageData('user')
   const [isModalOpen, setIsModalOpen] = useState(false)
@@ -102,8 +100,6 @@ const ConnectezNous = () => {
       console.log('Erreur:', error)
     }
   }
-
-  const router = useRouter()
 
   return (
     <motion.div

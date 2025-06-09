@@ -1,10 +1,6 @@
 'use client'
 import React from 'react'
 
-import { GrUserExpert } from 'react-icons/gr'
-import { MdOutlineAccessTime } from 'react-icons/md'
-import { FaBookReader, FaRobot } from 'react-icons/fa'
-
 import { motion } from 'framer-motion'
 
 import { FadeUp } from '../Hero/Hero'

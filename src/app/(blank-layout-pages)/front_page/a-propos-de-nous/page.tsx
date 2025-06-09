@@ -1,27 +1,13 @@
 'use client'
 import React from 'react'
 
-import { useRouter } from 'next/navigation'
-
-import { GrUserExpert } from 'react-icons/gr'
-import { MdOutlineAccessTime } from 'react-icons/md'
-import {
-  FaBookReader,
-  FaCalendarCheck,
-  FaHeartbeat,
-  FaMapMarkerAlt,
-  FaMicroscope,
-  FaRobot,
-  FaUserMd
-} from 'react-icons/fa'
+import { FaCalendarCheck, FaHeartbeat, FaMapMarkerAlt, FaMicroscope, FaRobot, FaUserMd } from 'react-icons/fa'
 
 import { motion } from 'framer-motion'
 
 import { FadeUp } from '../Hero/Hero'
 
 const AproposDeNous = () => {
-  const router = useRouter()
-
   return (
     <motion.div
       initial={{ opacity: 0, y: -50 }}

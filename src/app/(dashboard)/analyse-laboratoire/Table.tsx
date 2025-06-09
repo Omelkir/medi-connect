@@ -11,9 +11,6 @@ import { toast } from 'react-toastify'
 
 import { FileText } from 'lucide-react'
 
-import CustomAvatar from '@core/components/mui/Avatar'
-
-// Styles Imports
 import tableStyles from '@core/styles/table.module.css'
 import Pagination from '@/components/ui/pagination'
 import { getStorageData } from '@/utils/helpers'

@@ -17,24 +17,20 @@ import Select from '@mui/material/Select'
 import MenuItem from '@mui/material/MenuItem'
 import { Input } from '@mui/material'
 
-import { toast } from 'react-toastify'
-
-import { identity } from '@fullcalendar/core/internal'
-
 import { getStorageData } from '@/utils/helpersFront'
 
 const PatientProfil = () => {
   const router = useRouter()
   const mailCheck = (email: any) => !/^[^\s@]+@[^\s@]+\.[a-zA-Z]{2,}$/.test(email)
 
-  const passwordCheck = (password: any) =>
-    !/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&._\-])[A-Za-z\d@$!%*?&._\-]{8,}$/.test(password)
+  // const passwordCheck = (password: any) =>
+  //   !/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&._\-])[A-Za-z\d@$!%*?&._\-]{8,}$/.test(password)
 
-  const [isPasswordShown, setIsPasswordShown] = useState(false)
-  const [isPasswordShown2, setIsPasswordShown2] = useState(false)
-  const handleClickShowPassword = () => setIsPasswordShown(show => !show)
+  // const [isPasswordShown, setIsPasswordShown] = useState(false)
+  // const [isPasswordShown2, setIsPasswordShown2] = useState(false)
+  // const handleClickShowPassword = () => setIsPasswordShown(show => !show)
 
-  const handleClickShowPassword2 = () => setIsPasswordShown2(show => !show)
+  // const handleClickShowPassword2 = () => setIsPasswordShown2(show => !show)
   const userData = getStorageData('user')
 
   console.log('userData?:', userData)
@@ -358,10 +354,10 @@ const PatientProfil = () => {
                 }}
               />
               {controls?.email === true ? (
-                <span className='errmsg'>Veuillez saisir l'email !</span>
+                <span className='errmsg'>Veuillez saisir l’email !</span>
               ) : controls.emailValid === true ? (
                 <span className='errmsg'>
-                  Email invalide : il doit contenir "@" et se terminer par un domaine valide (ex: .com, .net)
+                  Email invalide : il doit contenir @ et se terminer par un domaine valide (ex: .com, .net)
                 </span>
               ) : null}
             </Grid>
@@ -608,7 +604,7 @@ const PatientProfil = () => {
                   }
                 }}
               />
-              {controls?.age === true ? <span className='errmsg'>Veuillez saisir l'age !</span> : null}
+              {controls?.age === true ? <span className='errmsg'>Veuillez saisir l’age !</span> : null}
             </Grid>
           </Grid>
         </form>

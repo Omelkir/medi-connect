@@ -155,7 +155,7 @@ const ForgotPassword = () => {
               }
             }}
           />
-          {controls?.email === true ? <span className='errmsg'>Veuillez saisir l'adresse e-mail !</span> : null}
+          {controls?.email === true ? <span className='errmsg'>Veuillez saisir l’adresse e-mail !</span> : null}
           <Button
             fullWidth
             variant='contained'

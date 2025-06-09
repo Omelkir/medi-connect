@@ -5,8 +5,6 @@ import { motion } from 'framer-motion'
 import { FaEnvelope } from 'react-icons/fa'
 import { IoIosArrowRoundForward } from 'react-icons/io'
 
-import BannerPng from '../../assets/banner.png'
-
 export const FadeUp = (delay: any) => {
   return {
     initial: {

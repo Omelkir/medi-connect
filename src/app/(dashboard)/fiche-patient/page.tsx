@@ -4,11 +4,9 @@ import React, { useEffect, useState } from 'react'
 
 import { useSearchParams } from 'next/navigation'
 
-import { Card, CardContent, FormControl, Grid, InputLabel, MenuItem, Select, Typography } from '@mui/material'
+import { Card, CardContent, FormControl, Grid, InputLabel, MenuItem, Select } from '@mui/material'
 
 import * as Tabs from '@radix-ui/react-tabs'
-
-import { ChevronDown, FileText, Plus } from 'lucide-react'
 
 import { toast } from 'react-toastify'
 
@@ -19,7 +17,7 @@ import { getStorageData } from '@/utils/helpers'
 import AnalyseModal from '@/components/modals/analyse'
 import DeleteModal from '@/components/modals/deleteModal/deleteModal'
 import Pagination from '@/components/ui/pagination'
-import OrdonnancesModal from '@/components/modals/ordonnance'
+
 import TableAnalyse from './TableAnalyse'
 import TableOrdonnance from './TableOrdonnance'
 
@@ -361,7 +359,6 @@ const Patient = () => {
           onClose={() => setIsAnalyseModalOpen(false)}
           setUpdate={setUpdate}
         />
-
         <DeleteModal
           isOpen={isDeleteModalOpenAnalyse}
           onClose={() => setIsDeleteModalOpenAnalyse(false)}

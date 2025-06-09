@@ -437,7 +437,7 @@ export default function PatientModal({
                 }
               }}
             />
-            {controls?.age === true ? <span className='errmsg'>Veuillez saisir l'age !</span> : null}
+            {controls?.age === true ? <span className='errmsg'>Veuillez saisir l’age !</span> : null}
           </Grid>
           <Grid item xs={12} md={12}>
             <TextField
@@ -476,10 +476,10 @@ export default function PatientModal({
               }}
             />
             {controls?.email === true ? (
-              <span className='errmsg'>Veuillez saisir l'email !</span>
+              <span className='errmsg'>Veuillez saisir l’email !</span>
             ) : controls.emailValid === true ? (
               <span className='errmsg'>
-                Email invalide : il doit contenir "@" et se terminer par un domaine valide (ex: .com, .net)
+                Email invalide : il doit contenir @ et se terminer par un domaine valide (ex: .com, .net)
               </span>
             ) : null}
           </Grid>

@@ -1,4 +1,5 @@
 import React, { useState } from 'react'
+
 import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight } from 'lucide-react'
 
 interface TableColumn<T> {
@@ -30,7 +31,9 @@ function Table<T extends Record<string, any>>({ data, columns, pageSize = 5, cla
     if (typeof column.accessor === 'function') {
       return column.accessor(item)
     }
-    return item[column.accessor]
+
+    
+return item[column.accessor]
   }
 
   return (
@@ -123,6 +126,7 @@ function Table<T extends Record<string, any>>({ data, columns, pageSize = 5, cla
                 {/* Page numbers */}
                 {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
                   let pageNum
+
                   if (totalPages <= 5) {
                     pageNum = i + 1
                   } else if (currentPage <= 3) {

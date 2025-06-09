@@ -1,7 +1,8 @@
 'use client'
 
-import { cn } from '@/libs/utl'
 import { useState, useEffect } from 'react'
+
+import { cn } from '@/libs/utl'
 
 interface AnimatedImageProps {
   src: string

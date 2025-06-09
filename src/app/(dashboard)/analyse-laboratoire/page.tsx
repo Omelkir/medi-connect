@@ -6,7 +6,7 @@ import { useSearchParams } from 'next/navigation'
 
 import { Autocomplete, Button, Card, CardContent, Grid, TextField } from '@mui/material'
 
-import { Dna, FileText, Stethoscope, TestTube } from 'lucide-react'
+import { FileText } from 'lucide-react'
 
 import { toast } from 'react-toastify'
 

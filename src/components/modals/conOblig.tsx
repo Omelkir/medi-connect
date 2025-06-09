@@ -23,7 +23,7 @@ export default function ConnModal({ isOpen, onClose }: { isOpen: boolean; onClos
     >
       <Box position='relative' textAlign='center' paddingY={4}>
         <Typography variant='h6' fontWeight={500} marginTop={10}>
-           Pour effectuer cette action, vous devez vous connecter à un compte existant ou en créer un nouveau.
+          Pour effectuer cette action, vous devez vous connecter à un compte existant ou en créer un nouveau.
         </Typography>
         <Grid container spacing={3} className='mt-8'>
           <Grid item xs={12} md={12}>
@@ -47,7 +47,7 @@ export default function ConnModal({ isOpen, onClose }: { isOpen: boolean; onClos
                 router.push('/register')
               }}
             >
-              S'inscrire
+              S’inscrire
             </Button>
           </Grid>
         </Grid>

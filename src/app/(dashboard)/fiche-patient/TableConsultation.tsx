@@ -1,14 +1,11 @@
 // MUI Imports
 import { useEffect, useState } from 'react'
 
-import Typography from '@mui/material/Typography'
 import Card from '@mui/material/Card'
 
 import { Grid } from '@mui/material'
 
 import { toast } from 'react-toastify'
-
-import { FileText, Plus } from 'lucide-react'
 
 import tableStyles from '@core/styles/table.module.css'
 import Pagination from '@/components/ui/pagination'
@@ -62,7 +59,6 @@ const TableConsultation = ({ update, selectedPatient }: { update: string; select
       <Card>
         <div className='overflow-x-auto'>
           <table className={tableStyles.table}>
-          
             <thead>
               <tr>
                 <th>Date</th>

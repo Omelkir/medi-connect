@@ -1,5 +1,7 @@
+import type { NextRequest} from 'next/server';
+import { NextResponse } from 'next/server'
+
 import { modifier } from '@/app/api-controller/specialite'
-import { NextRequest, NextResponse } from 'next/server'
 
 export async function POST(req: NextRequest) {
   try {
@@ -9,6 +11,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json(data)
   } catch (error) {
     console.error('Erreur lors du traitement de la requête', error)
-    return NextResponse.json({ erreur: true, message: 'Erreur lors du traitement de la requête' }, { status: 500 })
+    
+return NextResponse.json({ erreur: true, message: 'Erreur lors du traitement de la requête' }, { status: 500 })
   }
 }

@@ -195,7 +195,7 @@ export default function LaboratoireModal({
       }
 
       if (!data.image || !(data.image instanceof File)) {
-        formData.append('currentImage', medecinData?.image || '')
+        formData.append('currentImage', laboratoireData?.image || '')
       }
 
       const requestOptions = {
@@ -318,7 +318,7 @@ export default function LaboratoireModal({
                 }
               }}
             />
-            {controls?.nom_ut === true ? <span className='errmsg'>Veuillez saisir le nom d'utilisateur !</span> : null}
+            {controls?.nom_ut === true ? <span className='errmsg'>Veuillez saisir le nom d’utilisateur !</span> : null}
           </Grid>
           <Grid item xs={6} md={6}>
             <TextField
@@ -357,10 +357,10 @@ export default function LaboratoireModal({
               }}
             />
             {controls?.email === true ? (
-              <span className='errmsg'>Veuillez saisir l'email !</span>
+              <span className='errmsg'>Veuillez saisir l’email !</span>
             ) : controls.emailValid === true ? (
               <span className='errmsg'>
-                Email invalide : il doit contenir "@" et se terminer par un domaine valide (ex: .com, .net)
+                Email invalide : il doit contenir @ et se terminer par un domaine valide (ex: .com, .net)
               </span>
             ) : null}
           </Grid>

@@ -1,7 +1,6 @@
 'use client'
 
-// React Imports
-import { log } from 'console'
+
 
 import { useState } from 'react'
 import type { FormEvent } from 'react'
@@ -14,9 +13,9 @@ import Typography from '@mui/material/Typography'
 import TextField from '@mui/material/TextField'
 import IconButton from '@mui/material/IconButton'
 import InputAdornment from '@mui/material/InputAdornment'
-import Checkbox from '@mui/material/Checkbox'
+
 import Button from '@mui/material/Button'
-import FormControlLabel from '@mui/material/FormControlLabel'
+
 
 // Type Imports
 import { Box } from '@mui/material'

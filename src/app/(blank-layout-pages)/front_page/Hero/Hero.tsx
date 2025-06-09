@@ -1,12 +1,7 @@
 'use client'
 import React from 'react'
 
-import { useRouter } from 'next/navigation'
-
-import { IoIosArrowRoundForward } from 'react-icons/io'
-
-import { animate, motion } from 'framer-motion'
-import { FaRobot } from 'react-icons/fa'
+import { motion } from 'framer-motion'
 
 import Chatbot from '../analyza/chatbot'
 
@@ -31,8 +26,6 @@ export const FadeUp = (delay: any) => {
 }
 
 const Hero = () => {
-  const router = useRouter()
-
   return (
     <motion.div
       variants={FadeUp(0.8)}
@@ -57,7 +50,7 @@ const Hero = () => {
               animate='animate'
               className='text-sm md:text-xl lg:text-xl !leading-snug'
             >
-              Analyse intelligente des bilans médicaux - Laissez l'IA vous aider !
+              Analyse intelligente des bilans médicaux - Laissez l’IA vous aider !
             </motion.h1>
 
             <motion.div
@@ -66,7 +59,7 @@ const Hero = () => {
               animate='animate'
               className='flex justify-center md:justify-start pb-12'
             >
-              <button
+              {/* <button
                 className='primary-btn flex items-center gap-2 group mt-6 text-sm md:text-xl'
                 onClick={() => {
                   router.push('/front_page/analyza')
@@ -75,7 +68,7 @@ const Hero = () => {
                 <FaRobot className='mr-2 text-xl md:text-2xl' />
                 Commencer
                 <IoIosArrowRoundForward className='text-3xl group-hover:translate-x-3 group-hover:-rotate-45 duration-300' />
-              </button>
+              </button> */}
             </motion.div>
           </div>
         </div>

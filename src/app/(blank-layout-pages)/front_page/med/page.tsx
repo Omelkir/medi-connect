@@ -14,7 +14,7 @@ import {
   TextField
 } from '@mui/material'
 import { Mail, MapPin } from 'lucide-react'
-import { FaCheckCircle, FaLocationArrow, FaMap, FaMapMarkerAlt, FaMoneyBillAlt, FaRegClock } from 'react-icons/fa'
+import { FaCheckCircle, FaMap, FaMoneyBillAlt, FaRegClock } from 'react-icons/fa'
 
 import Pagination from '@/components/ui/pagination'
 import { SimpleSlideshow } from '@/components/auto-images/images'
@@ -25,7 +25,7 @@ import RendezVousModal from '@/components/modals/rendezVousFormModal'
 const Medecin = () => {
   const userData = getStorageData('user')
   const [paginatorInfo, setPaginatorInfo] = useState<any>({ total: 6 })
-  const [update, setUpdate] = useState<string>(new Date().toDateString())
+  const [update] = useState<string>(new Date().toDateString())
 
   const onPagination = (e: any) => {
     getMedecinList(e)

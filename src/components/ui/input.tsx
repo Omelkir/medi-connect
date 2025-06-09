@@ -1,5 +1,6 @@
-import { cn } from '@/libs/utl'
 import * as React from 'react'
+
+import { cn } from '@/libs/utl'
 
 export interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {}
 
@@ -16,6 +17,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(({ className, type,
     />
   )
 })
+
 Input.displayName = 'Input'
 
 export { Input }

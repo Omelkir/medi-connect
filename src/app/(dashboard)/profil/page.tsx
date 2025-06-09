@@ -2,7 +2,6 @@
 
 // React Imports
 import { useEffect, useState } from 'react'
-import type { ChangeEvent } from 'react'
 
 // MUI Imports
 import Grid from '@mui/material/Grid'
@@ -330,7 +329,7 @@ const AccountDetails = () => {
                 }}
               />
               {controls?.nom_ut === true ? (
-                <span className='errmsg'>Veuillez saisir le nom d'utilisateur !</span>
+                <span className='errmsg'>Veuillez saisir le nom d’utilisateur !</span>
               ) : null}
             </Grid>
             <Grid item xs={6} md={6}>
@@ -370,10 +369,10 @@ const AccountDetails = () => {
                 }}
               />
               {controls?.email === true ? (
-                <span className='errmsg'>Veuillez saisir l'email !</span>
+                <span className='errmsg'>Veuillez saisir l’email !</span>
               ) : controls.emailValid === true ? (
                 <span className='errmsg'>
-                  Email invalide : il doit contenir "@" et se terminer par un domaine valide (ex: .com, .net)
+                  Email invalide : il doit contenir @ et se terminer par un domaine valide (ex: .com, .net)
                 </span>
               ) : null}
             </Grid>

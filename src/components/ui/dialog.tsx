@@ -1,8 +1,10 @@
 'use client'
 
 import * as React from 'react'
+
 import * as DialogPrimitive from '@radix-ui/react-dialog'
 import { X } from 'lucide-react'
+
 import { cn } from '@/libs/utl'
 
 const Dialog = DialogPrimitive.Root
@@ -26,6 +28,7 @@ const DialogOverlay = React.forwardRef<
     {...props}
   />
 ))
+
 DialogOverlay.displayName = DialogPrimitive.Overlay.displayName
 
 const DialogContent = React.forwardRef<
@@ -50,16 +53,19 @@ const DialogContent = React.forwardRef<
     </DialogPrimitive.Content>
   </DialogPortal>
 ))
+
 DialogContent.displayName = DialogPrimitive.Content.displayName
 
 const DialogHeader = ({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) => (
   <div className={cn('flex flex-col space-y-1.5 text-center sm:text-left', className)} {...props} />
 )
+
 DialogHeader.displayName = 'DialogHeader'
 
 const DialogFooter = ({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) => (
   <div className={cn('flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2', className)} {...props} />
 )
+
 DialogFooter.displayName = 'DialogFooter'
 
 const DialogTitle = React.forwardRef<
@@ -72,6 +78,7 @@ const DialogTitle = React.forwardRef<
     {...props}
   />
 ))
+
 DialogTitle.displayName = DialogPrimitive.Title.displayName
 
 const DialogDescription = React.forwardRef<
@@ -80,6 +87,7 @@ const DialogDescription = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <DialogPrimitive.Description ref={ref} className={cn('text-sm text-muted-foreground', className)} {...props} />
 ))
+
 DialogDescription.displayName = DialogPrimitive.Description.displayName
 
 export {

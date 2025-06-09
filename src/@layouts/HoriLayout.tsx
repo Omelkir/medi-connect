@@ -9,7 +9,7 @@ import type { ChildrenType } from '@core/types'
 
 // Util Imports
 import { horizontalLayoutClasses } from './utils/layoutClasses'
-import LayoutContent from './components/vertical/LayoutContent'
+
 import LayCont from './components/layCont'
 
 type HorizontalLayoutProps = ChildrenType & {

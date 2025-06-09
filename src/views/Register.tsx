@@ -14,10 +14,7 @@ import InputAdornment from '@mui/material/InputAdornment'
 import Button from '@mui/material/Button'
 import { FormControl, Input, InputLabel, MenuItem, Select, Grid } from '@mui/material'
 
-import { ArrowLeft } from 'lucide-react'
-
 import Logo from '@components/layout/shared/Logo'
-import { useNotification } from '@/context/NotificationContext'
 
 const Register = () => {
   // States
@@ -296,7 +293,7 @@ const Register = () => {
       {/* Formulaire */}
       <div className='flex flex-col justify-center items-center w-full max-w-xl p-12 min-h-screen space-y-6'>
         <div className='mb-3'>
-          <h3 className='text-2xl font-bold md:text-3xl'>S'inscrire </h3>
+          <h3 className='text-2xl font-bold md:text-3xl'>S’inscrire </h3>
         </div>
         <form noValidate autoComplete='off' className='w-full space-y-6 mt-8'>
           <Grid container spacing={3}>
@@ -410,7 +407,7 @@ const Register = () => {
                   }}
                 />
                 {controls?.nom_ut === true ? (
-                  <span className='errmsg'>Veuillez saisir le nom d'utilisateur !</span>
+                  <span className='errmsg'>Veuillez saisir le nom d’utilisateur !</span>
                 ) : null}
               </Grid>
             ) : null}
@@ -561,7 +558,7 @@ const Register = () => {
                     }
                   }}
                 />
-                {controls?.age === true ? <span className='errmsg'>Veuillez saisir l'age !</span> : null}
+                {controls?.age === true ? <span className='errmsg'>Veuillez saisir l’age !</span> : null}
               </Grid>
             ) : null}
             {data?.role === 4 ? (
@@ -667,10 +664,10 @@ const Register = () => {
                 }}
               />
               {controls?.email === true ? (
-                <span className='errmsg'>Veuillez saisir l'email !</span>
+                <span className='errmsg'>Veuillez saisir l’email !</span>
               ) : controls.emailValid === true ? (
                 <span className='errmsg'>
-                  Email invalide : il doit contenir "@" et se terminer par un domaine valide (ex: .com, .net)
+                  Email invalide : il doit contenir @ et se terminer par un domaine valide (ex: .com, .net)
                 </span>
               ) : null}
             </Grid>
@@ -1056,7 +1053,7 @@ const Register = () => {
               handleSave()
             }}
           >
-            S'inscrire
+            S’inscrire
           </Button>
           <div className='flex justify-center items-center flex-wrap gap-2'>
             <Typography>Vous avez déjà un compte ?</Typography>
