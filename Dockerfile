@@ -18,8 +18,8 @@ RUN yarn build:icons
 RUN rm -rf .next
 
 # Compiler le projet Next.js
-RUN yarn build || true
+RUN yarn build 
 
-EXPOSE 3001
+EXPOSE 3100
 
 CMD ["yarn", "start"]
