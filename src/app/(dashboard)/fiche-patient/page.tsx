@@ -355,6 +355,7 @@ const Patient = () => {
         </CardContent>
         <AnalyseModal
           isOpen={isAnalyseModalOpen}
+          id_el={''}
           analyseData={selected}
           patient={selectedPatient?.id}
           onClose={() => setIsAnalyseModalOpen(false)}
