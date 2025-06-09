@@ -15,13 +15,15 @@ export default function AnalyseModal({
   onClose,
   analyseData,
   setUpdate,
-  patient
+  patient,
+  id_el
 }: {
   isOpen: boolean
   onClose: () => void
   analyseData?: any
   setUpdate: any
   patient: any
+  id_el: any
 }) {
   const userData = getStorageData('user')
   const [fileName, setFileName] = useState('Choisir un fichier PDF')

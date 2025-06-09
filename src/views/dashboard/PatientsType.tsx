@@ -2,6 +2,7 @@
 
 // React Imports
 import React from 'react'
+
 import dynamic from 'next/dynamic'
 
 // Import dynamique pour éviter les erreurs SSR
